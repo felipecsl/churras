@@ -1,6 +1,7 @@
 import React from "react";
 import Web3 from "web3";
 import humanStandardTokenABI from "./humanStandardTokenABI";
+import { format } from "d3-format";
 import "./App.css";
 
 interface Token {
@@ -12,11 +13,14 @@ interface Token {
 }
 
 interface AppState {
-  web3: Web3;
+  web3?: Web3;
+  accountAddress?: string;
   isLoaded: boolean;
-  ethBalance: string;
-  tokenBalances: Record<string, string>;
+  ethBalance?: string;
+  // keys are the token names
   allTokens: Record<string, Token>;
+  tokenBalances: Record<string, string>;
+  tokenPrices: Record<string, string>;
 }
 
 declare global {
@@ -40,29 +44,51 @@ class App extends React.Component<any, AppState> {
     "1INCH",
   ] as Array<string>;
 
+  constructor(props: any) {
+    super(props);
+
+    this.state = {
+      web3: undefined,
+      accountAddress: undefined,
+      isLoaded: false,
+      ethBalance: undefined,
+      allTokens: {},
+      tokenBalances: {},
+      tokenPrices: {},
+    };
+  }
+
   isMetamaskInstalled() {
     return typeof window.ethereum !== "undefined";
   }
 
   updateEthBalance(balance: any) {
-    this.setState({ ethBalance: this.state.web3.utils.fromWei(balance) });
+    if (this.state.web3) {
+      const ethBalance = this.state.web3.utils.fromWei(balance);
+      this.setState({ ethBalance });
+    } else {
+      console.error("web3 is not yet initialized");
+    }
   }
 
   updateTokenBalance(token: string, balance: any) {
-    const tokenBalances = this.state.tokenBalances || {};
-    tokenBalances[token] = this.state.web3.utils.fromWei(balance);
-    this.setState({ tokenBalances });
+    if (this.state.web3) {
+      const { tokenBalances, web3 } = this.state;
+      tokenBalances[token] = web3.utils.fromWei(balance);
+      this.setState({ tokenBalances });
+    } else {
+      console.error("web3 is not yet initialized");
+    }
   }
 
   async connectToMetaMask() {
     const accounts = await window.ethereum.request({
       method: "eth_requestAccounts",
     });
-    const account = accounts[0];
-    console.log(`ETH account address: ${account}`);
+    const accountAddress = accounts[0];
     const web3 = new Web3(window.ethereum);
-    this.setState({ web3 });
-    web3.eth.getBalance(account).then(this.updateEthBalance.bind(this));
+    this.setState({ web3, accountAddress });
+    web3.eth.getBalance(accountAddress).then(this.updateEthBalance.bind(this));
     this.relevantTokens.forEach((token: string) => {
       const tokenContractAddress = this.state.allTokens[token].address;
       const tokenPromise = new web3.eth.Contract(
@@ -70,12 +96,28 @@ class App extends React.Component<any, AppState> {
         tokenContractAddress
       );
       tokenPromise.methods
-        .balanceOf(account)
+        .balanceOf(accountAddress)
         .call()
         .then((balance: any) => {
           this.updateTokenBalance(token, balance);
         });
+      this.fetchTokenPrice(tokenContractAddress).then((price) => {
+        const { tokenPrices } = this.state;
+        tokenPrices[token] = price;
+        this.setState({ tokenPrices });
+      });
     });
+  }
+
+  async fetchTokenPrice(tokenAddress: string): Promise<string> {
+    return fetch(
+      `https://api.coingecko.com/api/v3/simple/token_price/ethereum?contract_addresses=${tokenAddress}&vs_currencies=usd`
+    )
+      .then((res) => res.json())
+      .then((results) => {
+        const price = Object.values(results)[0] as any;
+        return price["usd"];
+      });
   }
 
   componentDidMount() {
@@ -96,12 +138,17 @@ class App extends React.Component<any, AppState> {
   }
 
   renderTokenBalance(token: Token) {
-    const tokenBalances = this.state.tokenBalances || {};
-    const balance = tokenBalances[token.symbol];
+    const { tokenBalances, tokenPrices } = this.state;
+    const symbol = token.symbol;
+    const balance = +tokenBalances[symbol];
+    const positionSizeUSD = +tokenPrices[symbol] * balance;
+    const currencyFormat = format("$,.2f");
+    const amountFormat = format(".2f");
     if (balance) {
       return (
-        <li key={token.symbol}>
-          {token.symbol}: {tokenBalances[token.symbol]}
+        <li key={symbol}>
+          <strong>{symbol}</strong>: {amountFormat(balance)} (
+          {currencyFormat(positionSizeUSD)})
         </li>
       );
     }
@@ -111,17 +158,24 @@ class App extends React.Component<any, AppState> {
     if (!this.state) {
       return <div>Loading...</div>;
     }
-    const { allTokens } = this.state;
+    const { allTokens, ethBalance, accountAddress } = this.state;
+    const amountFormat = format(".2f");
     return (
       <div className="App">
         <h1>DeFi account summary</h1>
-        <p>ETH balance: {this.state.ethBalance}</p>
-        {this.isMetamaskInstalled() && (
+        <h2>Account token balances</h2>
+        {this.isMetamaskInstalled() && !this.state.web3 && (
           <button onClick={this.connectToMetaMask.bind(this)}>
             Connect to MetaMask
           </button>
         )}
+        {accountAddress && <p>Address: {accountAddress}</p>}
         <ul>
+          {ethBalance && (
+            <li>
+              <strong>ETH</strong>: {amountFormat(+ethBalance)}
+            </li>
+          )}
           {Object.values(allTokens).map(this.renderTokenBalance.bind(this))}
         </ul>
       </div>
