@@ -1,0 +1,22 @@
+{
+  "files": {
+    "main.css": "/deephy/static/css/main.8c8b27cf.chunk.css",
+    "main.js": "/deephy/static/js/main.0fe10230.chunk.js",
+    "main.js.map": "/deephy/static/js/main.0fe10230.chunk.js.map",
+    "runtime-main.js": "/deephy/static/js/runtime-main.a95e4cb6.js",
+    "runtime-main.js.map": "/deephy/static/js/runtime-main.a95e4cb6.js.map",
+    "static/js/2.ec934afa.chunk.js": "/deephy/static/js/2.ec934afa.chunk.js",
+    "static/js/2.ec934afa.chunk.js.map": "/deephy/static/js/2.ec934afa.chunk.js.map",
+    "static/js/3.9c65901d.chunk.js": "/deephy/static/js/3.9c65901d.chunk.js",
+    "static/js/3.9c65901d.chunk.js.map": "/deephy/static/js/3.9c65901d.chunk.js.map",
+    "index.html": "/deephy/index.html",
+    "static/css/main.8c8b27cf.chunk.css.map": "/deephy/static/css/main.8c8b27cf.chunk.css.map",
+    "static/js/2.ec934afa.chunk.js.LICENSE.txt": "/deephy/static/js/2.ec934afa.chunk.js.LICENSE.txt"
+  },
+  "entrypoints": [
+    "static/js/runtime-main.a95e4cb6.js",
+    "static/js/2.ec934afa.chunk.js",
+    "static/css/main.8c8b27cf.chunk.css",
+    "static/js/main.0fe10230.chunk.js"
+  ]
+}
