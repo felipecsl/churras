@@ -141,15 +141,26 @@ class App extends React.Component<any, AppState> {
     const { tokenBalances, tokenPrices } = this.state;
     const symbol = token.symbol;
     const balance = +tokenBalances[symbol];
-    const positionSizeUSD = +tokenPrices[symbol] * balance;
+    const price = +tokenPrices[symbol];
+    const positionSizeUSD = price * balance;
     const currencyFormat = format("$,.2f");
     const amountFormat = format(".2f");
     if (balance) {
       return (
-        <li key={symbol}>
-          <strong>{symbol}</strong>: {amountFormat(balance)} (
-          {currencyFormat(positionSizeUSD)})
-        </li>
+        <tr key={symbol}>
+          <td className="border border-light-blue-500 px-4 py-2 text-light-blue-600 font-medium">
+            {symbol}
+          </td>
+          <td className="border border-light-blue-500 px-4 py-2 text-light-blue-600 font-medium">
+            {amountFormat(balance)}
+          </td>
+          <td className="border border-light-blue-500 px-4 py-2 text-light-blue-600 font-medium">
+            {currencyFormat(price)}
+          </td>
+          <td className="border border-light-blue-500 px-4 py-2 text-light-blue-600 font-medium">
+            {currencyFormat(positionSizeUSD)}
+          </td>
+        </tr>
       );
     }
   }
@@ -158,26 +169,87 @@ class App extends React.Component<any, AppState> {
     if (!this.state) {
       return <div>Loading...</div>;
     }
-    const { allTokens, ethBalance, accountAddress } = this.state;
+    const { allTokens, ethBalance, accountAddress, tokenBalances } = this.state;
     const amountFormat = format(".2f");
     return (
-      <div className="App">
-        <h1>DeFi account summary</h1>
-        <h2>Account token balances</h2>
-        {this.isMetamaskInstalled() && !this.state.web3 && (
-          <button onClick={this.connectToMetaMask.bind(this)}>
-            Connect to MetaMask
-          </button>
-        )}
-        {accountAddress && <p>Address: {accountAddress}</p>}
-        <ul>
-          {ethBalance && (
-            <li>
-              <strong>ETH</strong>: {amountFormat(+ethBalance)}
-            </li>
-          )}
-          {Object.values(allTokens).map(this.renderTokenBalance.bind(this))}
-        </ul>
+      <div className="min-h-screen bg-gray-100 py-6 flex flex-col justify-center sm:py-12">
+        <div className="relative py-3 sm:max-w-xl sm:mx-auto">
+          <div className="absolute inset-0 bg-gradient-to-r from-cyan-400 to-light-blue-500 shadow-lg transform -skew-y-6 sm:skew-y-0 sm:-rotate-6 sm:rounded-3xl"></div>
+          <div className="relative px-4 py-10 bg-white shadow-lg sm:rounded-3xl sm:p-20">
+            <div className="max-w-md mx-auto">
+              <div className="divide-y divide-gray-200">
+                <div className="py-8 text-base leading-6 space-y-4 text-gray-700 sm:text-lg sm:leading-7">
+                  <h1 className="text-3xl font-extrabold text-gray-900 tracking-tight">
+                    Deephy
+                  </h1>
+                  <p>
+                    Get a detailed balance of your DeFi tokens and get an
+                    account overview. Click the button below to get started.
+                  </p>
+                  {this.isMetamaskInstalled() && !this.state.web3 && (
+                    <button
+                      onClick={this.connectToMetaMask.bind(this)}
+                      className="text-white mt-auto bg-emerald-800 bg-opacity-50 hover:bg-opacity-75 transition-colors duration-200 rounded-xl font-semibold py-2 px-4 inline-flex"
+                    >
+                      Connect to MetaMask
+                    </button>
+                  )}
+                  {accountAddress && (
+                    <p>
+                      Address:{" "}
+                      <code>
+                        <small>{accountAddress}</small>
+                      </code>
+                    </p>
+                  )}
+                  {Object.values(tokenBalances).length > 0 && (
+                    <div>
+                      <table className="table-auto">
+                        <thead className="bg-indigo-200">
+                          <tr>
+                            <th className="border border-light-blue-500 px-4 py-2 text-light-blue-600 font-medium">
+                              Token
+                            </th>
+                            <th className="border border-light-blue-500 px-4 py-2 text-light-blue-600 font-medium">
+                              Amount
+                            </th>
+                            <th className="border border-light-blue-500 px-4 py-2 text-light-blue-600 font-medium">
+                              Current price
+                            </th>
+                            <th className="border border-light-blue-500 px-4 py-2 text-light-blue-600 font-medium">
+                              Equity
+                            </th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {ethBalance && (
+                            <tr>
+                              <td className="border border-light-blue-500 px-4 py-2 text-light-blue-600 font-medium">
+                                ETH
+                              </td>
+                              <td className="border border-light-blue-500 px-4 py-2 text-light-blue-600 font-medium">
+                                {amountFormat(+ethBalance)}
+                              </td>
+                              <td className="border border-light-blue-500 px-4 py-2 text-light-blue-600 font-medium">
+                                $0.00
+                              </td>
+                              <td className="border border-light-blue-500 px-4 py-2 text-light-blue-600 font-medium">
+                                $0.00
+                              </td>
+                            </tr>
+                          )}
+                          {Object.values(allTokens).map(
+                            this.renderTokenBalance.bind(this)
+                          )}
+                        </tbody>
+                      </table>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     );
   }
