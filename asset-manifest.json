@@ -1,22 +1,22 @@
 {
   "files": {
     "main.css": "/deephy/static/css/main.e676452c.chunk.css",
-    "main.js": "/deephy/static/js/main.5df3476c.chunk.js",
-    "main.js.map": "/deephy/static/js/main.5df3476c.chunk.js.map",
+    "main.js": "/deephy/static/js/main.8b7d8f0a.chunk.js",
+    "main.js.map": "/deephy/static/js/main.8b7d8f0a.chunk.js.map",
     "runtime-main.js": "/deephy/static/js/runtime-main.d21ee8ff.js",
     "runtime-main.js.map": "/deephy/static/js/runtime-main.d21ee8ff.js.map",
-    "static/js/2.24c19949.chunk.js": "/deephy/static/js/2.24c19949.chunk.js",
-    "static/js/2.24c19949.chunk.js.map": "/deephy/static/js/2.24c19949.chunk.js.map",
+    "static/js/2.01dac8de.chunk.js": "/deephy/static/js/2.01dac8de.chunk.js",
+    "static/js/2.01dac8de.chunk.js.map": "/deephy/static/js/2.01dac8de.chunk.js.map",
     "static/js/3.b3544b19.chunk.js": "/deephy/static/js/3.b3544b19.chunk.js",
     "static/js/3.b3544b19.chunk.js.map": "/deephy/static/js/3.b3544b19.chunk.js.map",
     "index.html": "/deephy/index.html",
     "static/css/main.e676452c.chunk.css.map": "/deephy/static/css/main.e676452c.chunk.css.map",
-    "static/js/2.24c19949.chunk.js.LICENSE.txt": "/deephy/static/js/2.24c19949.chunk.js.LICENSE.txt"
+    "static/js/2.01dac8de.chunk.js.LICENSE.txt": "/deephy/static/js/2.01dac8de.chunk.js.LICENSE.txt"
   },
   "entrypoints": [
     "static/js/runtime-main.d21ee8ff.js",
-    "static/js/2.24c19949.chunk.js",
+    "static/js/2.01dac8de.chunk.js",
     "static/css/main.e676452c.chunk.css",
-    "static/js/main.5df3476c.chunk.js"
+    "static/js/main.8b7d8f0a.chunk.js"
   ]
 }
