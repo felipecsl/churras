@@ -106,42 +106,36 @@ class App extends React.Component<any, AppState> {
   async fetchTokenPrices(tokenAddresses: Array<string>) {
     const addressList = tokenAddresses.join(",");
     const apiUrl = `https://api.coingecko.com/api/v3/simple/token_price/ethereum?contract_addresses=${addressList}&vs_currencies=usd`;
-    fetch(apiUrl)
-      .then((res) => res.json())
-      .then((results) => {
-        Object.entries(results).forEach(
-          ([tokenAddress, priceObj]: [string, any]) => {
-            const token = this.findTokenByAddress(tokenAddress);
-            if (token) {
-              const price = priceObj["usd"];
-              const { tokenPrices } = this.state;
-              tokenPrices[token.symbol] = price;
-              this.setState({ tokenPrices });
-            } else {
-              console.error(
-                `Unable to find token with address ${tokenAddress}`
-              );
-            }
-          }
-        );
-      });
+    const res = await fetch(apiUrl);
+    const results = await res.json();
+    Object.entries(results).forEach(
+      ([tokenAddress, priceObj]: [string, any]) => {
+        const token = this.findTokenByAddress(tokenAddress);
+        if (token) {
+          const price = priceObj["usd"];
+          const { tokenPrices } = this.state;
+          tokenPrices[token.symbol] = price;
+          this.setState({ tokenPrices });
+        } else {
+          console.error(`Unable to find token with address ${tokenAddress}`);
+        }
+      }
+    );
   }
 
-  componentDidMount() {
-    fetch("https://api.1inch.exchange/v2.0/tokens")
-      .then((res) => res.json())
-      .then((results) => {
-        const allTokens = {} as Record<string, Token>;
-        Object.values(results.tokens).forEach(
-          (token: any, i: number, array: any) => {
-            allTokens[token.symbol] = token as Token;
-          }
-        );
-        this.setState({
-          isLoaded: true,
-          allTokens: allTokens,
-        });
-      });
+  async componentDidMount() {
+    const res = await fetch("https://api.1inch.exchange/v2.0/tokens");
+    const results = (await res.json()) as any;
+    const allTokens = {} as Record<string, Token>;
+    Object.values(results.tokens).forEach(
+      (token: any, i: number, array: any) => {
+        allTokens[token.symbol] = token as Token;
+      }
+    );
+    this.setState({
+      isLoaded: true,
+      allTokens: allTokens,
+    });
   }
 
   renderTokenBalance(token: Token) {
