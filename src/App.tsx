@@ -48,10 +48,15 @@ class App extends React.Component<any, AppState> {
     return typeof window.ethereum !== "undefined";
   }
 
-  updateEthBalance(balance: any) {
+  async updateEthBalance(balance: any) {
     if (this.state.web3) {
       const ethBalance = this.state.web3.utils.fromWei(balance);
       this.setState({ ethBalance });
+      // update ETH price
+      const ethPrice = await this.fetchEthPrice();
+      const { tokenPrices } = this.state;
+      tokenPrices["ETH"] = ethPrice;
+      this.setState({ tokenPrices });
     } else {
       console.error("web3 is not yet initialized");
     }
@@ -62,8 +67,8 @@ class App extends React.Component<any, AppState> {
       const tokenBalance = this.state.web3.utils.fromWei(balance);
       if (+tokenBalance > 0) {
         const { tokenBalances, allTokens } = this.state;
-        // TODO: Batch these one-off calls into a single API call with all tokens with balance > 0
         tokenBalances[token] = tokenBalance;
+        // TODO: Batch these one-off calls into a single API call with all tokens with balance > 0
         this.fetchTokenPrices([allTokens[token].address]);
         this.setState({ tokenBalances });
       }
@@ -101,6 +106,14 @@ class App extends React.Component<any, AppState> {
     return Object.values(allTokens).find(
       (t: Token) => t.address === tokenAddress
     );
+  }
+
+  async fetchEthPrice(): Promise<string> {
+    const res = await fetch(
+      `https://api.coingecko.com/api/v3/simple/price?ids=ethereum&vs_currencies=usd`
+    );
+    const results = await res.json();
+    return results["ethereum"]["usd"];
   }
 
   async fetchTokenPrices(tokenAddresses: Array<string>) {
@@ -172,6 +185,8 @@ class App extends React.Component<any, AppState> {
     }
     const { allTokens, ethBalance, accountAddress, tokenBalances } = this.state;
     const amountFormat = format(".2f");
+    const currencyFormat = format("$,.2f");
+    const ethPrice = +this.state.tokenPrices["ETH"];
     return (
       <div className="min-h-screen bg-gray-100 py-6 flex flex-col justify-center sm:py-12">
         <div className="relative py-3 sm:max-w-xl sm:mx-auto">
@@ -232,10 +247,10 @@ class App extends React.Component<any, AppState> {
                                 {amountFormat(+ethBalance)}
                               </td>
                               <td className="border border-light-blue-500 px-4 py-2 text-light-blue-600 font-medium">
-                                $0.00
+                                {currencyFormat(ethPrice)}
                               </td>
                               <td className="border border-light-blue-500 px-4 py-2 text-light-blue-600 font-medium">
-                                $0.00
+                                {currencyFormat(+ethBalance * ethPrice)}
                               </td>
                             </tr>
                           )}
