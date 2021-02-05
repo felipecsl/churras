@@ -29,6 +29,10 @@ declare global {
   }
 }
 
+const TOKEN_LIST_API_ENDPOINT = "https://api.1inch.exchange/v2.0/tokens";
+const ETH_PRICE_API_ENDPOINT =
+  "https://api.coingecko.com/api/v3/simple/price?ids=ethereum&vs_currencies=usd";
+
 class App extends React.Component<any, AppState> {
   constructor(props: any) {
     super(props);
@@ -109,9 +113,7 @@ class App extends React.Component<any, AppState> {
   }
 
   async fetchEthPrice(): Promise<string> {
-    const res = await fetch(
-      `https://api.coingecko.com/api/v3/simple/price?ids=ethereum&vs_currencies=usd`
-    );
+    const res = await fetch(ETH_PRICE_API_ENDPOINT);
     const results = await res.json();
     return results["ethereum"]["usd"];
   }
@@ -137,7 +139,7 @@ class App extends React.Component<any, AppState> {
   }
 
   async componentDidMount() {
-    const res = await fetch("https://api.1inch.exchange/v2.0/tokens");
+    const res = await fetch(TOKEN_LIST_API_ENDPOINT);
     const results = (await res.json()) as any;
     const allTokens = {} as Record<string, Token>;
     Object.values(results.tokens).forEach(
