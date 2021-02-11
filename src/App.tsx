@@ -16,7 +16,6 @@ interface AppState {
   web3?: Web3;
   accountAddress?: string;
   isLoaded: boolean;
-  ethBalance?: string;
   // keys are the token names
   allTokens: Record<string, Token>;
   tokenBalances: Record<string, string>;
@@ -41,7 +40,6 @@ class App extends React.Component<any, AppState> {
       web3: undefined,
       accountAddress: undefined,
       isLoaded: false,
-      ethBalance: undefined,
       allTokens: {},
       tokenBalances: {},
       tokenPrices: {},
@@ -54,13 +52,17 @@ class App extends React.Component<any, AppState> {
 
   async updateEthBalance(balance: any) {
     if (this.state.web3) {
-      const ethBalance = this.state.web3.utils.fromWei(balance);
-      this.setState({ ethBalance });
-      // update ETH price
-      const ethPrice = await this.fetchEthPrice();
-      const { tokenPrices } = this.state;
-      tokenPrices["ETH"] = ethPrice;
-      this.setState({ tokenPrices });
+      const { tokenPrices, tokenBalances, allTokens } = this.state;
+      tokenBalances["ETH"] = this.state.web3.utils.fromWei(balance);
+      tokenPrices["ETH"] = await this.fetchEthPrice();
+      allTokens["ETH"] = {
+        symbol: "ETH",
+        name: "Ehereum",
+        address: "",
+        decimals: 18,
+        logoURI: "",
+      };
+      this.setState({ tokenPrices, tokenBalances, allTokens });
     } else {
       console.error("web3 is not yet initialized");
     }
@@ -153,11 +155,33 @@ class App extends React.Component<any, AppState> {
     });
   }
 
-  renderTokenBalance(token: Token) {
+  /** Returns the amount of tokens held for the provided `symbol` */
+  tokenBalance(symbol: string): number {
+    const { tokenBalances } = this.state;
+    return +tokenBalances[symbol];
+  }
+
+  /** Returns the current USD price for the provided `symbol` */
+  tokenPrice(symbol: string): number {
+    const { tokenPrices } = this.state;
+    return +tokenPrices[symbol];
+  }
+
+  /* Returns the total account size in USD */
+  determineUSDAccountSize(): number {
     const { tokenBalances, tokenPrices } = this.state;
+    return Object.entries(tokenBalances).reduce(
+      (acc: number, [symbol, balance]: [string, string]) => {
+        return acc + +tokenPrices[symbol] * +balance;
+      },
+      0
+    );
+  }
+
+  renderTokenBalance(token: Token) {
     const symbol = token.symbol;
-    const balance = +tokenBalances[symbol];
-    const price = +tokenPrices[symbol];
+    const price = this.tokenPrice(symbol);
+    const balance = this.tokenBalance(symbol);
     const positionSizeUSD = price * balance;
     const currencyFormat = format("$,.2f");
     const amountFormat = format(".2f");
@@ -185,10 +209,21 @@ class App extends React.Component<any, AppState> {
     if (!this.state) {
       return <div>Loading...</div>;
     }
-    const { allTokens, ethBalance, accountAddress, tokenBalances } = this.state;
-    const amountFormat = format(".2f");
+    const { allTokens, accountAddress, tokenBalances } = this.state;
     const currencyFormat = format("$,.2f");
-    const ethPrice = +this.state.tokenPrices["ETH"];
+    const accountSize = this.determineUSDAccountSize();
+    const sortedTokens = Object.values(allTokens);
+    sortedTokens.sort((a, b) => {
+      var nameA = a.symbol;
+      var nameB = b.symbol;
+      if (nameA < nameB) {
+        return -1;
+      } else if (nameA > nameB) {
+        return 1;
+      } else {
+        return 0;
+      }
+    });
     return (
       <div className="min-h-screen bg-gray-100 py-6 flex flex-col justify-center sm:py-12">
         <div className="relative py-3 sm:max-w-xl sm:mx-auto">
@@ -214,10 +249,16 @@ class App extends React.Component<any, AppState> {
                   )}
                   {accountAddress && (
                     <p>
-                      Address:{" "}
+                      Address:
+                      <br />
                       <code>
                         <small>{accountAddress}</small>
                       </code>
+                    </p>
+                  )}
+                  {accountSize > 0 && (
+                    <p className="font-semibold text-2xl pb-3">
+                      {currencyFormat(accountSize)}
                     </p>
                   )}
                   {Object.values(tokenBalances).length > 0 && (
@@ -240,25 +281,7 @@ class App extends React.Component<any, AppState> {
                           </tr>
                         </thead>
                         <tbody>
-                          {ethBalance && (
-                            <tr>
-                              <td className="border border-light-blue-500 px-4 py-2 text-light-blue-600 font-medium">
-                                ETH
-                              </td>
-                              <td className="border border-light-blue-500 px-4 py-2 text-light-blue-600 font-medium">
-                                {amountFormat(+ethBalance)}
-                              </td>
-                              <td className="border border-light-blue-500 px-4 py-2 text-light-blue-600 font-medium">
-                                {currencyFormat(ethPrice)}
-                              </td>
-                              <td className="border border-light-blue-500 px-4 py-2 text-light-blue-600 font-medium">
-                                {currencyFormat(+ethBalance * ethPrice)}
-                              </td>
-                            </tr>
-                          )}
-                          {Object.values(allTokens).map(
-                            this.renderTokenBalance.bind(this)
-                          )}
+                          {sortedTokens.map(this.renderTokenBalance.bind(this))}
                         </tbody>
                       </table>
                     </div>
