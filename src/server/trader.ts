@@ -1,8 +1,4 @@
-import {
-  BaseProvider,
-  JsonRpcSigner,
-  Web3Provider,
-} from "@ethersproject/providers";
+import { BaseProvider } from "@ethersproject/providers";
 import {
   ChainId,
   Fetcher,
@@ -12,8 +8,10 @@ import {
   TradeType,
   Token,
   Percent,
+  Router,
+  JSBI,
 } from "@uniswap/sdk";
-import { Contract, ethers, utils, Wallet } from "ethers";
+import { BigNumber, Contract, ethers, utils, Wallet } from "ethers";
 import fetch from "node-fetch";
 import { abi as IUniswapV2Router02ABI } from "@uniswap/v2-periphery/build/IUniswapV2Router02.json";
 
@@ -67,6 +65,14 @@ class DeFiTrader {
     return [token0Data, token1Data];
   }
 
+  /**
+   * Returns true if the string value is zero in hex
+   * @param hexNumberString
+   */
+  isZero(hexNumberString: string) {
+    return /^0x0*$/.test(hexNumberString);
+  }
+
   async getTrade(
     symbol0: string,
     symbol1: string,
@@ -79,28 +85,30 @@ class DeFiTrader {
     return new Trade(route, tradeAmount, TradeType.EXACT_INPUT);
   }
 
-  async sendTrade(trade: Trade, recipientAddress: string) {
-    const pair = trade.route.pairs[0];
-    const [token0, token1] = [pair.token0, pair.token1];
-    const amountOutMin = trade.minimumAmountOut(DEFAULT_SLIPPAGE_TOLERANCE).raw;
-    const path = [token1.address, token0.address];
-    const value = trade.inputAmount.raw;
+  async sendTrade(trade: Trade, recipient: string) {
+    const allowedSlippage = DEFAULT_SLIPPAGE_TOLERANCE;
     const signer = Wallet.createRandom(); //new Wallet(WALLET_PRIVATE_KEY, this.provider);
     const account = signer.connect(this.provider);
     const deadline = DEFAULT_DEADLINE(Date.now());
     // https://uniswap.org/docs/v2/smart-contracts/router02/
-    const uniswapRouter02 = new Contract(
+    const contract = new Contract(
       "0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D",
       IUniswapV2Router02ABI,
       account
     );
-    const transaction = await uniswapRouter02.swapExactETHForTokens(
-      amountOutMin,
-      path,
-      recipientAddress,
+    const call = Router.swapCallParameters(trade, {
+      feeOnTransfer: false,
+      allowedSlippage,
+      recipient,
       deadline,
-      { value }
-    );
+    });
+    const { methodName, args, value } = call;
+    const transaction = await contract[methodName](...args, {
+      gasLimit: BigNumber.from(10000),
+      ...(value && !this.isZero(value)
+        ? { value, from: account }
+        : { from: account }),
+    });
     const hash = transaction.hash;
     console.log(`Transaction hash=${hash}`);
     const receipt = await transaction.wait();
