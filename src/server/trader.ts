@@ -9,7 +9,6 @@ import {
   Token,
   Percent,
   Router,
-  JSBI,
 } from "@uniswap/sdk";
 import { BigNumber, Contract, ethers, utils, Wallet } from "ethers";
 import fetch from "node-fetch";
@@ -19,7 +18,7 @@ import { abi as IUniswapV2Router02ABI } from "@uniswap/v2-periphery/build/IUnisw
 const DEFAULT_SLIPPAGE_TOLERANCE = new Percent("50", "10000");
 // 20 minutes from the current Unix time
 const DEFAULT_DEADLINE = (now: number) => Math.floor(now / 1000) + 60 * 20;
-const WALLET_PRIVATE_KEY = "TBD";
+const UNISWAP_ROUTER_ADDRESS = "0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D";
 
 function throwError(errorMessage: string): never {
   throw new Error(errorMessage);
@@ -87,12 +86,14 @@ class DeFiTrader {
 
   async sendTrade(trade: Trade, recipient: string) {
     const allowedSlippage = DEFAULT_SLIPPAGE_TOLERANCE;
-    const signer = Wallet.createRandom(); //new Wallet(WALLET_PRIVATE_KEY, this.provider);
-    const account = signer.connect(this.provider);
+    const mnemonic =
+      "announce room limb pattern dry unit scale effort smooth jazz weasel alcohol";
+    const wallet = new Wallet(Wallet.fromMnemonic(mnemonic).privateKey);
+    const account = wallet.connect(this.provider);
     const deadline = DEFAULT_DEADLINE(Date.now());
     // https://uniswap.org/docs/v2/smart-contracts/router02/
     const contract = new Contract(
-      "0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D",
+      UNISWAP_ROUTER_ADDRESS,
       IUniswapV2Router02ABI,
       account
     );
@@ -106,8 +107,8 @@ class DeFiTrader {
     const transaction = await contract[methodName](...args, {
       gasLimit: BigNumber.from(10000),
       ...(value && !this.isZero(value)
-        ? { value, from: account }
-        : { from: account }),
+        ? { value, from: account.address }
+        : { from: account.address }),
     });
     const hash = transaction.hash;
     console.log(`Transaction hash=${hash}`);
