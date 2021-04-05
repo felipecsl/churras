@@ -3,8 +3,6 @@ import Web3 from "web3";
 import humanStandardTokenABI from "./humanStandardTokenABI";
 import { format } from "d3-format";
 import "./App.css";
-import _ from "lodash";
-import { throwError } from "./server/util";
 
 interface Token {
   symbol: string;
@@ -268,6 +266,7 @@ class App extends React.Component<any, AppState> {
   }
 
   renderBackground() {
+    // This is kinda slow but looks cool :)
     const canvas = this.canvas.current;
     const context = canvas?.getContext("2d");
     if (context && canvas) {
