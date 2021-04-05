@@ -267,7 +267,7 @@ class App extends React.Component<any, AppState> {
     }
   }
 
-  render() {
+  renderBackground() {
     const canvas = this.canvas.current;
     const context = canvas?.getContext("2d");
     if (context && canvas) {
@@ -289,12 +289,10 @@ class App extends React.Component<any, AppState> {
         }
       }
     }
-    if (!this.state) {
-      return <div>Loading...</div>;
-    }
-    const { allTokens, accountAddress, tokenBalances } = this.state;
-    const currencyFormat = format("$,.2f");
-    const accountSize = this.determineUSDAccountSize();
+  }
+
+  sortTokenList(): Token[] {
+    const { allTokens } = this.state;
     const sortedTokens = Object.values(allTokens);
     sortedTokens.sort((a, b) => {
       var nameA = a.symbol;
@@ -307,6 +305,18 @@ class App extends React.Component<any, AppState> {
         return 0;
       }
     });
+    return sortedTokens;
+  }
+
+  render() {
+    this.renderBackground();
+    if (!this.state) {
+      return <div>Loading...</div>;
+    }
+    const { accountAddress, tokenBalances } = this.state;
+    const currencyFormat = format("$,.2f");
+    const accountSize = this.determineUSDAccountSize();
+    const sortedTokens = this.sortTokenList();
     return (
       <div className="min-h-screen bg-gray-100 py-6 flex flex-col justify-center sm:py-12">
         <canvas ref={this.canvas} style={{ position: "absolute" }} />
