@@ -1,22 +1,22 @@
 {
   "files": {
-    "main.css": "/deephy/static/css/main.9593149c.chunk.css",
-    "main.js": "/deephy/static/js/main.6bd3afe0.chunk.js",
-    "main.js.map": "/deephy/static/js/main.6bd3afe0.chunk.js.map",
+    "main.css": "/deephy/static/css/main.188f3977.chunk.css",
+    "main.js": "/deephy/static/js/main.142b8f12.chunk.js",
+    "main.js.map": "/deephy/static/js/main.142b8f12.chunk.js.map",
     "runtime-main.js": "/deephy/static/js/runtime-main.d21ee8ff.js",
     "runtime-main.js.map": "/deephy/static/js/runtime-main.d21ee8ff.js.map",
-    "static/js/2.c5f218bb.chunk.js": "/deephy/static/js/2.c5f218bb.chunk.js",
-    "static/js/2.c5f218bb.chunk.js.map": "/deephy/static/js/2.c5f218bb.chunk.js.map",
+    "static/js/2.49ca9658.chunk.js": "/deephy/static/js/2.49ca9658.chunk.js",
+    "static/js/2.49ca9658.chunk.js.map": "/deephy/static/js/2.49ca9658.chunk.js.map",
     "static/js/3.b3544b19.chunk.js": "/deephy/static/js/3.b3544b19.chunk.js",
     "static/js/3.b3544b19.chunk.js.map": "/deephy/static/js/3.b3544b19.chunk.js.map",
     "index.html": "/deephy/index.html",
-    "static/css/main.9593149c.chunk.css.map": "/deephy/static/css/main.9593149c.chunk.css.map",
-    "static/js/2.c5f218bb.chunk.js.LICENSE.txt": "/deephy/static/js/2.c5f218bb.chunk.js.LICENSE.txt"
+    "static/css/main.188f3977.chunk.css.map": "/deephy/static/css/main.188f3977.chunk.css.map",
+    "static/js/2.49ca9658.chunk.js.LICENSE.txt": "/deephy/static/js/2.49ca9658.chunk.js.LICENSE.txt"
   },
   "entrypoints": [
     "static/js/runtime-main.d21ee8ff.js",
-    "static/js/2.c5f218bb.chunk.js",
-    "static/css/main.9593149c.chunk.css",
-    "static/js/main.6bd3afe0.chunk.js"
+    "static/js/2.49ca9658.chunk.js",
+    "static/css/main.188f3977.chunk.css",
+    "static/js/main.142b8f12.chunk.js"
   ]
 }
