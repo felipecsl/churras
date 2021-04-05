@@ -1,4 +1,4 @@
-import React from "react";
+import React, { RefObject } from "react";
 import Web3 from "web3";
 import humanStandardTokenABI from "./humanStandardTokenABI";
 import { format } from "d3-format";
@@ -90,8 +90,11 @@ const ETH_PRICE_API_ENDPOINT =
   "https://api.coingecko.com/api/v3/simple/price?ids=ethereum&vs_currencies=usd";
 
 class App extends React.Component<any, AppState> {
+  canvas: RefObject<HTMLCanvasElement>;
+
   constructor(props: any) {
     super(props);
+    this.canvas = React.createRef();
 
     this.state = {
       web3: undefined,
@@ -210,6 +213,7 @@ class App extends React.Component<any, AppState> {
       isLoaded: true,
       allTokens: allTokens,
     });
+    this.renderBackground();
   }
 
   /** Returns the amount of tokens held for the provided `symbol` */
@@ -262,13 +266,33 @@ class App extends React.Component<any, AppState> {
     }
   }
 
-  render() {
-    if (!this.state) {
-      return <div>Loading...</div>;
+  renderBackground() {
+    // This is kinda slow but looks cool :)
+    const canvas = this.canvas.current;
+    const context = canvas?.getContext("2d");
+    if (context && canvas) {
+      const width = window.innerWidth;
+      const height = window.innerHeight;
+      canvas.width = width;
+      canvas.height = height;
+      for (let x = 0; x < width / 2; x++) {
+        for (let y = 0; y < height / 2; y++) {
+          const r = (255 * x) / width;
+          const g = (255 * y) / height;
+          const b = 0;
+          context.fillStyle = `rgb(${r}, ${g}, ${b})`;
+          context.fillRect(x * 2, y * 2, 2, 2);
+          if ((x ^ y) % 7) {
+            context.fillStyle = `rgb(0, 0, 0)`;
+            context.fillRect(x * 2, y * 2, 2, 2);
+          }
+        }
+      }
     }
-    const { allTokens, accountAddress, tokenBalances } = this.state;
-    const currencyFormat = format("$,.2f");
-    const accountSize = this.determineUSDAccountSize();
+  }
+
+  sortTokenList(): Token[] {
+    const { allTokens } = this.state;
     const sortedTokens = Object.values(allTokens);
     sortedTokens.sort((a, b) => {
       var nameA = a.symbol;
@@ -281,10 +305,22 @@ class App extends React.Component<any, AppState> {
         return 0;
       }
     });
+    return sortedTokens;
+  }
+
+  render() {
+    if (!this.state) {
+      return <div>Loading...</div>;
+    }
+    const { accountAddress, tokenBalances } = this.state;
+    const currencyFormat = format("$,.2f");
+    const accountSize = this.determineUSDAccountSize();
+    const sortedTokens = this.sortTokenList();
     return (
       <div className="min-h-screen bg-gray-100 py-6 flex flex-col justify-center sm:py-12">
+        <canvas ref={this.canvas} style={{ position: "absolute" }} />
         <div className="relative py-3 sm:max-w-xl sm:mx-auto">
-          <div className="absolute inset-0 bg-gradient-to-r from-cyan-400 to-light-blue-500 shadow-lg transform -skew-y-6 sm:skew-y-0 sm:-rotate-6 sm:rounded-3xl"></div>
+          <div className="absolute inset-0 bg-gradient-to-r from-cyan-400 to-light-blue-500 shadow-lg transform -skew-y-6 sm:skew-y-0 sm:-rotate-6 sm:rounded-3xl bg-gray-400"></div>
           <div className="relative px-4 py-10 bg-white shadow-lg sm:rounded-3xl sm:p-20">
             <div className="max-w-md mx-auto">
               <div className="divide-y divide-gray-200">

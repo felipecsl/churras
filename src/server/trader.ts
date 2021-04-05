@@ -14,18 +14,18 @@ import { BigNumber, Contract, ethers, utils, Wallet } from "ethers";
 import fetch from "node-fetch";
 import { abi as IUniswapV2Router02ABI } from "@uniswap/v2-periphery/build/IUniswapV2Router02.json";
 
+function throwError(errorMessage: string): never {
+  throw new Error(errorMessage);
+}
+
 // 50 bips, or 0.50%
 const DEFAULT_SLIPPAGE_TOLERANCE = new Percent("50", "10000");
 // 20 minutes from the current Unix time
 const DEFAULT_DEADLINE = (now: number) => Math.floor(now / 1000) + 60 * 20;
 const UNISWAP_ROUTER_ADDRESS = "0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D";
 
-function throwError(errorMessage: string): never {
-  throw new Error(errorMessage);
-}
-
 // Look for DeFi arbitrage opportunities
-class DeFiTrader {
+export default class DeFiTrader {
   tokenListApiEndpoint: string;
   provider: BaseProvider;
   chainId: ChainId;
@@ -72,7 +72,7 @@ class DeFiTrader {
     return /^0x0*$/.test(hexNumberString);
   }
 
-  async getTrade(
+  async buildTrade(
     symbol0: string,
     symbol1: string,
     symbol1Amount: string
@@ -84,11 +84,8 @@ class DeFiTrader {
     return new Trade(route, tradeAmount, TradeType.EXACT_INPUT);
   }
 
-  async sendTrade(trade: Trade, recipient: string) {
+  async sendTrade(wallet: Wallet, trade: Trade, recipient: string) {
     const allowedSlippage = DEFAULT_SLIPPAGE_TOLERANCE;
-    const mnemonic =
-      "announce room limb pattern dry unit scale effort smooth jazz weasel alcohol";
-    const wallet = new Wallet(Wallet.fromMnemonic(mnemonic).privateKey);
     const account = wallet.connect(this.provider);
     const deadline = DEFAULT_DEADLINE(Date.now());
     // https://uniswap.org/docs/v2/smart-contracts/router02/
@@ -105,7 +102,7 @@ class DeFiTrader {
     });
     const { methodName, args, value } = call;
     const transaction = await contract[methodName](...args, {
-      gasLimit: BigNumber.from(10000),
+      gasLimit: BigNumber.from(10000), // TODO estimate gas limit
       ...(value && !this.isZero(value)
         ? { value, from: account.address }
         : { from: account.address }),
@@ -116,25 +113,3 @@ class DeFiTrader {
     console.log(`Transaction was mined in block ${receipt.blockNumber}`);
   }
 }
-
-const amount = utils.parseEther("0.001").toString();
-const trader = new DeFiTrader();
-trader.getTrade("DAI", "WETH", amount).then((trade: Trade) => {
-  const executionPrice = trade.executionPrice.toSignificant(6);
-  const inputAmount = trade.inputAmount.toSignificant(6);
-  const outputAmount = trade.outputAmount.toSignificant(6);
-  console.log(
-    `WETH/DAI executionPrice=${executionPrice}, input=${inputAmount}, output=${outputAmount}`
-  );
-  trader.sendTrade(
-    trade,
-    utils.getAddress("0xd34da143fc2f16a6b303bcacdb2b12d4b9d7c0b6")
-  );
-});
-// Estimate gas amount
-// Loop on a few tokens:
-// 1. Look up Uniswap trade price for token T - OK
-// 2. Look up Binance trade price for token T
-// 3. Determine percent difference percentage between exchanges
-// 4. Place trade if (difference - fees) > X
-// 5. Profit
