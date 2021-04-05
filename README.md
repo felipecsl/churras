@@ -1,6 +1,7 @@
 # deephy
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+- View a quick summary of your Metamask wallet balance.
+- Arbitrage token pairs between Uniswap and Binance (work in progress)
 
 ## Available Scripts
 
