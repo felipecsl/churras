@@ -213,6 +213,7 @@ class App extends React.Component<any, AppState> {
       isLoaded: true,
       allTokens: allTokens,
     });
+    this.renderBackground();
   }
 
   /** Returns the amount of tokens held for the provided `symbol` */
@@ -308,7 +309,6 @@ class App extends React.Component<any, AppState> {
   }
 
   render() {
-    this.renderBackground();
     if (!this.state) {
       return <div>Loading...</div>;
     }
