@@ -214,6 +214,7 @@ class App extends React.Component<any, AppState> {
       allTokens: allTokens,
     });
     this.renderBackground();
+    window.addEventListener("resize", this.renderBackground.bind(this));
   }
 
   /** Returns the amount of tokens held for the provided `symbol` */
