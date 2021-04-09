@@ -38,6 +38,9 @@ declare global {
   }
 }
 
+// tokens with total USD amount below this threshold will not be displayed
+const MIN_DISPLAY_AMOUNT = 0.05;
+
 /**
  * ** Binomial distributions **
  * Returns the most likely outcome between [0..totalNumbers] of the provided `successRate` (s) of `totalNumbers`
@@ -217,13 +220,13 @@ class App extends React.Component<any, AppState> {
   }
 
   /** Returns the amount of tokens held for the provided `symbol` */
-  tokenBalance(symbol: string): number {
+  tokenBalance(symbol: string): number | undefined {
     const { tokenBalances } = this.state;
     return +tokenBalances[symbol];
   }
 
   /** Returns the current USD price for the provided `symbol` */
-  tokenPrice(symbol: string): number {
+  tokenPrice(symbol: string): number | undefined {
     const { tokenPrices } = this.state;
     return +tokenPrices[symbol];
   }
@@ -241,12 +244,14 @@ class App extends React.Component<any, AppState> {
 
   renderTokenBalance(token: Token) {
     const symbol = token.symbol;
-    const price = this.tokenPrice(symbol);
-    const balance = this.tokenBalance(symbol);
-    const positionSizeUSD = price * balance;
+    const price = this.tokenPrice(symbol) || 0;
+    const balance = this.tokenBalance(symbol) || 0;
+    // total token amount in USD
+    const equity = price * balance;
     const currencyFormat = format("$,.2f");
     const amountFormat = format(".2f");
-    if (balance) {
+    // do not display row if amount is not more than $5 cents
+    if (equity > MIN_DISPLAY_AMOUNT) {
       return (
         <tr key={symbol}>
           <td className="border border-light-blue-500 px-4 py-2 text-light-blue-600 font-medium">
@@ -259,7 +264,7 @@ class App extends React.Component<any, AppState> {
             {currencyFormat(price)}
           </td>
           <td className="border border-light-blue-500 px-4 py-2 text-light-blue-600 font-medium">
-            {currencyFormat(positionSizeUSD)}
+            {currencyFormat(equity)}
           </td>
         </tr>
       );

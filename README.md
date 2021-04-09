@@ -1,7 +1,7 @@
 # deephy
 
 - View a quick summary of your Metamask wallet balance.
-- Arbitrage token pairs between Uniswap and Binance (work in progress) `yarn run buildServer runServer`
+- Arbitrage token pairs between Uniswap and Binance (work in progress) `yarn run server:build server:run`
 
 ## Available Scripts
 

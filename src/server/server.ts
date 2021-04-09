@@ -1,5 +1,6 @@
 import { maybeSwapTokens } from "./swap";
 
+// TODO move to config file
 function fetchSecrets(): {
   walletPrivateKey: string;
   binanceApiKey: string;
@@ -19,12 +20,12 @@ const { walletPrivateKey, binanceApiKey, binanceApiSecret } = fetchSecrets();
 
 maybeSwapTokens({
   privateKey: walletPrivateKey,
-  token0: "USDT",
-  token1: "SUSHI",
+  token0: "COMP",
+  token1: "WETH",
   binanceApiKey: binanceApiKey,
   binanceApiSecret: binanceApiSecret,
-  binanceTokenPair: "SUSHIUSDT",
-  amount: "0.001",
+  binanceTokenPair: "COMPUSDT",
+  amount: "1",
   recipient: "0xd34da143fc2f16a6b303bcacdb2b12d4b9d7c0b6",
-  arbitrageThreshold: 0.05,
+  arbitrageThreshold: 0.05, // TODO move to config file
 });
