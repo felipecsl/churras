@@ -1,8 +1,8 @@
 {
   "files": {
     "main.css": "/deephy/static/css/main.188f3977.chunk.css",
-    "main.js": "/deephy/static/js/main.142b8f12.chunk.js",
-    "main.js.map": "/deephy/static/js/main.142b8f12.chunk.js.map",
+    "main.js": "/deephy/static/js/main.b413d6d6.chunk.js",
+    "main.js.map": "/deephy/static/js/main.b413d6d6.chunk.js.map",
     "runtime-main.js": "/deephy/static/js/runtime-main.d21ee8ff.js",
     "runtime-main.js.map": "/deephy/static/js/runtime-main.d21ee8ff.js.map",
     "static/js/2.49ca9658.chunk.js": "/deephy/static/js/2.49ca9658.chunk.js",
@@ -17,6 +17,6 @@
     "static/js/runtime-main.d21ee8ff.js",
     "static/js/2.49ca9658.chunk.js",
     "static/css/main.188f3977.chunk.css",
-    "static/js/main.142b8f12.chunk.js"
+    "static/js/main.b413d6d6.chunk.js"
   ]
 }
