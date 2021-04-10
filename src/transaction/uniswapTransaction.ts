@@ -60,7 +60,6 @@ export default class UniswapTransaction {
           logDescription?.eventFragment.name === "Transfer"
       )
       .map((logDescription?: LogDescription) => {
-        console.log(logDescription);
         return {
           from: logDescription?.args?.from,
           to: logDescription?.args?.to,
