@@ -6,6 +6,7 @@ import { ethers, utils } from "ethers";
 import SwapTransaction from "./transaction/swapTransaction";
 import Token, { findTokenByAddress } from "./token";
 import ABIS, { UNISWAP_ROUTER_ADDRESS } from "./abis";
+import { ETHERSCAN_API_KEY, MIN_DISPLAY_AMOUNT } from "./constants";
 
 interface AppState {
   web3?: Web3;
@@ -32,10 +33,6 @@ declare global {
     ) => string;
   }
 }
-
-// tokens with total USD amount below this threshold will not be displayed
-const MIN_DISPLAY_AMOUNT = 0.05;
-const ETHERSCAN_API_KEY = "5E9AEFB4BCJZ71MGI2CZV8NP3CF9FM8Q2H";
 
 /**
  * ** Binomial distributions **
