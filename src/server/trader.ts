@@ -13,6 +13,7 @@ import {
 import { BigNumber, Contract, ethers, utils, Wallet } from "ethers";
 import fetch from "node-fetch";
 import { abi as IUniswapV2Router02ABI } from "@uniswap/v2-periphery/build/IUniswapV2Router02.json";
+import { UNISWAP_ROUTER_ADDRESS } from "../abis";
 
 function throwError(errorMessage: string): never {
   throw new Error(errorMessage);
@@ -22,7 +23,6 @@ function throwError(errorMessage: string): never {
 const DEFAULT_SLIPPAGE_TOLERANCE = new Percent("50", "10000");
 // 20 minutes from the current Unix time
 const DEFAULT_DEADLINE = (now: number) => Math.floor(now / 1000) + 60 * 20;
-const UNISWAP_ROUTER_ADDRESS = "0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D";
 
 // Look for DeFi arbitrage opportunities
 export default class DeFiTrader {

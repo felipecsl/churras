@@ -42,8 +42,8 @@
     "deploy": "gh-pages -d build",
     "start": "craco start",
     "build": "craco build",
-    "server:build": "tsc --resolveJsonModule src/server/server.ts",
-    "server:run": "node src/server/server.js",
+    "server:build": "tsc --resolveJsonModule --outDir build src/server/server.ts",
+    "server:run": "node build/server/server.js",
     "test": "craco test",
     "eject": "react-scripts eject"
   },
