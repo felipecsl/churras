@@ -3,7 +3,7 @@ import Web3 from "web3";
 import { format } from "d3-format";
 import "./App.css";
 import { ethers, utils } from "ethers";
-import SwapTransaction from "./transaction/swapTransaction";
+import SwapTransaction from "./transaction/uniswapTransaction";
 import Token, { findTokenByAddress } from "./token";
 import ABIS, { UNISWAP_ROUTER_ADDRESS } from "./abis";
 import { ETHERSCAN_API_KEY, MIN_DISPLAY_AMOUNT } from "./constants";
