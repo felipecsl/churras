@@ -5,7 +5,6 @@ import "./App.css";
 import { ethers, utils } from "ethers";
 import SwapTransaction from "./transaction/uniswapTransaction";
 import Token, { findTokenByAddress } from "./token";
-import ABIS, { UNISWAP_ROUTER_ADDRESS } from "./abis";
 import { ETHERSCAN_API_KEY, MIN_DISPLAY_AMOUNT } from "./constants";
 
 interface AppState {
@@ -143,7 +142,17 @@ class App extends React.Component<any, AppState> {
     const { accountAddress } = this.state;
     const tokenContractAddress = token.address;
     const tokenPromise = new web3.eth.Contract(
-      ABIS[UNISWAP_ROUTER_ADDRESS],
+      [
+        {
+          constant: true,
+          inputs: [{ internalType: "address", name: "", type: "address" }],
+          name: "balanceOf",
+          outputs: [{ internalType: "uint256", name: "", type: "uint256" }],
+          payable: false,
+          stateMutability: "view",
+          type: "function",
+        },
+      ],
       tokenContractAddress
     );
     const balance = await tokenPromise.methods.balanceOf(accountAddress).call();
