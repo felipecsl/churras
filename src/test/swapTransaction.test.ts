@@ -47,8 +47,8 @@ test("Correctly parses uniswap swap transaction", async () => {
     provider
   );
   const swapResult = await swapTransaction.load();
-  console.log(swapResult);
   expect(swapResult).toEqual({
+    gasUsed: 243634,
     amountIn: "225.891707515417109037",
     amountOutMin: "29.155679483254742122",
     path: ["1INCH", "WETH", "USDT", "UNI"],
