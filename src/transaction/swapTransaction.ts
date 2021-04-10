@@ -1,8 +1,8 @@
 import { BaseProvider, Log } from "@ethersproject/providers";
-import { BigNumber, utils } from "ethers";
+import { utils } from "ethers";
 import { Interface, LogDescription } from "ethers/lib/utils";
 import swapContractABIs from "../abis";
-import Token, { findTokenByAddress } from "../token";
+import Token from "../token";
 
 export default class SwapTransaction {
   private tokens: Array<Token>;
@@ -35,16 +35,10 @@ export default class SwapTransaction {
     console.log(transactionReceipt);
     const contractABI = swapContractABIs[transactionReceipt.to];
     const contractInteraface = new utils.Interface(contractABI);
-    transactionReceipt.logs.forEach((log: Log) => {
-      const logDescription = this.parseLog(contractInteraface, log);
-      if (logDescription) {
-        console.log(logDescription);
-      }
-      const token = findTokenByAddress(this.tokens, log.address);
-      if (token) {
-        const amount = utils.formatUnits(BigNumber.from(log.data));
-        console.log(`swapped token ${token?.symbol} amount=${amount}`);
-      }
-    });
+    // TODO determine correct function name for each contract
+    const swapFunctionName = "swapExactTokensForTokens";
+    console.log(
+      contractInteraface.decodeFunctionData(swapFunctionName, transaction.data)
+    );
   }
 }

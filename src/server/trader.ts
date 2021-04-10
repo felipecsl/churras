@@ -12,7 +12,8 @@ import {
 } from "@uniswap/sdk";
 import { BigNumber, Contract, ethers, utils, Wallet } from "ethers";
 import fetch from "node-fetch";
-import ABIS, { UNISWAP_ROUTER_ADDRESS } from "../abis";
+import { abi as IUniswapV2Router02ABI } from "@uniswap/v2-periphery/build/IUniswapV2Router02.json";
+import { UNISWAP_ROUTER_ADDRESS } from "../abis";
 
 function throwError(errorMessage: string): never {
   throw new Error(errorMessage);
@@ -90,7 +91,7 @@ export default class DeFiTrader {
     // https://uniswap.org/docs/v2/smart-contracts/router02/
     const contract = new Contract(
       UNISWAP_ROUTER_ADDRESS,
-      ABIS[UNISWAP_ROUTER_ADDRESS],
+      IUniswapV2Router02ABI,
       account
     );
     const call = Router.swapCallParameters(trade, {
