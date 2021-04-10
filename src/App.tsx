@@ -1,23 +1,18 @@
 import React, { RefObject } from "react";
 import Web3 from "web3";
-import humanStandardTokenABI from "./humanStandardTokenABI";
 import { format } from "d3-format";
 import "./App.css";
-
-interface Token {
-  symbol: string;
-  name: string;
-  address: string;
-  decimals: number;
-  logoURI: string;
-}
+import { ethers, utils } from "ethers";
+import SwapTransaction from "./transaction/swapTransaction";
+import Token, { findTokenByAddress } from "./token";
+import ABIS, { UNISWAP_ROUTER_ADDRESS } from "./abis";
 
 interface AppState {
   web3?: Web3;
   accountAddress?: string;
   isLoaded: boolean;
   // keys are the token names
-  allTokens: Record<string, Token>;
+  tokensByName: Record<string, Token>;
   tokenBalances: Record<string, string>;
   tokenPrices: Record<string, string>;
 }
@@ -40,6 +35,7 @@ declare global {
 
 // tokens with total USD amount below this threshold will not be displayed
 const MIN_DISPLAY_AMOUNT = 0.05;
+const ETHERSCAN_API_KEY = "5E9AEFB4BCJZ71MGI2CZV8NP3CF9FM8Q2H";
 
 /**
  * ** Binomial distributions **
@@ -103,7 +99,7 @@ class App extends React.Component<any, AppState> {
       web3: undefined,
       accountAddress: undefined,
       isLoaded: false,
-      allTokens: {},
+      tokensByName: {},
       tokenBalances: {},
       tokenPrices: {},
     };
@@ -115,17 +111,17 @@ class App extends React.Component<any, AppState> {
 
   async updateEthBalance(balance: any) {
     if (this.state.web3) {
-      const { tokenPrices, tokenBalances, allTokens } = this.state;
+      const { tokenPrices, tokenBalances, tokensByName } = this.state;
       tokenBalances["ETH"] = this.state.web3.utils.fromWei(balance);
       tokenPrices["ETH"] = await this.fetchEthPrice();
-      allTokens["ETH"] = {
+      tokensByName["ETH"] = {
         symbol: "ETH",
         name: "Ehereum",
         address: "",
         decimals: 18,
         logoURI: "",
       };
-      this.setState({ tokenPrices, tokenBalances, allTokens });
+      this.setState({ tokenPrices, tokenBalances, tokensByName });
     } else {
       console.error("web3 is not yet initialized");
     }
@@ -135,10 +131,10 @@ class App extends React.Component<any, AppState> {
     if (this.state.web3) {
       const tokenBalance = this.state.web3.utils.fromWei(balance);
       if (+tokenBalance > 0) {
-        const { tokenBalances, allTokens } = this.state;
+        const { tokenBalances, tokensByName } = this.state;
         tokenBalances[token] = tokenBalance;
         // TODO: Batch these one-off calls into a single API call with all tokens with balance > 0
-        this.fetchTokenPrices([allTokens[token].address]);
+        this.fetchTokenPrices([tokensByName[token].address]);
         this.setState({ tokenBalances });
       }
     } else {
@@ -150,7 +146,7 @@ class App extends React.Component<any, AppState> {
     const { accountAddress } = this.state;
     const tokenContractAddress = token.address;
     const tokenPromise = new web3.eth.Contract(
-      humanStandardTokenABI as any,
+      ABIS[UNISWAP_ROUTER_ADDRESS],
       tokenContractAddress
     );
     const balance = await tokenPromise.methods.balanceOf(accountAddress).call();
@@ -165,16 +161,9 @@ class App extends React.Component<any, AppState> {
     const web3 = new Web3(window.ethereum);
     this.setState({ web3, accountAddress });
     web3.eth.getBalance(accountAddress).then(this.updateEthBalance.bind(this));
-    Object.values(this.state.allTokens).forEach((token: Token) => {
+    Object.values(this.state.tokensByName).forEach((token: Token) => {
       this.fetchTokenBalance(web3, token);
     });
-  }
-
-  findTokenByAddress(tokenAddress: string): Token | undefined {
-    const { allTokens } = this.state;
-    return Object.values(allTokens).find(
-      (t: Token) => t.address === tokenAddress
-    );
   }
 
   async fetchEthPrice(): Promise<string> {
@@ -188,9 +177,10 @@ class App extends React.Component<any, AppState> {
     const apiUrl = `https://api.coingecko.com/api/v3/simple/token_price/ethereum?contract_addresses=${addressList}&vs_currencies=usd`;
     const res = await fetch(apiUrl);
     const results = await res.json();
+    const tokens = Object.values(this.state.tokensByName);
     Object.entries(results).forEach(
       ([tokenAddress, priceObj]: [string, any]) => {
-        const token = this.findTokenByAddress(tokenAddress);
+        const token = findTokenByAddress(tokens, tokenAddress);
         if (token) {
           const price = priceObj["usd"];
           const { tokenPrices } = this.state;
@@ -206,17 +196,31 @@ class App extends React.Component<any, AppState> {
   async componentDidMount() {
     const res = await fetch(TOKEN_LIST_API_ENDPOINT);
     const results = (await res.json()) as any;
-    const allTokens = {} as Record<string, Token>;
+    const tokensByName = {} as Record<string, Token>;
     Object.values(results.tokens).forEach(
       (token: any, i: number, array: any) => {
-        allTokens[token.symbol] = token as Token;
+        tokensByName[token.symbol] = token as Token;
       }
     );
     this.setState({
       isLoaded: true,
-      allTokens: allTokens,
+      tokensByName: tokensByName,
     });
     this.renderBackground();
+    this.loadTransactionDetails(
+      "0x2959cd3d09cca9b1e302e9feba8b3ba36b0dd75dff95bbfd3a146170d6f97aa2"
+      // "0xede7991bf4f4de1a13e44c6d37a4f631de8801077a0c591a74f5dcfc5f55f919"
+    );
+  }
+
+  async loadTransactionDetails(txHash: string) {
+    const { tokensByName } = this.state;
+    const provider = ethers.getDefaultProvider("homestead", {
+      etherscan: ETHERSCAN_API_KEY,
+    });
+    const tokens = Object.values(tokensByName);
+    const swapTransaction = new SwapTransaction(tokens, txHash, provider);
+    await swapTransaction.load();
   }
 
   /** Returns the amount of tokens held for the provided `symbol` */
@@ -229,6 +233,15 @@ class App extends React.Component<any, AppState> {
   tokenPrice(symbol: string): number | undefined {
     const { tokenPrices } = this.state;
     return +tokenPrices[symbol];
+  }
+
+  /** Returns the token whose address matches `address` or undefined */
+  findTokenByContractAddress(address: string): Token | undefined {
+    const { tokensByName } = this.state;
+    const normalizedAddress = utils.getAddress(address);
+    return Object.values(tokensByName).find(
+      (t: Token) => utils.getAddress(t.address) === normalizedAddress
+    );
   }
 
   /* Returns the total account size in USD */
@@ -297,8 +310,8 @@ class App extends React.Component<any, AppState> {
   }
 
   sortTokenList(): Token[] {
-    const { allTokens } = this.state;
-    const sortedTokens = Object.values(allTokens);
+    const { tokensByName } = this.state;
+    const sortedTokens = Object.values(tokensByName);
     sortedTokens.sort((a, b) => {
       var nameA = a.symbol;
       var nameB = b.symbol;
@@ -325,7 +338,7 @@ class App extends React.Component<any, AppState> {
       <div className="min-h-screen bg-gray-100 py-6 flex flex-col justify-center sm:py-12">
         <canvas ref={this.canvas} style={{ position: "absolute" }} />
         <div className="relative py-3 sm:max-w-xl sm:mx-auto">
-          <div className="absolute inset-0 bg-gradient-to-r from-cyan-400 to-light-blue-500 shadow-lg transform -skew-y-6 sm:skew-y-0 sm:-rotate-6 sm:rounded-3xl bg-gray-400"></div>
+          <div className="absolute inset-0 bg-gradient-to-r from-cyan-400 to-light-blue-500 shadow-lg transform -skew-y-6 sm:skew-y-0 sm:-rotate-6 sm:rounded-3xl bg-gray-200"></div>
           <div className="relative px-4 py-10 bg-white shadow-lg sm:rounded-3xl sm:p-20">
             <div className="max-w-md mx-auto">
               <div className="divide-y divide-gray-200">
