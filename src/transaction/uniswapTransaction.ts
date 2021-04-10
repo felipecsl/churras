@@ -1,10 +1,6 @@
-import {
-  BaseProvider,
-  Log,
-  TransactionReceipt,
-} from "@ethersproject/providers";
+import { BaseProvider, Log } from "@ethersproject/providers";
 import { utils } from "ethers";
-import { EventFragment, Interface, LogDescription } from "ethers/lib/utils";
+import { Interface, LogDescription } from "ethers/lib/utils";
 import ABIS, { uniswapLPContractABI } from "../abis";
 import Token, { findTokenByAddress } from "../token";
 
