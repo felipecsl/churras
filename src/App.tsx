@@ -213,20 +213,6 @@ class App extends React.Component<any, AppState> {
       tokensByName: tokensByName,
     });
     this.renderBackground();
-    this.loadTransactionDetails(
-      "0x2959cd3d09cca9b1e302e9feba8b3ba36b0dd75dff95bbfd3a146170d6f97aa2" // uniswap tx
-      // "0xede7991bf4f4de1a13e44c6d37a4f631de8801077a0c591a74f5dcfc5f55f919" // 1inch tx
-    );
-  }
-
-  async loadTransactionDetails(txHash: string) {
-    const { tokensByName } = this.state;
-    const provider = ethers.getDefaultProvider("homestead", {
-      etherscan: ETHERSCAN_API_KEY,
-    });
-    const tokens = Object.values(tokensByName);
-    const swapTransaction = new SwapTransaction(tokens, txHash, provider);
-    await swapTransaction.load();
   }
 
   /** Returns the amount of tokens held for the provided `symbol` */

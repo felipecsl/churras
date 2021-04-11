@@ -3,7 +3,6 @@ import { FakeEtherscanApiClient } from "./fakeEtherscanApiClient";
 import fakeTransactions from "./fixtures/fakeTransactions.json";
 
 test("Loads all transactions to and from my address", async () => {
-  jest.setTimeout(10000);
   const fakeEtherscanApiClient = new FakeEtherscanApiClient(fakeTransactions);
   const transfersLoader = new TransactionsLoader(fakeEtherscanApiClient);
   const transactions = await transfersLoader.loadTransactions(
