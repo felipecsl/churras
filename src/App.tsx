@@ -2,10 +2,9 @@ import React, { RefObject } from "react";
 import Web3 from "web3";
 import { format } from "d3-format";
 import "./App.css";
-import { ethers, utils } from "ethers";
-import SwapTransaction from "./transaction/uniswapTransaction";
+import { utils } from "ethers";
 import Token, { findTokenByAddress } from "./token";
-import { ETHERSCAN_API_KEY, MIN_DISPLAY_AMOUNT } from "./constants";
+import { MIN_DISPLAY_AMOUNT } from "./constants";
 
 interface AppState {
   web3?: Web3;
