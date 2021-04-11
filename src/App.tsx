@@ -2,10 +2,9 @@ import React, { RefObject } from "react";
 import Web3 from "web3";
 import { format } from "d3-format";
 import "./App.css";
-import { ethers, utils } from "ethers";
-import SwapTransaction from "./transaction/uniswapTransaction";
+import { utils } from "ethers";
 import Token, { findTokenByAddress } from "./token";
-import { ETHERSCAN_API_KEY, MIN_DISPLAY_AMOUNT } from "./constants";
+import { MIN_DISPLAY_AMOUNT } from "./constants";
 
 interface AppState {
   web3?: Web3;
@@ -22,63 +21,6 @@ declare global {
     ethereum: any;
   }
 }
-
-declare global {
-  interface Window {
-    runMonteCarloSimulation: (
-      successRate: number,
-      totalNumbers: number,
-      totalSimulations: number
-    ) => string;
-  }
-}
-
-/**
- * ** Binomial distributions **
- * Returns the most likely outcome between [0..totalNumbers] of the provided `successRate` (s) of `totalNumbers`
- * by running a monte carlo simulator with total simulations `totalSimulations`
- *(0-1)
- */
-window.runMonteCarloSimulation = function (
-  successRate: number,
-  totalNumbers: number,
-  totalSimulations: number
-): string {
-  const determineOutcome = (_: number) => {
-    if (Math.random() >= successRate) {
-      return 0;
-    } else {
-      return 1;
-    }
-  };
-  const sum = (arr: Array<number>) =>
-    arr.reduce((acc: number, v: number, i, array) => {
-      return acc + v;
-    }, 0);
-  const totalPositives = () => sum(numbersRange.map(determineOutcome));
-  const numbersRange = Array.from(Array(totalNumbers).keys());
-  const simulationsRange = Array.from(Array(totalSimulations).keys());
-  const max = (arr: Array<number>) => {
-    return Math.max.apply(null, arr);
-  };
-
-  const outcomesCount = {} as Record<number, number>;
-  simulationsRange.forEach(() => {
-    const positives = totalPositives();
-    const curr = outcomesCount[positives];
-    outcomesCount[positives] = (curr || 0) + 1;
-  });
-  console.log(outcomesCount);
-  const maxOccurrences = max(Object.values(outcomesCount));
-  for (const [num, ocurr] of Object.entries(outcomesCount)) {
-    if (+ocurr === maxOccurrences) {
-      return `most likely outcome: ${num}; ocurrences ${maxOccurrences}/${totalSimulations} (${format(
-        ".2f"
-      )((maxOccurrences / totalSimulations) * 100)}%)`;
-    }
-  }
-  return "";
-};
 
 const TOKEN_LIST_API_ENDPOINT = "https://api.1inch.exchange/v2.0/tokens";
 const ETH_PRICE_API_ENDPOINT =
@@ -213,20 +155,6 @@ class App extends React.Component<any, AppState> {
       tokensByName: tokensByName,
     });
     this.renderBackground();
-    this.loadTransactionDetails(
-      "0x2959cd3d09cca9b1e302e9feba8b3ba36b0dd75dff95bbfd3a146170d6f97aa2" // uniswap tx
-      // "0xede7991bf4f4de1a13e44c6d37a4f631de8801077a0c591a74f5dcfc5f55f919" // 1inch tx
-    );
-  }
-
-  async loadTransactionDetails(txHash: string) {
-    const { tokensByName } = this.state;
-    const provider = ethers.getDefaultProvider("homestead", {
-      etherscan: ETHERSCAN_API_KEY,
-    });
-    const tokens = Object.values(tokensByName);
-    const swapTransaction = new SwapTransaction(tokens, txHash, provider);
-    await swapTransaction.load();
   }
 
   /** Returns the amount of tokens held for the provided `symbol` */

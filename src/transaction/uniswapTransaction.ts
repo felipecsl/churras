@@ -1,7 +1,11 @@
-import { BaseProvider, Log } from "@ethersproject/providers";
-import { utils } from "ethers";
+import {
+  BaseProvider,
+  Log,
+  TransactionResponse,
+} from "@ethersproject/providers";
+import { Transaction, utils } from "ethers";
 import { Interface, LogDescription } from "ethers/lib/utils";
-import ABIS, { uniswapLPContractABI } from "../abis";
+import ABIS, { uniswapLPContractABI, UNISWAP_ROUTER_ADDRESS } from "../abis";
 import Token, { findTokenByAddress } from "../token";
 
 export interface TokenTransfer {
@@ -28,14 +32,23 @@ export interface SwapResult {
   transfers: TokenTransfer[];
 }
 
+/** Returns true if the provided transaction `to` address is the Uniswap v2 router */
+export function isUniswap(transaction: Transaction): Boolean {
+  return transaction.to === UNISWAP_ROUTER_ADDRESS;
+}
+
 export default class UniswapTransaction {
   private tokens: Token[];
-  private addressHash: string;
+  private transactionAddress: string;
   private provider: BaseProvider;
 
-  constructor(tokens: Token[], addressHash: string, provider: BaseProvider) {
+  constructor(
+    tokens: Token[],
+    transactionAddress: string,
+    provider: BaseProvider
+  ) {
     this.tokens = tokens;
-    this.addressHash = addressHash;
+    this.transactionAddress = transactionAddress;
     this.provider = provider;
   }
 
@@ -68,9 +81,8 @@ export default class UniswapTransaction {
       });
   }
 
-  async load(): Promise<SwapResult> {
-    const transaction = await this.provider.getTransaction(this.addressHash);
-    const receipt = await transaction.wait();
+  async load(transaction: TransactionResponse): Promise<SwapResult> {
+    const receipt = await this.provider.getTransactionReceipt(transaction.hash);
     const contractABI = ABIS[receipt.to];
     const contractInterface = new utils.Interface(contractABI);
     // TODO try multiple function names here (eg swapETHForExactTokens, swapExactETHForTokens, etc)
