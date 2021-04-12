@@ -3,7 +3,7 @@ import Web3 from "web3";
 import { format } from "d3-format";
 import "./App.css";
 import { utils } from "ethers";
-import Token, { findTokenByAddress } from "./token";
+import Token from "./token";
 import { MIN_DISPLAY_AMOUNT } from "./constants";
 
 interface AppState {
@@ -128,7 +128,7 @@ class App extends React.Component<any, AppState> {
     const tokens = Object.values(this.state.tokensByName);
     Object.entries(results).forEach(
       ([tokenAddress, priceObj]: [string, any]) => {
-        const token = findTokenByAddress(tokens, tokenAddress);
+        const token = tokens.find((t: Token) => t.address === tokenAddress);
         if (token) {
           const price = priceObj["usd"];
           const { tokenPrices } = this.state;
