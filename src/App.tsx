@@ -154,7 +154,6 @@ class App extends React.Component<any, AppState> {
       isLoaded: true,
       tokensByName: tokensByName,
     });
-    this.renderBackground();
   }
 
   /** Returns the amount of tokens held for the provided `symbol` */
@@ -215,31 +214,6 @@ class App extends React.Component<any, AppState> {
           </td>
         </tr>
       );
-    }
-  }
-
-  renderBackground() {
-    // This is kinda slow but looks cool :)
-    const canvas = this.canvas.current;
-    const context = canvas?.getContext("2d");
-    if (context && canvas) {
-      const width = window.innerWidth;
-      const height = window.innerHeight;
-      canvas.width = width;
-      canvas.height = height;
-      for (let x = 0; x < width / 2; x++) {
-        for (let y = 0; y < height / 2; y++) {
-          const r = (255 * x) / width;
-          const g = (255 * y) / height;
-          const b = 0;
-          context.fillStyle = `rgb(${r}, ${g}, ${b})`;
-          context.fillRect(x * 2, y * 2, 2, 2);
-          if ((x ^ y) % 7) {
-            context.fillStyle = `rgb(0, 0, 0)`;
-            context.fillRect(x * 2, y * 2, 2, 2);
-          }
-        }
-      }
     }
   }
 

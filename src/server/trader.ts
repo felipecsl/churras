@@ -10,10 +10,11 @@ import {
   Percent,
   Router,
 } from "@uniswap/sdk";
-import { BigNumber, Contract, ethers, utils, Wallet } from "ethers";
+import { BigNumber, Contract, utils, Wallet } from "ethers";
 import fetch from "node-fetch";
 import { abi as IUniswapV2Router02ABI } from "@uniswap/v2-periphery/build/IUniswapV2Router02.json";
 import { UNISWAP_ROUTER_ADDRESS } from "../abis";
+import { DEFAULT_PROVIDER } from "../constants";
 
 function throwError(errorMessage: string): never {
   throw new Error(errorMessage);
@@ -36,9 +37,7 @@ export default class DeFiTrader {
   ) {
     this.tokenListApiEndpoint = tokenListApiEndpoint;
     this.chainId = chainId;
-    this.provider = ethers.getDefaultProvider("homestead", {
-      etherscan: "5E9AEFB4BCJZ71MGI2CZV8NP3CF9FM8Q2H",
-    });
+    this.provider = DEFAULT_PROVIDER;
   }
 
   async fetchTokens(symbol0: string, symbol1: string): Promise<Token[]> {
