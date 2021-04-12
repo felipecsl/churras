@@ -1,5 +1,4 @@
-import { Formatter } from "@ethersproject/providers";
-import { Transaction } from "ethers";
+import { Formatter, TransactionResponse } from "@ethersproject/providers";
 import { EtherscanApiClient } from "../etherscanApiClient";
 
 export default class TransactionsLoader {
@@ -10,7 +9,7 @@ export default class TransactionsLoader {
   }
 
   /** Loads all transactions for the provided `address` */
-  async loadTransactions(address: string): Promise<Transaction[]> {
+  async loadTransactions(address: string): Promise<TransactionResponse[]> {
     const response = await this.etherscanApiClient.loadTransactions(address);
     const formatter = new Formatter();
     return response.map((tx: any) => formatter.transactionResponse(tx));

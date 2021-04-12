@@ -3,7 +3,7 @@ import Web3 from "web3";
 import { format } from "d3-format";
 import "./App.css";
 import { utils } from "ethers";
-import Token, { findTokenByAddress } from "./token";
+import Token from "./token";
 import { MIN_DISPLAY_AMOUNT } from "./constants";
 
 interface AppState {
@@ -128,7 +128,7 @@ class App extends React.Component<any, AppState> {
     const tokens = Object.values(this.state.tokensByName);
     Object.entries(results).forEach(
       ([tokenAddress, priceObj]: [string, any]) => {
-        const token = findTokenByAddress(tokens, tokenAddress);
+        const token = tokens.find((t: Token) => t.address === tokenAddress);
         if (token) {
           const price = priceObj["usd"];
           const { tokenPrices } = this.state;
@@ -154,7 +154,6 @@ class App extends React.Component<any, AppState> {
       isLoaded: true,
       tokensByName: tokensByName,
     });
-    this.renderBackground();
   }
 
   /** Returns the amount of tokens held for the provided `symbol` */
@@ -215,31 +214,6 @@ class App extends React.Component<any, AppState> {
           </td>
         </tr>
       );
-    }
-  }
-
-  renderBackground() {
-    // This is kinda slow but looks cool :)
-    const canvas = this.canvas.current;
-    const context = canvas?.getContext("2d");
-    if (context && canvas) {
-      const width = window.innerWidth;
-      const height = window.innerHeight;
-      canvas.width = width;
-      canvas.height = height;
-      for (let x = 0; x < width / 2; x++) {
-        for (let y = 0; y < height / 2; y++) {
-          const r = (255 * x) / width;
-          const g = (255 * y) / height;
-          const b = 0;
-          context.fillStyle = `rgb(${r}, ${g}, ${b})`;
-          context.fillRect(x * 2, y * 2, 2, 2);
-          if ((x ^ y) % 7) {
-            context.fillStyle = `rgb(0, 0, 0)`;
-            context.fillRect(x * 2, y * 2, 2, 2);
-          }
-        }
-      }
     }
   }
 
