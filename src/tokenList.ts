@@ -7739,6 +7739,6 @@ export const ALL_TOKENS = {
       "https://tokens.1inch.exchange/0x55296f69f40ea6d20e478533c15a6b08b654e758.png",
   },
 } as Record<string, Token>;
-for (const [key, value] of Object.entries(ALL_TOKENS)) {
+for (const [_, value] of Object.entries(ALL_TOKENS)) {
   ALL_TOKENS[utils.getAddress(value.address)] = value;
 }
