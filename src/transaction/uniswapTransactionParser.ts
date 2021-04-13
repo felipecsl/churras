@@ -50,6 +50,7 @@ export default class UniswapTransactionParser {
   // map of (address, Token object)
   private addressesToTokens: Record<string, Token>;
   private provider: BaseProvider;
+  private debug: boolean = false;
 
   constructor(
     addressesToTokens: Record<string, Token>,
@@ -57,13 +58,6 @@ export default class UniswapTransactionParser {
   ) {
     this.addressesToTokens = addressesToTokens;
     this.provider = provider;
-  }
-
-  private ensureToken(address: string): Token {
-    return (
-      this.addressesToTokens[address] ||
-      throwError(`Cannot find output token with address ${address}`)
-    );
   }
 
   private async determineTokenDecimals(address: string): Promise<number> {
@@ -152,6 +146,11 @@ export default class UniswapTransactionParser {
   async parse(transaction: TransactionResponse): Promise<SwapResult> {
     if (!isUniswap(transaction)) {
       throw new Error("Transaction is not a Uniswap swap");
+    }
+    if (this.debug) {
+      console.log(
+        `UniswapTransactionParser#parse - Parsing transaction ${transaction.hash}`
+      );
     }
     const receipt = await this.provider.getTransactionReceipt(transaction.hash);
     const contractABI = ABIS[receipt.to];

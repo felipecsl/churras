@@ -1,15 +1,21 @@
-import React, { RefObject } from "react";
+import React from "react";
 import Web3 from "web3";
 import { format } from "d3-format";
 import "./App.css";
 import { utils } from "ethers";
 import Token from "./token";
-import { MIN_DISPLAY_AMOUNT } from "./constants";
+import { DEFAULT_PROVIDER, MIN_DISPLAY_AMOUNT } from "./constants";
+import AccountSwaps from "./transaction/accountSwaps";
+import TransactionsLoader from "./transaction/transactionsLoader";
+import { RealEtherscanApiClient } from "./etherscanApiClient";
+import UniswapTransactionParser from "./transaction/uniswapTransactionParser";
+import { ALL_TOKENS } from "./tokenList";
 
 interface AppState {
   web3?: Web3;
   accountAddress?: string;
   isLoaded: boolean;
+  tokensByAddress: Record<string, Token>;
   // keys are the token names
   tokensByName: Record<string, Token>;
   tokenBalances: Record<string, string>;
@@ -22,21 +28,18 @@ declare global {
   }
 }
 
-const TOKEN_LIST_API_ENDPOINT = "https://api.1inch.exchange/v2.0/tokens";
 const ETH_PRICE_API_ENDPOINT =
   "https://api.coingecko.com/api/v3/simple/price?ids=ethereum&vs_currencies=usd";
 
 class App extends React.Component<any, AppState> {
-  canvas: RefObject<HTMLCanvasElement>;
-
   constructor(props: any) {
     super(props);
-    this.canvas = React.createRef();
 
     this.state = {
       web3: undefined,
       accountAddress: undefined,
       isLoaded: false,
+      tokensByAddress: {},
       tokensByName: {},
       tokenBalances: {},
       tokenPrices: {},
@@ -101,6 +104,25 @@ class App extends React.Component<any, AppState> {
     this.updateTokenBalance(token.symbol, balance);
   }
 
+  async loadAccountTransactions() {
+    if (this.state.accountAddress) {
+      const transactionsLoader = new TransactionsLoader(
+        new RealEtherscanApiClient()
+      );
+      const uniswapTransactionParser = new UniswapTransactionParser(
+        ALL_TOKENS,
+        DEFAULT_PROVIDER
+      );
+      const accountSwaps = new AccountSwaps(
+        transactionsLoader,
+        uniswapTransactionParser
+      );
+      console.log(
+        await accountSwaps.loadAccountSwaps(this.state.accountAddress)
+      );
+    }
+  }
+
   async connectToMetaMask() {
     const accounts = await window.ethereum.request({
       method: "eth_requestAccounts",
@@ -142,16 +164,13 @@ class App extends React.Component<any, AppState> {
   }
 
   async componentDidMount() {
-    const res = await fetch(TOKEN_LIST_API_ENDPOINT);
-    const results = (await res.json()) as any;
     const tokensByName = {} as Record<string, Token>;
-    Object.values(results.tokens).forEach(
-      (token: any, i: number, array: any) => {
-        tokensByName[token.symbol] = token as Token;
-      }
-    );
+    Object.values(ALL_TOKENS).forEach((token: any, i: number, array: any) => {
+      tokensByName[token.symbol] = token as Token;
+    });
     this.setState({
       isLoaded: true,
+      tokensByAddress: ALL_TOKENS,
       tokensByName: tokensByName,
     });
   }
@@ -200,16 +219,24 @@ class App extends React.Component<any, AppState> {
     if (equity > MIN_DISPLAY_AMOUNT) {
       return (
         <tr key={symbol}>
-          <td className="border border-light-blue-500 px-4 py-2 text-light-blue-600 font-medium">
-            {symbol}
+          <td className="px-6 py-4 whitespace-nowrap">
+            <div className="flex items-center">
+              <div className="ml-4">
+                <div className="text-sm font-medium text-gray-900">
+                  {symbol}
+                </div>
+              </div>
+            </div>
           </td>
-          <td className="border border-light-blue-500 px-4 py-2 text-light-blue-600 font-medium">
-            {amountFormat(balance)}
+          <td className="px-6 py-4 whitespace-nowrap">
+            <div className="text-sm text-gray-900">{amountFormat(balance)}</div>
           </td>
-          <td className="border border-light-blue-500 px-4 py-2 text-light-blue-600 font-medium">
-            {currencyFormat(price)}
+          <td className="px-6 py-4 whitespace-nowrap">
+            <div className="text-sm font-medium text-gray-900">
+              {currencyFormat(price)}
+            </div>
           </td>
-          <td className="border border-light-blue-500 px-4 py-2 text-light-blue-600 font-medium">
+          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
             {currencyFormat(equity)}
           </td>
         </tr>
@@ -243,73 +270,181 @@ class App extends React.Component<any, AppState> {
     const accountSize = this.determineUSDAccountSize();
     const sortedTokens = this.sortTokenList();
     return (
-      <div className="min-h-screen bg-gray-100 py-6 flex flex-col justify-center sm:py-12">
-        <canvas ref={this.canvas} style={{ position: "absolute" }} />
-        <div className="relative py-3 sm:max-w-xl sm:mx-auto">
-          <div className="absolute inset-0 bg-gradient-to-r from-cyan-400 to-light-blue-500 shadow-lg transform -skew-y-6 sm:skew-y-0 sm:-rotate-6 sm:rounded-3xl bg-gray-200"></div>
-          <div className="relative px-4 py-10 bg-white shadow-lg sm:rounded-3xl sm:p-20">
-            <div className="max-w-md mx-auto">
-              <div className="divide-y divide-gray-200">
-                <div className="py-8 text-base leading-6 space-y-4 text-gray-700 sm:text-lg sm:leading-7">
-                  <h1 className="text-3xl font-extrabold text-gray-900 tracking-tight">
-                    Deephy
-                  </h1>
+      <div>
+        <nav className="bg-gray-800">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="flex items-center justify-between h-16">
+              <div className="flex items-center">
+                <div className="flex-shrink-0">
+                  <img
+                    className="h-8 w-8"
+                    src="https://tailwindui.com/img/logos/workflow-mark-indigo-500.svg"
+                    alt="Workflow"
+                  />
+                </div>
+                <div className="hidden md:block">
+                  <div className="ml-10 flex items-baseline space-x-4">
+                    <a
+                      href="/"
+                      className="bg-gray-900 text-white px-3 py-2 rounded-md text-sm font-medium"
+                    >
+                      Dashboard
+                    </a>
+                    {/* <a
+                      href="/transactions"
+                      className="text-gray-300 hover:bg-gray-700 hover:text-white px-3 py-2 rounded-md text-sm font-medium"
+                    >
+                      Transactions
+                    </a> */}
+                  </div>
+                </div>
+              </div>
+              <div className="-mr-2 flex md:hidden">
+                <button
+                  type="button"
+                  className="bg-gray-800 inline-flex items-center justify-center p-2 rounded-md text-gray-400 hover:text-white hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-800 focus:ring-white"
+                  aria-controls="mobile-menu"
+                  aria-expanded="false"
+                >
+                  <span className="sr-only">Open main menu</span>
+                  <svg
+                    className="block h-6 w-6"
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                    aria-hidden="true"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth="2"
+                      d="M4 6h16M4 12h16M4 18h16"
+                    />
+                  </svg>
+                  <svg
+                    className="hidden h-6 w-6"
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                    aria-hidden="true"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth="2"
+                      d="M6 18L18 6M6 6l12 12"
+                    />
+                  </svg>
+                </button>
+              </div>
+            </div>
+          </div>
+          <div className="md:hidden" id="mobile-menu">
+            <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3">
+              <a
+                href="/"
+                className="bg-gray-900 text-white block px-3 py-2 rounded-md text-base font-medium"
+              >
+                Dashboard
+              </a>
+              {/* <a
+                href="/transactions"
+                className="text-gray-300 hover:bg-gray-700 hover:text-white block px-3 py-2 rounded-md text-base font-medium"
+              >
+                Transactions
+              </a> */}
+            </div>
+          </div>
+        </nav>
+        <header className="bg-white shadow">
+          <div className="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
+            <h1 className="text-3xl font-bold text-gray-900">Dashboard</h1>
+          </div>
+        </header>
+        <main>
+          <div className="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
+            <div className="py-8 text-base leading-6 space-y-4 text-gray-700 sm:text-lg sm:leading-7">
+              {this.isMetamaskInstalled() && !this.state.web3 && (
+                <div>
                   <p>
                     Get a detailed balance of your DeFi tokens and an account
                     overview. Click the button below to get started.
                   </p>
-                  {this.isMetamaskInstalled() && !this.state.web3 && (
-                    <button
-                      onClick={this.connectToMetaMask.bind(this)}
-                      className="text-white mt-auto bg-emerald-800 bg-opacity-50 hover:bg-opacity-75 transition-colors duration-200 rounded-xl font-semibold py-2 px-4 inline-flex"
-                    >
-                      Connect to MetaMask
-                    </button>
-                  )}
-                  {accountAddress && (
-                    <p>
-                      Address:
-                      <br />
-                      <code>
-                        <small>{accountAddress}</small>
-                      </code>
-                    </p>
-                  )}
-                  {accountSize > 0 && (
-                    <p className="font-semibold text-2xl pb-3">
-                      {currencyFormat(accountSize)}
-                    </p>
-                  )}
-                  {Object.values(tokenBalances).length > 0 && (
-                    <div>
-                      <table className="table-auto">
-                        <thead className="bg-indigo-200">
-                          <tr>
-                            <th className="border border-light-blue-500 px-4 py-2 text-light-blue-600 font-medium">
-                              Token
-                            </th>
-                            <th className="border border-light-blue-500 px-4 py-2 text-light-blue-600 font-medium">
-                              Amount
-                            </th>
-                            <th className="border border-light-blue-500 px-4 py-2 text-light-blue-600 font-medium">
-                              Current price
-                            </th>
-                            <th className="border border-light-blue-500 px-4 py-2 text-light-blue-600 font-medium">
-                              Equity
-                            </th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          {sortedTokens.map(this.renderTokenBalance.bind(this))}
-                        </tbody>
-                      </table>
-                    </div>
-                  )}
+                  <br />
+                  <button
+                    onClick={this.connectToMetaMask.bind(this)}
+                    className="text-white mt-auto bg-emerald-800 bg-opacity-50 hover:bg-opacity-75 transition-colors duration-200 rounded-xl font-semibold py-2 px-4 inline-flex"
+                  >
+                    Connect to MetaMask
+                  </button>
                 </div>
-              </div>
+              )}
+              {accountAddress && (
+                <p>
+                  Address:
+                  <br />
+                  <code>
+                    <small>{accountAddress}</small>
+                  </code>
+                </p>
+              )}
+              {accountSize > 0 && (
+                <p className="font-semibold text-2xl pb-3">
+                  {currencyFormat(accountSize)}
+                </p>
+              )}
+              {Object.values(tokenBalances).length > 0 && (
+                <div>
+                  <div className="flex flex-col">
+                    <div className="-my-2 overflow-x-auto sm:-mx-6 lg:-mx-8">
+                      <div className="py-2 align-middle inline-block min-w-full sm:px-6 lg:px-8">
+                        <div className="shadow overflow-hidden border-b border-gray-200 sm:rounded-lg">
+                          <table className="min-w-full divide-y divide-gray-200">
+                            <thead className="bg-gray-50">
+                              <tr>
+                                <th
+                                  scope="col"
+                                  className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                                >
+                                  Token
+                                </th>
+                                <th
+                                  scope="col"
+                                  className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                                >
+                                  Quantity
+                                </th>
+                                <th
+                                  scope="col"
+                                  className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                                >
+                                  Price
+                                </th>
+                                <th
+                                  scope="col"
+                                  className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                                >
+                                  Equity
+                                </th>
+                              </tr>
+                            </thead>
+                            <tbody className="bg-white divide-y divide-gray-200">
+                              {sortedTokens.map(
+                                this.renderTokenBalance.bind(this)
+                              )}
+                            </tbody>
+                          </table>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
-        </div>
+        </main>
       </div>
     );
   }
