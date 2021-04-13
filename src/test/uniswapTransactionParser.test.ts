@@ -3,13 +3,13 @@ import { DEFAULT_PROVIDER } from "../constants";
 import UniswapTransactionParser from "../transaction/uniswapTransactionParser";
 import { isUniswap } from "../transaction/uniswapTransactionParser";
 import { TransactionFixtures } from "./fixtures/transactions";
-import { TOKENS } from "./fixtures/tokenFixtures";
+import { ALL_TOKENS } from "../tokenList";
 
 jest.setTimeout(10000);
 
 test.only("Correctly parses Uniswap transaction calling swapExactETHForTokens", async () => {
   const uniswapTransactionParser = new UniswapTransactionParser(
-    TOKENS,
+    ALL_TOKENS,
     DEFAULT_PROVIDER
   );
   const swapResult = await uniswapTransactionParser.parse(
@@ -40,7 +40,7 @@ test.only("Correctly parses Uniswap transaction calling swapExactETHForTokens", 
 
 test("Correctly parses Uniswap swap transaction calling swapExactTokensForTokens", async () => {
   const uniswapTransactionParser = new UniswapTransactionParser(
-    TOKENS,
+    ALL_TOKENS,
     DEFAULT_PROVIDER
   );
   const swapResult = await uniswapTransactionParser.parse(
@@ -85,7 +85,7 @@ test("Correctly parses Uniswap swap transaction calling swapExactTokensForTokens
 
 test("throws if transaction is not Uniswap swap", () => {
   const uniswapTransactionParser = new UniswapTransactionParser(
-    TOKENS,
+    ALL_TOKENS,
     DEFAULT_PROVIDER
   );
   return expect(

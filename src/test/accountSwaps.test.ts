@@ -3,7 +3,7 @@ import AccountSwaps from "../transaction/accountSwaps";
 import TransactionsLoader from "../transaction/transactionsLoader";
 import UniswapTransactionParser from "../transaction/uniswapTransactionParser";
 import { FakeEtherscanApiClient } from "./fakeEtherscanApiClient";
-import { TOKENS } from "./fixtures/tokenFixtures";
+import { ALL_TOKENS } from "../tokenList";
 
 jest.setTimeout(10000);
 
@@ -11,7 +11,7 @@ test("loads all Uniswap transactions from account", async () => {
   const fakeEtherscanApiClient = new FakeEtherscanApiClient();
   const transactionLoader = new TransactionsLoader(fakeEtherscanApiClient);
   const uniswapTransaction = new UniswapTransactionParser(
-    TOKENS,
+    ALL_TOKENS,
     DEFAULT_PROVIDER
   );
   const accountSwaps = new AccountSwaps(transactionLoader, uniswapTransaction);

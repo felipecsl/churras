@@ -1,3 +1,5 @@
+import { ETHERSCAN_API_KEY } from "./constants";
+
 export interface EtherscanApiClient {
   loadTransactions(address: string): Promise<any>;
 }
@@ -5,7 +7,7 @@ export interface EtherscanApiClient {
 export class RealEtherscanApiClient implements EtherscanApiClient {
   private apiKey: string;
 
-  constructor(apiKey: string) {
+  constructor(apiKey: string = ETHERSCAN_API_KEY) {
     this.apiKey = apiKey;
   }
 
