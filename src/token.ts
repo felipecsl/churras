@@ -17,10 +17,9 @@ export class WalletToken implements Token {
   readonly price: string;
 
   constructor(
-    token: Token,
+    { symbol, name, address, decimals, logoURI }: Token,
     { balance, price }: { balance: string; price: string }
   ) {
-    const { symbol, name, address, decimals, logoURI } = token;
     this.symbol = symbol;
     this.name = name;
     this.address = address;
