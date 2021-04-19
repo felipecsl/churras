@@ -10,13 +10,14 @@ import TransactionsLoader from "./transaction/transactionsLoader";
 import { RealEtherscanApiClient } from "./etherscanApiClient";
 import UniswapTransactionParser from "./transaction/uniswapTransactionParser";
 import { ALL_TOKENS } from "./tokenList";
+import { CircularProgress } from "@material-ui/core";
 
 interface AppState {
   web3?: Web3;
   accountAddress?: string;
-  isLoaded: boolean;
+  isLoadingTokens: boolean;
   tokensByAddress: Record<string, Token>;
-  // keys are the token names
+  // keys are the token symbols
   tokensByName: Record<string, Token>;
   tokenBalances: Record<string, string>;
   tokenPrices: Record<string, string>;
@@ -38,7 +39,7 @@ class App extends React.Component<any, AppState> {
     this.state = {
       web3: undefined,
       accountAddress: undefined,
-      isLoaded: false,
+      isLoadingTokens: false,
       tokensByAddress: {},
       tokensByName: {},
       tokenBalances: {},
@@ -62,22 +63,10 @@ class App extends React.Component<any, AppState> {
     }
   }
 
-  updateTokenBalance(token: string, balance: any) {
-    if (this.state.web3) {
-      const tokenBalance = this.state.web3.utils.fromWei(balance);
-      if (+tokenBalance > 0) {
-        const { tokenBalances, tokensByName } = this.state;
-        tokenBalances[token] = tokenBalance;
-        // TODO: Batch these one-off calls into a single API call with all tokens with balance > 0
-        this.fetchTokenPrices([tokensByName[token].address]);
-        this.setState({ tokenBalances });
-      }
-    } else {
-      console.error("web3 is not yet initialized");
-    }
-  }
-
-  async fetchTokenBalance(web3: Web3, token: Token) {
+  async fetchTokenBalance(
+    web3: Web3,
+    token: Token
+  ): Promise<{ token: Token; balance: any }> {
     const { accountAddress } = this.state;
     const tokenContractAddress = token.address;
     const tokenPromise = new web3.eth.Contract(
@@ -95,7 +84,7 @@ class App extends React.Component<any, AppState> {
       tokenContractAddress
     );
     const balance = await tokenPromise.methods.balanceOf(accountAddress).call();
-    this.updateTokenBalance(token.symbol, balance);
+    return { token, balance: +web3.utils.fromWei(balance) };
   }
 
   async loadAccountTransactions() {
@@ -123,11 +112,26 @@ class App extends React.Component<any, AppState> {
     });
     const accountAddress = accounts[0];
     const web3 = new Web3(window.ethereum);
-    this.setState({ web3, accountAddress });
-    web3.eth.getBalance(accountAddress).then(this.updateEthBalance.bind(this));
-    Object.values(this.state.tokensByName).forEach((token: Token) => {
-      this.fetchTokenBalance(web3, token);
+    this.setState({ web3, accountAddress, isLoadingTokens: true });
+    const { tokenBalances, tokensByName } = this.state;
+    // balanceOf will fail for "ETH" presumably because it's set to an invalid address (0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee)
+    // so we just exclude it intially and re-add belo in `updateEthBalance()`
+    delete tokensByName["ETH"];
+    // 1. fetch all token balances
+    const tokensToBalances = Object.values(tokensByName).map((token: Token) =>
+      this.fetchTokenBalance(web3, token)
+    );
+    const results = await Promise.all(tokensToBalances);
+    // 2. filter results to only the tokens which have a positive balance
+    const positiveBalances = results.filter(({ balance }) => balance > 0);
+    // 3. fetch the prices for each token with a positive balance
+    const addresses = positiveBalances.map(({ token }) => token.address);
+    const tokenPrices = await this.fetchTokenPrices(addresses);
+    positiveBalances.forEach(({ token, balance }) => {
+      tokenBalances[token.symbol] = balance;
     });
+    this.setState({ tokenPrices, tokenBalances, isLoadingTokens: false });
+    web3.eth.getBalance(accountAddress).then(this.updateEthBalance.bind(this));
   }
 
   async fetchEthPrice(): Promise<string> {
@@ -136,25 +140,26 @@ class App extends React.Component<any, AppState> {
     return results["ethereum"]["usd"];
   }
 
-  async fetchTokenPrices(tokenAddresses: Array<string>) {
+  async fetchTokenPrices(
+    tokenAddresses: string[]
+  ): Promise<Record<string, string>> {
     const addressList = tokenAddresses.join(",");
     const apiUrl = `https://api.coingecko.com/api/v3/simple/token_price/ethereum?contract_addresses=${addressList}&vs_currencies=usd`;
     const res = await fetch(apiUrl);
     const results = await res.json();
-    const tokens = Object.values(this.state.tokensByName);
+    const { tokensByAddress } = this.state;
+    const ret: Record<string, string> = {};
     Object.entries(results).forEach(
       ([tokenAddress, priceObj]: [string, any]) => {
-        const token = tokens.find((t: Token) => t.address === tokenAddress);
+        const token = tokensByAddress[tokenAddress];
         if (token) {
-          const price = priceObj["usd"];
-          const { tokenPrices } = this.state;
-          tokenPrices[token.symbol] = price;
-          this.setState({ tokenPrices });
+          ret[token.symbol] = priceObj["usd"];
         } else {
           console.error(`Unable to find token with address ${tokenAddress}`);
         }
       }
     );
+    return ret;
   }
 
   async componentDidMount() {
@@ -163,7 +168,6 @@ class App extends React.Component<any, AppState> {
       tokensByName[token.symbol] = token as Token;
     });
     this.setState({
-      isLoaded: true,
       tokensByAddress: ALL_TOKENS,
       tokensByName: tokensByName,
     });
@@ -192,13 +196,17 @@ class App extends React.Component<any, AppState> {
 
   /* Returns the total account size in USD */
   determineUSDAccountSize(): number {
-    const { tokenBalances, tokenPrices } = this.state;
-    return Object.entries(tokenBalances).reduce(
-      (acc: number, [symbol, balance]: [string, string]) => {
-        return acc + +tokenPrices[symbol] * +balance;
-      },
-      0
-    );
+    const { tokenBalances, tokenPrices, isLoadingTokens } = this.state;
+    if (isLoadingTokens) {
+      return 0;
+    } else {
+      return Object.entries(tokenBalances).reduce(
+        (acc: number, [symbol, balance]: [string, string]) => {
+          return acc + +tokenPrices[symbol] * +balance;
+        },
+        0
+      );
+    }
   }
 
   renderTokenBalance(token: Token) {
@@ -264,7 +272,7 @@ class App extends React.Component<any, AppState> {
     if (!this.state) {
       return <div>Loading...</div>;
     }
-    const { accountAddress, tokenBalances } = this.state;
+    const { accountAddress, tokenBalances, isLoadingTokens } = this.state;
     const currencyFormat = format("$,.2f");
     const accountSize = this.determineUSDAccountSize();
     const sortedTokens = this.sortTokenList();
@@ -380,66 +388,70 @@ class App extends React.Component<any, AppState> {
                   </button>
                 </div>
               )}
-              {accountAddress && (
-                <p>
-                  Address:
-                  <br />
-                  <code>
-                    <small>{accountAddress}</small>
-                  </code>
-                </p>
-              )}
-              {accountSize > 0 && (
-                <p className="font-semibold text-2xl pb-3">
-                  {currencyFormat(accountSize)}
-                </p>
-              )}
-              {Object.values(tokenBalances).length > 0 && (
-                <div>
-                  <div className="flex flex-col">
-                    <div className="-my-2 overflow-x-auto sm:-mx-6 lg:-mx-8">
-                      <div className="py-2 align-middle inline-block min-w-full sm:px-6 lg:px-8">
-                        <div className="shadow overflow-hidden border-b border-gray-200 sm:rounded-lg">
-                          <table className="min-w-full divide-y divide-gray-200">
-                            <thead className="bg-gray-50">
-                              <tr>
-                                <th
-                                  scope="col"
-                                  className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-                                >
-                                  Token
-                                </th>
-                                <th
-                                  scope="col"
-                                  className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-                                >
-                                  Quantity
-                                </th>
-                                <th
-                                  scope="col"
-                                  className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-                                >
-                                  Price
-                                </th>
-                                <th
-                                  scope="col"
-                                  className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-                                >
-                                  Equity
-                                </th>
-                              </tr>
-                            </thead>
-                            <tbody className="bg-white divide-y divide-gray-200">
-                              {sortedTokens.map(
-                                this.renderTokenBalance.bind(this)
-                              )}
-                            </tbody>
-                          </table>
+              {isLoadingTokens ? (
+                <div className="text-center">
+                  <CircularProgress />
+                </div>
+              ) : (
+                Object.values(tokenBalances).length > 0 && (
+                  <div>
+                    {accountAddress && (
+                      <div className="pb-3">
+                        <code className="float-left">
+                          <small>{accountAddress}</small>
+                        </code>
+                        {accountSize > 0 && (
+                          <p className="font-semibold text-2xl text-right">
+                            {currencyFormat(accountSize)}
+                          </p>
+                        )}
+                      </div>
+                    )}
+                    <div className="clear-both flex flex-col">
+                      <div className="-my-2 overflow-x-auto sm:-mx-6 lg:-mx-8">
+                        <div className="py-2 align-middle inline-block min-w-full sm:px-6 lg:px-8">
+                          <div className="shadow overflow-hidden border-b border-gray-200 sm:rounded-lg">
+                            <table className="min-w-full divide-y divide-gray-200">
+                              <thead className="bg-gray-50">
+                                <tr>
+                                  <th
+                                    scope="col"
+                                    className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                                  >
+                                    Token
+                                  </th>
+                                  <th
+                                    scope="col"
+                                    className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                                  >
+                                    Quantity
+                                  </th>
+                                  <th
+                                    scope="col"
+                                    className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                                  >
+                                    Price
+                                  </th>
+                                  <th
+                                    scope="col"
+                                    className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                                  >
+                                    Value
+                                  </th>
+                                </tr>
+                              </thead>
+                              <tbody className="bg-white divide-y divide-gray-200">
+                                {sortedTokens.map(
+                                  this.renderTokenBalance.bind(this)
+                                )}
+                              </tbody>
+                            </table>
+                          </div>
                         </div>
                       </div>
                     </div>
                   </div>
-                </div>
+                )
               )}
             </div>
           </div>
