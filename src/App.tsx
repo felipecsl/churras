@@ -176,20 +176,6 @@ class App extends React.Component<any, AppState> {
     });
   }
 
-  findWalletToken(symbol: string): WalletToken | undefined {
-    const { walletTokens } = this.state;
-    return walletTokens.find((wt: WalletToken) => wt.symbol === symbol);
-  }
-
-  /** Returns the token whose address matches `address` or undefined */
-  findTokenByContractAddress(address: string): Token | undefined {
-    const { tokensByName } = this.state;
-    const normalizedAddress = utils.getAddress(address);
-    return Object.values(tokensByName).find(
-      (t: Token) => utils.getAddress(t.address) === normalizedAddress
-    );
-  }
-
   /* Returns the total account size in USD */
   determineUSDAccountSize(): number {
     const { walletTokens, isLoadingTokens } = this.state;
