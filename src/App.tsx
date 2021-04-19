@@ -3,7 +3,7 @@ import Web3 from "web3";
 import { format } from "d3-format";
 import "./App.css";
 import { utils } from "ethers";
-import Token from "./token";
+import Token, { ETH_TOKEN } from "./token";
 import { DEFAULT_PROVIDER, MIN_DISPLAY_AMOUNT } from "./constants";
 import AccountSwaps from "./transaction/accountSwaps";
 import TransactionsLoader from "./transaction/transactionsLoader";
@@ -55,13 +55,7 @@ class App extends React.Component<any, AppState> {
       const { tokenPrices, tokenBalances, tokensByName } = this.state;
       tokenBalances["ETH"] = this.state.web3.utils.fromWei(balance);
       tokenPrices["ETH"] = await this.fetchEthPrice();
-      tokensByName["ETH"] = {
-        symbol: "ETH",
-        name: "Ehereum",
-        address: "",
-        decimals: 18,
-        logoURI: "",
-      };
+      tokensByName["ETH"] = ETH_TOKEN;
       this.setState({ tokenPrices, tokenBalances, tokensByName });
     } else {
       console.error("web3 is not yet initialized");
@@ -223,6 +217,11 @@ class App extends React.Component<any, AppState> {
             <div className="flex items-center">
               <div className="ml-4">
                 <div className="text-sm font-medium text-gray-900">
+                  <img
+                    src={token.logoURI}
+                    alt={token.name}
+                    className="w-5 mr-2 float-left"
+                  />
                   {symbol}
                 </div>
               </div>
