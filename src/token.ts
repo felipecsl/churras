@@ -7,6 +7,30 @@ export default interface Token {
   logoURI: string;
 }
 
+export class WalletToken implements Token {
+  readonly symbol: string;
+  readonly name: string;
+  readonly address: string;
+  readonly decimals: number;
+  readonly logoURI: string;
+  readonly balance: string;
+  readonly price: string;
+
+  constructor(
+    token: Token,
+    { balance, price }: { balance: string; price: string }
+  ) {
+    const { symbol, name, address, decimals, logoURI } = token;
+    this.symbol = symbol;
+    this.name = name;
+    this.address = address;
+    this.decimals = decimals;
+    this.logoURI = logoURI;
+    this.balance = balance;
+    this.price = price;
+  }
+}
+
 export const ETH_TOKEN = {
   symbol: "ETH",
   name: "Ehereum",
