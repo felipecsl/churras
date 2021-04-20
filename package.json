@@ -48,7 +48,7 @@
     "test": "craco test",
     "eject": "react-scripts eject"
   },
-  "homepage": "https://felipecsl.github.io/deephy",
+  "homepage": "https://churras.org",
   "eslintConfig": {
     "extends": [
       "react-app",
