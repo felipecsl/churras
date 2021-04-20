@@ -2,7 +2,6 @@ import React from "react";
 import Web3 from "web3";
 import { format } from "d3-format";
 import "./App.css";
-import { utils } from "ethers";
 import Token, { ETH_TOKEN, WalletToken } from "./token";
 import { DEFAULT_PROVIDER, MIN_DISPLAY_AMOUNT } from "./constants";
 import AccountSwaps from "./transaction/accountSwaps";
