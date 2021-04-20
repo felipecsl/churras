@@ -135,7 +135,7 @@ class App extends React.Component<any, AppState> {
     this.setState({ walletTokens });
     const ethBalance = await web3.eth.getBalance(accountAddress);
     await this.updateEthBalance(ethBalance);
-    this.setState({ walletTokens, isLoadingTokens: false });
+    this.setState({ isLoadingTokens: false });
   }
 
   async fetchEthPrice(): Promise<string> {
