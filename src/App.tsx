@@ -132,9 +132,10 @@ class App extends React.Component<any, AppState> {
         new WalletToken(token, { balance, price: tokenPrices[token.symbol] })
       );
     });
-    this.setState({ walletTokens, isLoadingTokens: false });
+    this.setState({ walletTokens });
     const ethBalance = await web3.eth.getBalance(accountAddress);
     await this.updateEthBalance(ethBalance);
+    this.setState({ walletTokens, isLoadingTokens: false });
   }
 
   async fetchEthPrice(): Promise<string> {
