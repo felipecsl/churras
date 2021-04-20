@@ -2,8 +2,7 @@ import React from "react";
 import Web3 from "web3";
 import { format } from "d3-format";
 import "./App.css";
-import { utils } from "ethers";
-import Token, { ETH_TOKEN } from "./token";
+import Token, { ETH_TOKEN, WalletToken } from "./token";
 import { DEFAULT_PROVIDER, MIN_DISPLAY_AMOUNT } from "./constants";
 import AccountSwaps from "./transaction/accountSwaps";
 import TransactionsLoader from "./transaction/transactionsLoader";
@@ -16,11 +15,10 @@ interface AppState {
   web3?: Web3;
   accountAddress?: string;
   isLoadingTokens: boolean;
-  tokensByAddress: Record<string, Token>;
+  walletTokens: WalletToken[];
   // keys are the token symbols
+  tokensByAddress: Record<string, Token>;
   tokensByName: Record<string, Token>;
-  tokenBalances: Record<string, string>;
-  tokenPrices: Record<string, string>;
 }
 
 declare global {
@@ -42,8 +40,7 @@ class App extends React.Component<any, AppState> {
       isLoadingTokens: false,
       tokensByAddress: {},
       tokensByName: {},
-      tokenBalances: {},
-      tokenPrices: {},
+      walletTokens: [],
     };
   }
 
@@ -53,11 +50,14 @@ class App extends React.Component<any, AppState> {
 
   async updateEthBalance(balance: any) {
     if (this.state.web3) {
-      const { tokenPrices, tokenBalances, tokensByName } = this.state;
-      tokenBalances["ETH"] = this.state.web3.utils.fromWei(balance);
-      tokenPrices["ETH"] = await this.fetchEthPrice();
-      tokensByName["ETH"] = ETH_TOKEN;
-      this.setState({ tokenPrices, tokenBalances, tokensByName });
+      const { walletTokens } = this.state;
+      walletTokens.push(
+        new WalletToken(ETH_TOKEN, {
+          balance: this.state.web3.utils.fromWei(balance),
+          price: await this.fetchEthPrice(),
+        })
+      );
+      this.setState({ walletTokens });
     } else {
       console.error("web3 is not yet initialized");
     }
@@ -113,7 +113,7 @@ class App extends React.Component<any, AppState> {
     const accountAddress = accounts[0];
     const web3 = new Web3(window.ethereum);
     this.setState({ web3, accountAddress, isLoadingTokens: true });
-    const { tokenBalances, tokensByName } = this.state;
+    const { walletTokens, tokensByName } = this.state;
     // balanceOf will fail for "ETH" presumably because it's set to an invalid address (0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee)
     // so we just exclude it intially and re-add belo in `updateEthBalance()`
     delete tokensByName["ETH"];
@@ -128,10 +128,14 @@ class App extends React.Component<any, AppState> {
     const addresses = positiveBalances.map(({ token }) => token.address);
     const tokenPrices = await this.fetchTokenPrices(addresses);
     positiveBalances.forEach(({ token, balance }) => {
-      tokenBalances[token.symbol] = balance;
+      walletTokens.push(
+        new WalletToken(token, { balance, price: tokenPrices[token.symbol] })
+      );
     });
-    this.setState({ tokenPrices, tokenBalances, isLoadingTokens: false });
-    web3.eth.getBalance(accountAddress).then(this.updateEthBalance.bind(this));
+    this.setState({ walletTokens });
+    const ethBalance = await web3.eth.getBalance(accountAddress);
+    await this.updateEthBalance(ethBalance);
+    this.setState({ isLoadingTokens: false });
   }
 
   async fetchEthPrice(): Promise<string> {
@@ -173,46 +177,23 @@ class App extends React.Component<any, AppState> {
     });
   }
 
-  /** Returns the amount of tokens held for the provided `symbol` */
-  tokenBalance(symbol: string): number | undefined {
-    const { tokenBalances } = this.state;
-    return +tokenBalances[symbol];
-  }
-
-  /** Returns the current USD price for the provided `symbol` */
-  tokenPrice(symbol: string): number | undefined {
-    const { tokenPrices } = this.state;
-    return +tokenPrices[symbol];
-  }
-
-  /** Returns the token whose address matches `address` or undefined */
-  findTokenByContractAddress(address: string): Token | undefined {
-    const { tokensByName } = this.state;
-    const normalizedAddress = utils.getAddress(address);
-    return Object.values(tokensByName).find(
-      (t: Token) => utils.getAddress(t.address) === normalizedAddress
-    );
-  }
-
   /* Returns the total account size in USD */
   determineUSDAccountSize(): number {
-    const { tokenBalances, tokenPrices, isLoadingTokens } = this.state;
+    const { walletTokens, isLoadingTokens } = this.state;
     if (isLoadingTokens) {
       return 0;
     } else {
-      return Object.entries(tokenBalances).reduce(
-        (acc: number, [symbol, balance]: [string, string]) => {
-          return acc + +tokenPrices[symbol] * +balance;
-        },
+      return walletTokens.reduce(
+        (acc: number, wt: WalletToken) => acc + +wt.price * +wt.balance,
         0
       );
     }
   }
 
-  renderTokenBalance(token: Token) {
+  renderTokenBalance(token: WalletToken) {
     const symbol = token.symbol;
-    const price = this.tokenPrice(symbol) || 0;
-    const balance = this.tokenBalance(symbol) || 0;
+    const price = +token.price;
+    const balance = +token.balance;
     // total token amount in USD
     const equity = price * balance;
     const currencyFormat = format("$,.2f");
@@ -251,9 +232,9 @@ class App extends React.Component<any, AppState> {
     }
   }
 
-  sortTokenList(): Token[] {
-    const { tokensByName } = this.state;
-    const sortedTokens = Object.values(tokensByName);
+  sortTokenList(): WalletToken[] {
+    const { walletTokens } = this.state;
+    const sortedTokens = walletTokens;
     sortedTokens.sort((a, b) => {
       var nameA = a.symbol;
       var nameB = b.symbol;
@@ -272,7 +253,7 @@ class App extends React.Component<any, AppState> {
     if (!this.state) {
       return <div>Loading...</div>;
     }
-    const { accountAddress, tokenBalances, isLoadingTokens } = this.state;
+    const { accountAddress, walletTokens, isLoadingTokens } = this.state;
     const currencyFormat = format("$,.2f");
     const accountSize = this.determineUSDAccountSize();
     const sortedTokens = this.sortTokenList();
@@ -393,7 +374,7 @@ class App extends React.Component<any, AppState> {
                   <CircularProgress />
                 </div>
               ) : (
-                Object.values(tokenBalances).length > 0 && (
+                walletTokens.length > 0 && (
                   <div>
                     {accountAddress && (
                       <div className="pb-3">
