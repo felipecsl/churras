@@ -14,10 +14,20 @@ import AnimatedNumber from "animated-number-react";
 import ThemeSelector from "./themeSelector";
 import { ensure } from "./util";
 import AccountAddressProvider from "./accountAddressProvider";
+import { ChainId } from "@uniswap/sdk";
+
+enum Chain {
+  ETHEREUM_MAINNET,
+  ETHEREUM_TESTNET,
+  BSC_MAINNET,
+  BSC_TESTNET,
+  UNKNOWN,
+}
 
 interface AppState {
   web3?: Web3;
   isLoadingTokens: boolean;
+  chain: number;
   walletTokens: WalletToken[];
   // keys are the token symbols
   tokensByAddress: Record<string, Token>;
@@ -42,6 +52,7 @@ class App extends React.Component<any, AppState> {
     this.state = {
       web3: undefined,
       isLoadingTokens: false,
+      chain: Chain.UNKNOWN,
       tokensByAddress: {},
       tokensByName: {},
       walletTokens: [],
@@ -116,7 +127,36 @@ class App extends React.Component<any, AppState> {
     }
   }
 
+  private async checkChainId(): Promise<Chain> {
+    const chainId = await window.ethereum.request({ method: "eth_chainId" });
+    switch (parseInt(chainId)) {
+      case ChainId.MAINNET:
+        return Chain.ETHEREUM_MAINNET;
+      case ChainId.ROPSTEN:
+      case ChainId.RINKEBY:
+      case ChainId.GÖRLI:
+      case ChainId.KOVAN:
+        return Chain.ETHEREUM_TESTNET;
+      case 56:
+        return Chain.BSC_MAINNET;
+      case 97:
+        return Chain.BSC_TESTNET;
+      default:
+        return Chain.UNKNOWN;
+    }
+  }
+
+  private isChainSupported(chain: number) {
+    // For now only Ethereum Mainnet supported
+    return chain === Chain.ETHEREUM_MAINNET;
+  }
+
   private async loadBalances(accountAddress: string) {
+    const chain = this.state.chain;
+    if (!this.isChainSupported(chain)) {
+      console.log(`Unsupported chain ${Chain[chain]}`);
+      return;
+    }
     const web3 = new Web3(window.ethereum);
     this.setState({ web3, isLoadingTokens: true });
     const { walletTokens, tokensByName } = this.state;
@@ -186,21 +226,17 @@ class App extends React.Component<any, AppState> {
     Object.values(ALL_TOKENS).forEach((token: any, i: number, array: any) => {
       tokensByName[token.symbol] = token as Token;
     });
-    this.setState(
-      {
-        tokensByAddress: ALL_TOKENS,
-        tokensByName,
-      },
-      () => {
-        // Register this as a callback after setState() finished because loadBalances() relies on
-        // this state that we just set above.
-        const connectedAccountAddress = this.addressProvider.currentAccountAddress();
-        if (connectedAccountAddress) {
-          // User has previously connected to Metamask, so we can immediately load the account
-          this.loadBalances(connectedAccountAddress);
-        }
+    const chain = await this.checkChainId();
+    const tokensByAddress = ALL_TOKENS;
+    this.setState({ tokensByAddress, tokensByName, chain }, () => {
+      // Register this as a callback after setState() finished because loadBalances() relies on
+      // this state that we just set above.
+      const connectedAccountAddress = this.addressProvider.currentAccountAddress();
+      if (connectedAccountAddress) {
+        // User has previously connected to Metamask, so we can immediately load the account
+        this.loadBalances(connectedAccountAddress);
       }
-    );
+    });
   }
 
   /* Returns the total account size in USD */
@@ -282,10 +318,11 @@ class App extends React.Component<any, AppState> {
       return <div>Loading...</div>;
     }
     const accountAddress = this.addressProvider.currentAccountAddress();
-    const { walletTokens, isLoadingTokens } = this.state;
+    const { walletTokens, isLoadingTokens, chain } = this.state;
     const currencyFormat = format("$,.2f");
     const accountSize = this.determineUSDAccountSize();
     const sortedTokens = this.sortTokenList();
+    const isUnsupportedChain = !this.isChainSupported(chain);
     const showConnectToMetamaskButton =
       this.isMetamaskInstalled() && !accountAddress;
     return (
@@ -349,6 +386,12 @@ class App extends React.Component<any, AppState> {
                   </button>
                 </div>
               )}
+              {isUnsupportedChain && (
+                <p>
+                  Sorry, the network you have currently selected is not yet
+                  supported.
+                </p>
+              )}
               {isLoadingTokens ? (
                 <div className="text-center">
                   <CircularProgress color="secondary" />
@@ -380,6 +423,7 @@ class App extends React.Component<any, AppState> {
                                     (col: string) => (
                                       <th
                                         scope="col"
+                                        key={col}
                                         className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider"
                                       >
                                         {col}
