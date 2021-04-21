@@ -11,10 +11,12 @@ import UniswapTransactionParser from "./transaction/uniswapTransactionParser";
 import { ALL_TOKENS } from "./tokenList";
 import { CircularProgress } from "@material-ui/core";
 import AnimatedNumber from "animated-number-react";
+import ThemeSelector from "./themeSelector";
+import { ensure } from "./util";
+import AccountAddressProvider from "./accountAddressProvider";
 
 interface AppState {
   web3?: Web3;
-  accountAddress?: string;
   isLoadingTokens: boolean;
   walletTokens: WalletToken[];
   // keys are the token symbols
@@ -32,12 +34,13 @@ const ETH_PRICE_API_ENDPOINT =
   "https://api.coingecko.com/api/v3/simple/price?ids=ethereum&vs_currencies=usd";
 
 class App extends React.Component<any, AppState> {
+  private addressProvider: AccountAddressProvider = new AccountAddressProvider();
+
   constructor(props: any) {
     super(props);
 
     this.state = {
       web3: undefined,
-      accountAddress: undefined,
       isLoadingTokens: false,
       tokensByAddress: {},
       tokensByName: {},
@@ -64,11 +67,18 @@ class App extends React.Component<any, AppState> {
     }
   }
 
+  private ensureAccountAddress(): string {
+    return ensure(
+      this.addressProvider.currentAccountAddress,
+      "Missing account address"
+    ) as string;
+  }
+
   async fetchTokenBalance(
     web3: Web3,
     token: Token
   ): Promise<{ token: Token; balance: any }> {
-    const { accountAddress } = this.state;
+    const accountAddress = this.ensureAccountAddress();
     const tokenContractAddress = token.address;
     const tokenPromise = new web3.eth.Contract(
       [
@@ -89,7 +99,8 @@ class App extends React.Component<any, AppState> {
   }
 
   async loadAccountTransactions() {
-    if (this.state.accountAddress) {
+    const accountAddress = this.ensureAccountAddress();
+    if (accountAddress) {
       const transactionsLoader = new TransactionsLoader(
         new RealEtherscanApiClient()
       );
@@ -101,19 +112,13 @@ class App extends React.Component<any, AppState> {
         transactionsLoader,
         uniswapTransactionParser
       );
-      console.log(
-        await accountSwaps.loadAccountSwaps(this.state.accountAddress)
-      );
+      console.log(await accountSwaps.loadAccountSwaps(accountAddress));
     }
   }
 
-  async connectToMetaMask() {
-    const accounts = await window.ethereum.request({
-      method: "eth_requestAccounts",
-    });
-    const accountAddress = accounts[0];
+  private async loadBalances(accountAddress: string) {
     const web3 = new Web3(window.ethereum);
-    this.setState({ web3, accountAddress, isLoadingTokens: true });
+    this.setState({ web3, isLoadingTokens: true });
     const { walletTokens, tokensByName } = this.state;
     // balanceOf will fail for "ETH" presumably because it's set to an invalid address (0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee)
     // so we just exclude it intially and re-add belo in `updateEthBalance()`
@@ -137,6 +142,15 @@ class App extends React.Component<any, AppState> {
     const ethBalance = await web3.eth.getBalance(accountAddress);
     await this.updateEthBalance(ethBalance);
     this.setState({ isLoadingTokens: false });
+  }
+
+  async connectToMetaMask() {
+    const accounts = await window.ethereum.request({
+      method: "eth_requestAccounts",
+    });
+    const accountAddress = accounts[0];
+    this.addressProvider.setCurrentAccountAddress(accountAddress);
+    this.loadBalances(accountAddress);
   }
 
   async fetchEthPrice(): Promise<string> {
@@ -172,10 +186,21 @@ class App extends React.Component<any, AppState> {
     Object.values(ALL_TOKENS).forEach((token: any, i: number, array: any) => {
       tokensByName[token.symbol] = token as Token;
     });
-    this.setState({
-      tokensByAddress: ALL_TOKENS,
-      tokensByName: tokensByName,
-    });
+    this.setState(
+      {
+        tokensByAddress: ALL_TOKENS,
+        tokensByName,
+      },
+      () => {
+        // Register this as a callback after setState() finished because loadBalances() relies on
+        // this state that we just set above.
+        const connectedAccountAddress = this.addressProvider.currentAccountAddress();
+        if (connectedAccountAddress) {
+          // User has previously connected to Metamask, so we can immediately load the account
+          this.loadBalances(connectedAccountAddress);
+        }
+      }
+    );
   }
 
   /* Returns the total account size in USD */
@@ -206,7 +231,7 @@ class App extends React.Component<any, AppState> {
           <td className="px-6 py-4 whitespace-nowrap">
             <div className="flex items-center">
               <div className="ml-4">
-                <div className="text-sm font-medium text-gray-900">
+                <div className="text-sm font-medium text-gray-900 dark:text-gray-100">
                   <img
                     src={token.logoURI}
                     alt={token.name}
@@ -218,14 +243,16 @@ class App extends React.Component<any, AppState> {
             </div>
           </td>
           <td className="px-6 py-4 whitespace-nowrap">
-            <div className="text-sm text-gray-900">{amountFormat(balance)}</div>
+            <div className="text-sm text-gray-900 dark:text-gray-100">
+              {amountFormat(balance)}
+            </div>
           </td>
           <td className="px-6 py-4 whitespace-nowrap">
-            <div className="text-sm font-medium text-gray-900">
+            <div className="text-sm font-medium text-gray-900 dark:text-gray-100">
               {currencyFormat(price)}
             </div>
           </td>
-          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-100">
             {currencyFormat(equity)}
           </td>
         </tr>
@@ -254,79 +281,35 @@ class App extends React.Component<any, AppState> {
     if (!this.state) {
       return <div>Loading...</div>;
     }
-    const { accountAddress, walletTokens, isLoadingTokens } = this.state;
+    const accountAddress = this.addressProvider.currentAccountAddress();
+    const { walletTokens, isLoadingTokens } = this.state;
     const currencyFormat = format("$,.2f");
     const accountSize = this.determineUSDAccountSize();
     const sortedTokens = this.sortTokenList();
+    const showConnectToMetamaskButton =
+      this.isMetamaskInstalled() && !accountAddress;
     return (
       <div>
-        <nav className="bg-gray-800">
+        <nav className="bg-gray-800 dark:bg-gray-700">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="flex items-center justify-between h-16">
               <div className="flex items-center">
-                <div className="flex-shrink-0">
-                  <img
-                    className="h-8 w-8"
-                    src="https://tailwindui.com/img/logos/workflow-mark-indigo-500.svg"
-                    alt="Workflow"
-                  />
-                </div>
+                <div className="flex-shrink-0 text-4xl">🥩</div>
                 <div className="hidden md:block">
-                  <div className="ml-10 flex items-baseline space-x-4">
+                  <div className="ml-10 flex items-start space-x-4">
                     <a
                       href="/"
-                      className="bg-gray-900 text-white px-3 py-2 rounded-md text-sm font-medium"
+                      className="bg-gray-900 text-white px-3 py-3 rounded-md text-sm font-medium"
                     >
                       Dashboard
                     </a>
-                    {/* <a
-                      href="/transactions"
-                      className="text-gray-300 hover:bg-gray-700 hover:text-white px-3 py-2 rounded-md text-sm font-medium"
-                    >
-                      Transactions
-                    </a> */}
                   </div>
                 </div>
               </div>
-              <div className="-mr-2 flex md:hidden">
-                <button
-                  type="button"
-                  className="bg-gray-800 inline-flex items-center justify-center p-2 rounded-md text-gray-400 hover:text-white hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-800 focus:ring-white"
-                  aria-controls="mobile-menu"
-                  aria-expanded="false"
-                >
-                  <span className="sr-only">Open main menu</span>
-                  <svg
-                    className="block h-6 w-6"
-                    xmlns="http://www.w3.org/2000/svg"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                    aria-hidden="true"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth="2"
-                      d="M4 6h16M4 12h16M4 18h16"
-                    />
-                  </svg>
-                  <svg
-                    className="hidden h-6 w-6"
-                    xmlns="http://www.w3.org/2000/svg"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                    aria-hidden="true"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth="2"
-                      d="M6 18L18 6M6 6l12 12"
-                    />
-                  </svg>
-                </button>
+              <div className="hidden md:block">
+                <div className="ml-4 flex items-center md:ml-6">
+                  <ThemeSelector />
+                </div>
               </div>
             </div>
           </div>
@@ -338,24 +321,20 @@ class App extends React.Component<any, AppState> {
               >
                 Dashboard
               </a>
-              {/* <a
-                href="/transactions"
-                className="text-gray-300 hover:bg-gray-700 hover:text-white block px-3 py-2 rounded-md text-base font-medium"
-              >
-                Transactions
-              </a> */}
             </div>
           </div>
         </nav>
-        <header className="bg-white shadow">
+        <header className="bg-white dark:bg-gray-800 shadow">
           <div className="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
-            <h1 className="text-3xl font-bold text-gray-900">Dashboard</h1>
+            <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-300">
+              Dashboard
+            </h1>
           </div>
         </header>
         <main>
           <div className="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
-            <div className="py-8 text-base leading-6 space-y-4 text-gray-700 sm:text-lg sm:leading-7">
-              {this.isMetamaskInstalled() && !this.state.web3 && (
+            <div className="py-8 text-base leading-6 space-y-4 text-gray-700 dark:text-gray-300 sm:text-lg sm:leading-7">
+              {showConnectToMetamaskButton && (
                 <div>
                   <p>
                     Get a detailed balance of your DeFi tokens and an account
@@ -372,7 +351,7 @@ class App extends React.Component<any, AppState> {
               )}
               {isLoadingTokens ? (
                 <div className="text-center">
-                  <CircularProgress />
+                  <CircularProgress color="secondary" />
                 </div>
               ) : (
                 walletTokens.length > 0 && (
@@ -393,37 +372,23 @@ class App extends React.Component<any, AppState> {
                     <div className="clear-both flex flex-col">
                       <div className="-my-2 overflow-x-auto sm:-mx-6 lg:-mx-8">
                         <div className="py-2 align-middle inline-block min-w-full sm:px-6 lg:px-8">
-                          <div className="shadow overflow-hidden border-b border-gray-200 sm:rounded-lg">
-                            <table className="min-w-full divide-y divide-gray-200">
-                              <thead className="bg-gray-50">
+                          <div className="shadow overflow-hidden border-b border-gray-200 dark:border-gray-700 sm:rounded-lg">
+                            <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-800">
+                              <thead className="bg-gray-50 dark:bg-gray-900">
                                 <tr>
-                                  <th
-                                    scope="col"
-                                    className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-                                  >
-                                    Token
-                                  </th>
-                                  <th
-                                    scope="col"
-                                    className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-                                  >
-                                    Quantity
-                                  </th>
-                                  <th
-                                    scope="col"
-                                    className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-                                  >
-                                    Price
-                                  </th>
-                                  <th
-                                    scope="col"
-                                    className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-                                  >
-                                    Value
-                                  </th>
+                                  {["Token", "Quantity", "Price", "Value"].map(
+                                    (col: string) => (
+                                      <th
+                                        scope="col"
+                                        className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider"
+                                      >
+                                        {col}
+                                      </th>
+                                    )
+                                  )}
                                 </tr>
                               </thead>
-                              <tbody className="bg-white divide-y divide-gray-200">
+                              <tbody className="bg-white dark:bg-black divide-y divide-gray-200 dark:divide-gray-800">
                                 {sortedTokens.map(
                                   this.renderTokenBalance.bind(this)
                                 )}
