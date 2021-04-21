@@ -52,7 +52,7 @@ class App extends React.Component<any, AppState> {
     this.state = {
       web3: undefined,
       isLoadingTokens: false,
-      chain: Chain.UNKNOWN,
+      chain: Chain.ETHEREUM_MAINNET,
       tokensByAddress: {},
       tokensByName: {},
       walletTokens: [],
@@ -128,6 +128,7 @@ class App extends React.Component<any, AppState> {
   }
 
   private async checkChainId(): Promise<Chain> {
+    if (!this.isMetamaskInstalled()) return Chain.UNKNOWN;
     const chainId = await window.ethereum.request({ method: "eth_chainId" });
     switch (parseInt(chainId)) {
       case ChainId.MAINNET:
@@ -152,6 +153,9 @@ class App extends React.Component<any, AppState> {
   }
 
   private async loadBalances(accountAddress: string) {
+    if (!this.isMetamaskInstalled()) {
+      return;
+    }
     const chain = this.state.chain;
     if (!this.isChainSupported(chain)) {
       console.log(`Unsupported chain ${Chain[chain]}`);
@@ -322,9 +326,10 @@ class App extends React.Component<any, AppState> {
     const currencyFormat = format("$,.2f");
     const accountSize = this.determineUSDAccountSize();
     const sortedTokens = this.sortTokenList();
-    const isUnsupportedChain = !this.isChainSupported(chain);
-    const showConnectToMetamaskButton =
-      this.isMetamaskInstalled() && !accountAddress;
+    const isMetamaskInstalled = this.isMetamaskInstalled();
+    const isUnsupportedChain =
+      isMetamaskInstalled && !this.isChainSupported(chain);
+    const showConnectToMetamaskButton = isMetamaskInstalled && !accountAddress;
     return (
       <div>
         <nav className="bg-gray-800 dark:bg-gray-700">
@@ -371,6 +376,15 @@ class App extends React.Component<any, AppState> {
         <main>
           <div className="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
             <div className="py-8 text-base leading-6 space-y-4 text-gray-700 dark:text-gray-300 sm:text-lg sm:leading-7">
+              {!isMetamaskInstalled && (
+                <p>
+                  Sorry, you must first install{" "}
+                  <a href="https://metamask.io/">Metamask</a> in order to use
+                  Churras. <br />
+                  Just refresh this page once you have it installed and you'll
+                  be all set.
+                </p>
+              )}
               {showConnectToMetamaskButton && (
                 <div>
                   <p>
@@ -388,8 +402,8 @@ class App extends React.Component<any, AppState> {
               )}
               {isUnsupportedChain && (
                 <p>
-                  Sorry, the network you have currently selected is not yet
-                  supported.
+                  Sorry, the network you have currently selected in Metamask is
+                  not yet supported.
                 </p>
               )}
               {isLoadingTokens ? (
