@@ -2,7 +2,7 @@ import { Trade } from "@uniswap/sdk";
 import { utils, Wallet } from "ethers";
 import BinanceClient from "./binance";
 import DeFiTrader from "./trader";
-import { percentFormat, currencyFormat } from "./util";
+import { percentFormat, currencyFormat } from "../util";
 
 function logTrade(trade: Trade) {
   const executionPrice = trade.executionPrice.toSignificant(6);

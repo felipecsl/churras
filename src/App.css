@@ -10,3 +10,30 @@
     @apply text-xl;
   }
 }
+
+.themeselector-wrapper {
+  display: flex;
+  -webkit-box-align: center;
+  align-items: center;
+}
+
+.themeselector-wrapper .off {
+  align-self: center;
+  fill: rgb(102, 97, 113);
+  flex-shrink: 0;
+}
+
+.themeselector-wrapper .divider {
+  color: rgb(102, 97, 113);
+  font-size: 16px;
+  font-weight: 400;
+  line-height: 1.5;
+  margin-left: 4px;
+  margin-right: 4px;
+}
+
+.themeselector-wrapper .on {
+  align-self: center;
+  fill: rgb(234, 226, 252);
+  flex-shrink: 0;
+}
