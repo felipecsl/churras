@@ -23,6 +23,7 @@
     "@types/react-dom": "^16.9.8",
     "@uniswap/sdk": "^3.0.3",
     "@uniswap/v2-periphery": "^1.1.0-beta.0",
+    "animated-number-react": "^0.1.2",
     "autoprefixer": "^9",
     "binance-api-node": "^0.10.33",
     "d3-format": "^2.0.0",

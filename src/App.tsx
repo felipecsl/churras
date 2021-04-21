@@ -10,6 +10,7 @@ import { RealEtherscanApiClient } from "./etherscanApiClient";
 import UniswapTransactionParser from "./transaction/uniswapTransactionParser";
 import { ALL_TOKENS } from "./tokenList";
 import { CircularProgress } from "@material-ui/core";
+import AnimatedNumber from "animated-number-react";
 
 interface AppState {
   web3?: Web3;
@@ -381,11 +382,12 @@ class App extends React.Component<any, AppState> {
                         <code className="float-left">
                           <small>{accountAddress}</small>
                         </code>
-                        {accountSize > 0 && (
-                          <p className="font-semibold text-2xl text-right">
-                            {currencyFormat(accountSize)}
-                          </p>
-                        )}
+                        <p className="font-semibold text-2xl text-right">
+                          <AnimatedNumber
+                            value={accountSize}
+                            formatValue={currencyFormat}
+                          />
+                        </p>
                       </div>
                     )}
                     <div className="clear-both flex flex-col">
