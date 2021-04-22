@@ -130,7 +130,9 @@ class App extends React.Component<any, AppState> {
   }
 
   private async checkChainId(): Promise<Chain> {
-    if (!this.isMetamaskInstalled()) return Chain.UNKNOWN;
+    if (!this.isMetamaskInstalled()) {
+      return Chain.UNKNOWN;
+    }
     const chainId = await window.ethereum.request({ method: "eth_chainId" });
     switch (parseInt(chainId)) {
       case ChainId.MAINNET:

@@ -15,5 +15,8 @@ import Token from "./token";
 });
 export const TOKENS_BY_NETWORK = {} as Record<number, Record<string, Token>>;
 TOKENS_BY_NETWORK[Chain.ETHEREUM_MAINNET] = ALL_ETHEREUM_TOKENS;
+TOKENS_BY_NETWORK[Chain.ETHEREUM_TESTNET] = {};
 TOKENS_BY_NETWORK[Chain.BSC_MAINNET] = ALL_BSC_TOKENS;
+TOKENS_BY_NETWORK[Chain.BSC_TESTNET] = {};
+TOKENS_BY_NETWORK[Chain.UNKNOWN] = {};
 Object.freeze(TOKENS_BY_NETWORK);
