@@ -6,8 +6,8 @@ import {
 import { Contract, Transaction, utils } from "ethers";
 import { Interface, LogDescription, Result } from "ethers/lib/utils";
 import ABIS, { uniswapLPContractABI, UNISWAP_ROUTER_ADDRESS } from "../abis";
+import Token from "../token/token";
 import { throwError } from "../util";
-import Token from "../token";
 
 export interface TokenTransfer {
   // eth address
@@ -61,7 +61,7 @@ export default class UniswapTransactionParser {
   }
 
   private async determineTokenDecimals(address: string): Promise<number> {
-    const token = this.addressesToTokens[address];
+    const token = this.addressesToTokens[utils.getAddress(address)];
     if (token) {
       // if we know this token, great! return it and be done
       return token.decimals;
@@ -166,7 +166,7 @@ export default class UniswapTransactionParser {
     );
     // `result.path` holds an array of ERC20 token addresses
     const path = result.path.map(
-      (addr: string) => this.addressesToTokens[addr]?.symbol
+      (addr: string) => this.addressesToTokens[utils.getAddress(addr)]?.symbol
     );
     const amountIn = transfers[0]?.amount;
     if (!result.path) {
@@ -174,7 +174,7 @@ export default class UniswapTransactionParser {
     }
     const outputTokenAddress = result.path[result.path.length - 1];
     const outputToken =
-      this.addressesToTokens[outputTokenAddress] ||
+      this.addressesToTokens[utils.getAddress(outputTokenAddress)] ||
       throwError(`Cannot find output token with address ${outputTokenAddress}`);
     const outputDecimals = await this.determineTokenDecimals(
       outputToken.address

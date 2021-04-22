@@ -2,27 +2,22 @@ import React from "react";
 import Web3 from "web3";
 import { format } from "d3-format";
 import "./App.css";
-import Token, { ETH_TOKEN, WalletToken } from "./token";
+import Token, { BNB_TOKEN, ETH_TOKEN } from "./token/token";
 import { DEFAULT_PROVIDER, MIN_DISPLAY_AMOUNT } from "./constants";
 import AccountSwaps from "./transaction/accountSwaps";
 import TransactionsLoader from "./transaction/transactionsLoader";
 import { RealEtherscanApiClient } from "./etherscanApiClient";
 import UniswapTransactionParser from "./transaction/uniswapTransactionParser";
-import { ALL_TOKENS } from "./tokenList";
 import { CircularProgress } from "@material-ui/core";
 import AnimatedNumber from "animated-number-react";
 import ThemeSelector from "./themeSelector";
 import { ensure } from "./util";
 import AccountAddressProvider from "./accountAddressProvider";
 import { ChainId } from "@uniswap/sdk";
-
-enum Chain {
-  ETHEREUM_MAINNET,
-  ETHEREUM_TESTNET,
-  BSC_MAINNET,
-  BSC_TESTNET,
-  UNKNOWN,
-}
+import { Chain } from "./chain";
+import { WalletToken } from "./token/walletToken";
+import { TOKENS_BY_NETWORK } from "./token/tokenList";
+import { utils } from "ethers";
 
 interface AppState {
   web3?: Web3;
@@ -63,11 +58,18 @@ class App extends React.Component<any, AppState> {
     return typeof window.ethereum !== "undefined";
   }
 
-  async updateEthBalance(balance: any) {
+  private isEthereum(): boolean {
+    return [Chain.ETHEREUM_MAINNET, Chain.ETHEREUM_TESTNET].includes(
+      this.state.chain
+    );
+  }
+
+  private async updateEthOrBnbBalance(balance: any) {
     if (this.state.web3) {
       const { walletTokens } = this.state;
+      const mainToken = this.isEthereum() ? ETH_TOKEN : BNB_TOKEN;
       walletTokens.push(
-        new WalletToken(ETH_TOKEN, {
+        new WalletToken(mainToken, {
           balance: this.state.web3.utils.fromWei(balance),
           price: await this.fetchEthPrice(),
         })
@@ -116,7 +118,7 @@ class App extends React.Component<any, AppState> {
         new RealEtherscanApiClient()
       );
       const uniswapTransactionParser = new UniswapTransactionParser(
-        ALL_TOKENS,
+        TOKENS_BY_NETWORK[this.state.chain],
         DEFAULT_PROVIDER
       );
       const accountSwaps = new AccountSwaps(
@@ -149,7 +151,7 @@ class App extends React.Component<any, AppState> {
 
   private isChainSupported(chain: number) {
     // For now only Ethereum Mainnet supported
-    return chain === Chain.ETHEREUM_MAINNET;
+    return chain === Chain.ETHEREUM_MAINNET || chain === Chain.BSC_MAINNET;
   }
 
   private async loadBalances(accountAddress: string) {
@@ -183,8 +185,8 @@ class App extends React.Component<any, AppState> {
       );
     });
     this.setState({ walletTokens });
-    const ethBalance = await web3.eth.getBalance(accountAddress);
-    await this.updateEthBalance(ethBalance);
+    const ethOrBnbBalance = await web3.eth.getBalance(accountAddress);
+    await this.updateEthOrBnbBalance(ethOrBnbBalance);
     this.setState({ isLoadingTokens: false });
   }
 
@@ -197,7 +199,7 @@ class App extends React.Component<any, AppState> {
     this.loadBalances(accountAddress);
   }
 
-  async fetchEthPrice(): Promise<string> {
+  private async fetchEthPrice(): Promise<string> {
     const res = await fetch(ETH_PRICE_API_ENDPOINT);
     const results = await res.json();
     return results["ethereum"]["usd"];
@@ -214,7 +216,7 @@ class App extends React.Component<any, AppState> {
     const ret: Record<string, string> = {};
     Object.entries(results).forEach(
       ([tokenAddress, priceObj]: [string, any]) => {
-        const token = tokensByAddress[tokenAddress];
+        const token = tokensByAddress[utils.getAddress(tokenAddress)];
         if (token) {
           ret[token.symbol] = priceObj["usd"];
         } else {
@@ -226,12 +228,13 @@ class App extends React.Component<any, AppState> {
   }
 
   async componentDidMount() {
+    const chain = await this.checkChainId();
+    const allTokens = TOKENS_BY_NETWORK[chain];
     const tokensByName = {} as Record<string, Token>;
-    Object.values(ALL_TOKENS).forEach((token: any, i: number, array: any) => {
+    Object.values(allTokens).forEach((token: any, i: number, array: any) => {
       tokensByName[token.symbol] = token as Token;
     });
-    const chain = await this.checkChainId();
-    const tokensByAddress = ALL_TOKENS;
+    const tokensByAddress = allTokens;
     this.setState({ tokensByAddress, tokensByName, chain }, () => {
       // Register this as a callback after setState() finished because loadBalances() relies on
       // this state that we just set above.
