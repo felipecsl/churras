@@ -1,7 +1,7 @@
-import { utils } from "ethers";
 import Token from "./token";
 
-export const ALL_TOKENS = {
+// source: https://api.1inch.exchange/v2.0/tokens
+export const ALL_ETHEREUM_TOKENS = {
   "0x006bea43baa3f7a6f765f14f10a1a1b08334ef45": {
     symbol: "STX",
     name: "Stox",
@@ -7739,6 +7739,3 @@ export const ALL_TOKENS = {
       "https://tokens.1inch.exchange/0x55296f69f40ea6d20e478533c15a6b08b654e758.png",
   },
 } as Record<string, Token>;
-for (const [, value] of Object.entries(ALL_TOKENS)) {
-  ALL_TOKENS[utils.getAddress(value.address)] = value;
-}

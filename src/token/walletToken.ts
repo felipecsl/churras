@@ -1,11 +1,4 @@
-// Represents an ERC20 token
-export default interface Token {
-  symbol: string;
-  name: string;
-  address: string;
-  decimals: number;
-  logoURI: string;
-}
+import Token from "./token";
 
 export class WalletToken implements Token {
   readonly symbol: string;
@@ -29,12 +22,3 @@ export class WalletToken implements Token {
     this.price = price;
   }
 }
-
-export const ETH_TOKEN = {
-  symbol: "ETH",
-  name: "Ehereum",
-  address: "",
-  decimals: 18,
-  logoURI:
-    "https://tokens.1inch.exchange/0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee.png",
-} as Token;
