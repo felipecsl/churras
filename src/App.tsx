@@ -27,9 +27,8 @@ interface AppState {
   isLoadingTokens: boolean;
   chain: number;
   walletTokens: WalletToken[];
-  // keys are the token symbols
   tokensByAddress: Record<string, Token>;
-  tokensByName: Record<string, Token>;
+  tokensBySymbol: Record<string, Token>;
 }
 
 declare global {
@@ -54,7 +53,7 @@ class App extends React.Component<any, AppState> {
       isLoadingTokens: false,
       chain: Chain.ETHEREUM_MAINNET,
       tokensByAddress: {},
-      tokensByName: {},
+      tokensBySymbol: {},
       walletTokens: [],
     };
   }
@@ -113,7 +112,7 @@ class App extends React.Component<any, AppState> {
       tokenContractAddress
     );
     const balance = await tokenPromise.methods.balanceOf(accountAddress).call();
-    return { token, balance: +web3.utils.fromWei(balance) };
+    return { token, balance: +utils.formatUnits(balance, token.decimals) };
   }
 
   async loadAccountTransactions() {
@@ -172,12 +171,12 @@ class App extends React.Component<any, AppState> {
     }
     const web3 = new Web3(window.ethereum);
     this.setState({ web3, isLoadingTokens: true });
-    const { walletTokens, tokensByName } = this.state;
+    const { walletTokens, tokensBySymbol } = this.state;
     // balanceOf will fail for "ETH" presumably because it's set to an invalid address (0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee)
     // so we just exclude it intially and re-add belo in `updateEthBalance()`
-    delete tokensByName["ETH"];
+    delete tokensBySymbol["ETH"];
     // 1. fetch all token balances
-    const tokensToBalances = Object.values(tokensByName).map((token: Token) =>
+    const tokensToBalances = Object.values(tokensBySymbol).map((token: Token) =>
       this.fetchTokenBalance(web3, token)
     );
     const results = await Promise.all(tokensToBalances);
@@ -236,13 +235,14 @@ class App extends React.Component<any, AppState> {
 
   async componentDidMount() {
     const chain = await this.checkChainId();
-    const allTokens = TOKENS_BY_NETWORK[chain];
-    const tokensByName = {} as Record<string, Token>;
-    Object.values(allTokens).forEach((token: any, i: number, array: any) => {
-      tokensByName[token.symbol] = token as Token;
-    });
-    const tokensByAddress = allTokens;
-    this.setState({ tokensByAddress, tokensByName, chain }, () => {
+    const tokensByAddress = TOKENS_BY_NETWORK[chain];
+    const tokensBySymbol = Object.fromEntries(
+      Object.values(tokensByAddress).map((token) => [
+        token.symbol,
+        token as Token,
+      ])
+    );
+    this.setState({ tokensByAddress, tokensBySymbol, chain }, () => {
       // Register this as a callback after setState() finished because loadBalances() relies on
       // this state that we just set above.
       const connectedAccountAddress = this.addressProvider.currentAccountAddress();
