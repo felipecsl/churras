@@ -21,6 +21,8 @@ import { utils } from "ethers";
 import TokenTableRow from "./components/tokenTableRow";
 import EthereumTokenPricesProvider from "./providers/ethereumTokenPricesProvider";
 import BscTokenPricesProvider from "./providers/bscTokenPricesProvider";
+import { Web3Provider } from "@ethersproject/providers";
+import TokenBalanceResolver from "./token/tokenBalanceResolver";
 
 interface AppState {
   web3?: Web3;
@@ -91,30 +93,6 @@ class App extends React.Component<any, AppState> {
     ) as string;
   }
 
-  async fetchTokenBalance(
-    web3: Web3,
-    token: Token
-  ): Promise<{ token: Token; balance: any }> {
-    const accountAddress = this.ensureAccountAddress();
-    const tokenContractAddress = token.address;
-    const tokenPromise = new web3.eth.Contract(
-      [
-        {
-          constant: true,
-          inputs: [{ internalType: "address", name: "", type: "address" }],
-          name: "balanceOf",
-          outputs: [{ internalType: "uint256", name: "", type: "uint256" }],
-          payable: false,
-          stateMutability: "view",
-          type: "function",
-        },
-      ],
-      tokenContractAddress
-    );
-    const balance = await tokenPromise.methods.balanceOf(accountAddress).call();
-    return { token, balance: +utils.formatUnits(balance, token.decimals) };
-  }
-
   async loadAccountTransactions() {
     const accountAddress = this.ensureAccountAddress();
     if (accountAddress) {
@@ -173,11 +151,15 @@ class App extends React.Component<any, AppState> {
     this.setState({ web3, isLoadingTokens: true });
     const { walletTokens, tokensBySymbol } = this.state;
     // balanceOf will fail for "ETH" presumably because it's set to an invalid address (0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee)
-    // so we just exclude it intially and re-add belo in `updateEthBalance()`
+    // so we just exclude it intially and re-add below in `updateEthBalance()`
     delete tokensBySymbol["ETH"];
     // 1. fetch all token balances
-    const tokensToBalances = Object.values(tokensBySymbol).map((token: Token) =>
-      this.fetchTokenBalance(web3, token)
+    const tokenBalanceResolver = new TokenBalanceResolver(
+      accountAddress,
+      new Web3Provider(window.ethereum)
+    );
+    const tokensToBalances = Object.values(tokensBySymbol).map((token) =>
+      tokenBalanceResolver.resolveBalance(token)
     );
     const results = await Promise.all(tokensToBalances);
     // 2. filter results to only the tokens which have a positive balance
