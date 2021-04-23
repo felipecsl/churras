@@ -7738,4 +7738,4 @@ export const ALL_ETHEREUM_TOKENS = {
     logoURI:
       "https://tokens.1inch.exchange/0x55296f69f40ea6d20e478533c15a6b08b654e758.png",
   },
-} as Record<string, Token>;
+} as Record<string, any>;

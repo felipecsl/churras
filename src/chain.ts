@@ -1,3 +1,8 @@
+export enum Network {
+  ETHEREUM,
+  BSC,
+}
+
 export enum Chain {
   ETHEREUM_MAINNET,
   ETHEREUM_TESTNET,

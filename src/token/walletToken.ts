@@ -8,9 +8,10 @@ export class WalletToken implements Token {
   readonly logoURI: string;
   readonly balance: string;
   readonly price: string;
+  readonly network: string;
 
   constructor(
-    { symbol, name, address, decimals, logoURI }: Token,
+    { symbol, name, address, decimals, logoURI, network }: Token,
     { balance, price }: { balance: string; price: string }
   ) {
     this.symbol = symbol;
@@ -19,6 +20,7 @@ export class WalletToken implements Token {
     this.decimals = decimals;
     this.logoURI = logoURI;
     this.balance = balance;
+    this.network = network;
     this.price = price;
   }
 }

@@ -1,3 +1,4 @@
+import { Network } from "../chain";
 import Token from "./token";
 
 // source: https://api.pancakeswap.info/api/tokens
@@ -5319,14 +5320,19 @@ const rawBscTokens = {
     price_BNB: "0.006817341354210378684124272916527795",
   },
 } as Readonly<Record<string, any>>;
-export const ALL_BSC_TOKENS = {} as Record<string, Token>;
-for (const [key, value] of Object.entries(rawBscTokens)) {
-  // TODO: we're defaulting all tokens to 18 decimals here which is probably not correct
-  ALL_BSC_TOKENS[key] = {
-    name: value.name,
-    symbol: value.symbol,
-    address: key,
-    decimals: 18,
-    logoURI: `https://exchange.pancakeswap.finance/images/coins/${key}.png`,
-  };
-}
+export const ALL_BSC_TOKENS = Object.fromEntries(
+  Object.entries(rawBscTokens).map(([key, value]) =>
+    // TODO: we're defaulting all tokens to 18 decimals here which is probably not correct
+    [
+      key,
+      {
+        name: value.name,
+        symbol: value.symbol,
+        address: key,
+        decimals: 18,
+        network: Network[Network.BSC],
+        logoURI: `https://exchange.pancakeswap.finance/images/coins/${key}.png`,
+      } as Token,
+    ]
+  )
+);
