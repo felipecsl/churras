@@ -3,21 +3,24 @@ import Web3 from "web3";
 import { format } from "d3-format";
 import "./App.css";
 import Token, { BNB_TOKEN, ETH_TOKEN } from "./token/token";
-import { DEFAULT_PROVIDER, MIN_DISPLAY_AMOUNT } from "./constants";
+import { DEFAULT_PROVIDER } from "./constants";
 import AccountSwaps from "./transaction/accountSwaps";
 import TransactionsLoader from "./transaction/transactionsLoader";
 import { RealEtherscanApiClient } from "./etherscanApiClient";
 import UniswapTransactionParser from "./transaction/uniswapTransactionParser";
 import { CircularProgress } from "@material-ui/core";
 import AnimatedNumber from "animated-number-react";
-import ThemeSelector from "./themeSelector";
+import ThemeSelector from "./components/themeSelector";
 import { ensure } from "./util";
-import AccountAddressProvider from "./accountAddressProvider";
+import AccountAddressProvider from "./providers/accountAddressProvider";
 import { ChainId } from "@uniswap/sdk";
 import { Chain } from "./chain";
 import { WalletToken } from "./token/walletToken";
 import { TOKENS_BY_NETWORK } from "./token/tokenList";
 import { utils } from "ethers";
+import TokenTableRow from "./components/tokenTableRow";
+import EthereumTokenPricesProvider from "./providers/ethereumTokenPricesProvider";
+import BscTokenPricesProvider from "./providers/bscTokenPricesProvider";
 
 interface AppState {
   web3?: Web3;
@@ -39,7 +42,9 @@ const ETH_PRICE_API_ENDPOINT =
   "https://api.coingecko.com/api/v3/simple/price?ids=ethereum&vs_currencies=usd";
 
 class App extends React.Component<any, AppState> {
-  private addressProvider: AccountAddressProvider = new AccountAddressProvider();
+  private readonly addressProvider = new AccountAddressProvider();
+  private readonly ethereumTokenPricesProvider = new EthereumTokenPricesProvider();
+  private readonly bscTokenPricesProvider = new BscTokenPricesProvider();
 
   constructor(props: any) {
     super(props);
@@ -160,7 +165,7 @@ class App extends React.Component<any, AppState> {
     if (!this.isMetamaskInstalled()) {
       return;
     }
-    const chain = this.state.chain;
+    const { chain } = this.state;
     if (!this.isChainSupported(chain)) {
       console.log(`Unsupported chain ${Chain[chain]}`);
       return;
@@ -210,23 +215,23 @@ class App extends React.Component<any, AppState> {
   async fetchTokenPrices(
     tokenAddresses: string[]
   ): Promise<Record<string, string>> {
-    const addressList = tokenAddresses.join(",");
-    const apiUrl = `https://api.coingecko.com/api/v3/simple/token_price/ethereum?contract_addresses=${addressList}&vs_currencies=usd`;
-    const res = await fetch(apiUrl);
-    const results = await res.json();
-    const { tokensByAddress } = this.state;
-    const ret: Record<string, string> = {};
-    Object.entries(results).forEach(
-      ([tokenAddress, priceObj]: [string, any]) => {
-        const token = tokensByAddress[utils.getAddress(tokenAddress)];
-        if (token) {
-          ret[token.symbol] = priceObj["usd"];
-        } else {
-          console.error(`Unable to find token with address ${tokenAddress}`);
-        }
+    const { tokensByAddress, chain } = this.state;
+    // select correct provider based on the current chain in use
+    const provider =
+      chain === Chain.ETHEREUM_MAINNET
+        ? this.ethereumTokenPricesProvider
+        : this.bscTokenPricesProvider;
+    const results = await provider.fetchPrices(tokenAddresses);
+    const symbolToPrice: Record<string, string> = {};
+    results.forEach(([tokenAddress, price]) => {
+      const token = tokensByAddress[utils.getAddress(tokenAddress)];
+      if (token) {
+        symbolToPrice[token.symbol] = price;
+      } else {
+        console.error(`Unable to find token with address ${tokenAddress}`);
       }
-    );
-    return ret;
+    });
+    return symbolToPrice;
   }
 
   async componentDidMount() {
@@ -257,50 +262,6 @@ class App extends React.Component<any, AppState> {
       return walletTokens.reduce(
         (acc: number, wt: WalletToken) => acc + +wt.price * +wt.balance,
         0
-      );
-    }
-  }
-
-  renderTokenBalance(token: WalletToken) {
-    const symbol = token.symbol;
-    const price = +token.price;
-    const balance = +token.balance;
-    // total token amount in USD
-    const equity = price * balance;
-    const currencyFormat = format("$,.2f");
-    const amountFormat = format(".2f");
-    // do not display row if amount is not more than $5 cents
-    if (equity > MIN_DISPLAY_AMOUNT) {
-      return (
-        <tr key={symbol}>
-          <td className="px-6 py-4 whitespace-nowrap">
-            <div className="flex items-center">
-              <div className="ml-4">
-                <div className="text-sm font-medium text-gray-900 dark:text-gray-100">
-                  <img
-                    src={token.logoURI}
-                    alt={token.name}
-                    className="w-5 mr-2 float-left"
-                  />
-                  {symbol}
-                </div>
-              </div>
-            </div>
-          </td>
-          <td className="px-6 py-4 whitespace-nowrap">
-            <div className="text-sm text-gray-900 dark:text-gray-100">
-              {amountFormat(balance)}
-            </div>
-          </td>
-          <td className="px-6 py-4 whitespace-nowrap">
-            <div className="text-sm font-medium text-gray-900 dark:text-gray-100">
-              {currencyFormat(price)}
-            </div>
-          </td>
-          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-100">
-            {currencyFormat(equity)}
-          </td>
-        </tr>
       );
     }
   }
@@ -452,9 +413,12 @@ class App extends React.Component<any, AppState> {
                                 </tr>
                               </thead>
                               <tbody className="bg-white dark:bg-black divide-y divide-gray-200 dark:divide-gray-800">
-                                {sortedTokens.map(
-                                  this.renderTokenBalance.bind(this)
-                                )}
+                                {sortedTokens.map((token: WalletToken) => (
+                                  <TokenTableRow
+                                    key={token.symbol}
+                                    token={token}
+                                  />
+                                ))}
                               </tbody>
                             </table>
                           </div>
