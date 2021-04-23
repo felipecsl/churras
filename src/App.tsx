@@ -17,7 +17,7 @@ import { ChainId } from "@uniswap/sdk";
 import { Chain } from "./chain";
 import { WalletToken } from "./token/walletToken";
 import { TOKENS_BY_NETWORK } from "./token/tokenList";
-import { ethers, utils } from "ethers";
+import { utils } from "ethers";
 import TokenTableRow from "./components/tokenTableRow";
 import EthereumTokenPricesProvider from "./providers/ethereumTokenPricesProvider";
 import BscTokenPricesProvider from "./providers/bscTokenPricesProvider";

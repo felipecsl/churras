@@ -1,5 +1,3 @@
-import Token from "./token";
-
 // source: https://api.1inch.exchange/v2.0/tokens
 export const ALL_ETHEREUM_TOKENS = {
   "0x006bea43baa3f7a6f765f14f10a1a1b08334ef45": {
