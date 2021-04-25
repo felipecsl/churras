@@ -1,5 +1,5 @@
 import { Chain } from "../chain";
-import { DEFAULT_PROVIDER } from "../constants";
+import { DEFAULT_ETHEREUM_PROVIDER } from "../constants";
 import { TOKENS_BY_NETWORK } from "../token/tokenList";
 import AccountSwaps from "../transaction/accountSwaps";
 import TransactionsLoader from "../transaction/transactionsLoader";
@@ -13,7 +13,7 @@ test("loads all Uniswap transactions from account", async () => {
   const transactionLoader = new TransactionsLoader(fakeEtherscanApiClient);
   const uniswapTransaction = new UniswapTransactionParser(
     TOKENS_BY_NETWORK[Chain.ETHEREUM_MAINNET],
-    DEFAULT_PROVIDER
+    DEFAULT_ETHEREUM_PROVIDER
   );
   const accountSwaps = new AccountSwaps(transactionLoader, uniswapTransaction);
   const swaps = await accountSwaps.loadAccountSwaps("0xDoesNotMatter");

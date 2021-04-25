@@ -1,7 +1,8 @@
 # Churras
 
-- View a quick summary of your Metamask wallet balance.
-- Arbitrage token pairs between Uniswap and Binance (work in progress) `yarn run server:build server:run`
+🥩 "churras" is a shorthand for "churrasco", which is a delicious [Brazilian style barbecue](https://www.merriam-webster.com/dictionary/churrasco).
+
+Churras is a simple Metamask wallet dashboard.
 
 ## Available Scripts
 
