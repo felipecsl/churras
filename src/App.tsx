@@ -32,6 +32,11 @@ interface AppState {
   walletTokens: WalletToken[];
 }
 
+interface AppProps {
+  networkToPriceProviders: Record<string, TokenPricesProvider>;
+  tokenDatabases: Record<string, TokenDatabase>;
+}
+
 declare global {
   interface Window {
     ethereum: any;
@@ -41,21 +46,21 @@ declare global {
 const ETH_PRICE_API_ENDPOINT =
   "https://api.coingecko.com/api/v3/simple/price?ids=ethereum&vs_currencies=usd";
 
-class App extends React.Component<any, AppState> {
-  private readonly addressProvider = new AccountAddressProvider();
-  private readonly networkToPriceProvider: Record<
-    string,
-    TokenPricesProvider
-  > = Object.fromEntries([
-    [Network[Network.ETHEREUM], new EthereumTokenPricesProvider()],
-    [Network[Network.BSC], new BscTokenPricesProvider()],
-  ]);
-  private readonly tokenDatabases = Object.fromEntries([
-    [Network[Network.ETHEREUM], new TokenDatabase(Network.ETHEREUM)],
-    [Network[Network.BSC], new TokenDatabase(Network.BSC)],
-  ]);
+class App extends React.Component<AppProps, AppState> {
+  static defaultProps = {
+    networkToPriceProviders: Object.fromEntries([
+      [Network[Network.ETHEREUM], new EthereumTokenPricesProvider()],
+      [Network[Network.BSC], new BscTokenPricesProvider()],
+    ]),
+    tokenDatabases: Object.fromEntries([
+      [Network[Network.ETHEREUM], new TokenDatabase(Network.ETHEREUM)],
+      [Network[Network.BSC], new TokenDatabase(Network.BSC)],
+    ]),
+  };
 
-  constructor(props: any) {
+  private readonly addressProvider = new AccountAddressProvider();
+
+  constructor(props: AppProps) {
     super(props);
 
     this.state = {
@@ -129,8 +134,9 @@ class App extends React.Component<any, AppState> {
       DEFAULT_ETHEREUM_PROVIDER,
       DEFAULT_BSC_PROVIDER
     );
+    const { tokenDatabases } = this.props;
     // 1. fetch all token balances
-    const tokensToBalances = Object.values(this.tokenDatabases)
+    const tokensToBalances = Object.values(tokenDatabases)
       .flatMap((db) => db.allTokens())
       .map((t) => tokenBalanceResolver.resolveBalance(t));
     const results = await Promise.all(tokensToBalances);
@@ -166,15 +172,13 @@ class App extends React.Component<any, AppState> {
 
   /* Fetch prices for all the provided tokens. Returns a map of Token to price */
   async fetchTokenPrices(tokens: Token[]): Promise<Map<Token, string>> {
+    const { tokenDatabases, networkToPriceProviders } = this.props;
     // select correct provider and token database based on the tokens network
-    const tokensByNetwork: Record<string, Token[]> = groupBy(
-      tokens,
-      (t) => t.network
-    );
+    const tokensByNetwork = groupBy(tokens, (t) => t.network);
     const tokenToPrice = new Map<Token, string>();
     for (const [network, tokens] of Object.entries(tokensByNetwork)) {
-      const priceProvider = this.networkToPriceProvider[network];
-      const tokenDatabase = this.tokenDatabases[network];
+      const priceProvider = networkToPriceProviders[network];
+      const tokenDatabase = tokenDatabases[network];
       const tokenAddresses = tokens.map((t) => t.address);
       const prices = await priceProvider.fetchPrices(tokenAddresses);
       prices.forEach(([tokenAddress, price]) => {
