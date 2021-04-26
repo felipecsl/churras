@@ -1,6 +1,6 @@
-# Churras
+# 🥩 Churras
 
-🥩 "churras" is a shorthand for "churrasco", which is a delicious [Brazilian style barbecue](https://www.merriam-webster.com/dictionary/churrasco).
+"churras" is a shorthand for "churrasco", which is a delicious [Brazilian style barbecue](https://www.merriam-webster.com/dictionary/churrasco).
 
 Churras is a simple Metamask wallet dashboard.
 

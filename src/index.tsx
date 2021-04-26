@@ -3,12 +3,11 @@ import React from "react";
 import ReactDOM from "react-dom";
 import App from "./App";
 import { Network } from "./chain";
-import { DEFAULT_BSC_PROVIDER } from "./constants";
+import { DEFAULT_BSC_PROVIDER, INFURA_API_KEY } from "./constants";
 import "./index.css";
 import reportWebVitals from "./reportWebVitals";
 import TokenBalanceResolver from "./token/tokenBalanceResolver";
 
-const INFURA_API_KEY = "3622ba9a27fe4e389875cd9c3e55670d";
 const ethereumProvider = InfuraProvider.getWebSocketProvider(
   "homestead",
   INFURA_API_KEY
