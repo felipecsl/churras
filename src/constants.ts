@@ -4,7 +4,7 @@ import { InfuraProvider, JsonRpcProvider } from "@ethersproject/providers";
 export const MIN_DISPLAY_AMOUNT = 0.05;
 export const ETHERSCAN_API_KEY = "5E9AEFB4BCJZ71MGI2CZV8NP3CF9FM8Q2H";
 export const BSCSCAN_API_KEY = "MAK2G8HSHDQEICD71FZ6A8125UTG2GAIT6";
-const ALCHEMY_API_KEY = "hFVzUX3b0LBuuGVTg6xU-RKxkHyND6ND";
+// const ALCHEMY_API_KEY = "hFVzUX3b0LBuuGVTg6xU-RKxkHyND6ND";
 const INFURA_API_KEY = "3622ba9a27fe4e389875cd9c3e55670d";
 export const DEFAULT_ETHEREUM_PROVIDER = InfuraProvider.getWebSocketProvider(
   "homestead",
