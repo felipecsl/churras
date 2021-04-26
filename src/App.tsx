@@ -9,7 +9,7 @@ import { Chain, Network } from "./chain";
 import ChainUtils from "./chainUtils";
 import ThemeSelector from "./components/themeSelector";
 import TokenTableRow from "./components/tokenTableRow";
-import { DEFAULT_BSC_PROVIDER, INFURA_ETHEREUM_PROVIDER } from "./constants";
+import { DEFAULT_BSC_PROVIDER, DEFAULT_ETHEREUM_PROVIDER } from "./constants";
 import AccountAddressProvider from "./providers/accountAddressProvider";
 import BscTokenPricesProvider from "./providers/bscTokenPricesProvider";
 import EthereumTokenPricesProvider from "./providers/ethereumTokenPricesProvider";
@@ -54,7 +54,7 @@ class App extends React.Component<AppProps, AppState> {
     ]),
     tokenBalanceResolver: new TokenBalanceResolver(
       Object.fromEntries([
-        [Network[Network.ETHEREUM], INFURA_ETHEREUM_PROVIDER],
+        [Network[Network.ETHEREUM], DEFAULT_ETHEREUM_PROVIDER],
         [Network[Network.BSC], DEFAULT_BSC_PROVIDER],
       ])
     ),
