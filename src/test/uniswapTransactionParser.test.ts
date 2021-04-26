@@ -1,6 +1,6 @@
 import React from "react";
 import { Chain } from "../chain";
-import { DEFAULT_PROVIDER } from "../constants";
+import { DEFAULT_ETHEREUM_PROVIDER } from "../constants";
 import { TOKENS_BY_NETWORK } from "../token/tokenList";
 import UniswapTransactionParser from "../transaction/uniswapTransactionParser";
 import { isUniswap } from "../transaction/uniswapTransactionParser";
@@ -11,7 +11,7 @@ jest.setTimeout(10000);
 test("Correctly parses Uniswap transaction calling swapExactETHForTokens", async () => {
   const uniswapTransactionParser = new UniswapTransactionParser(
     TOKENS_BY_NETWORK[Chain.ETHEREUM_MAINNET],
-    DEFAULT_PROVIDER
+    DEFAULT_ETHEREUM_PROVIDER
   );
   const swapResult = await uniswapTransactionParser.parse(
     TransactionFixtures.UNISWAP_EXACT_ETH_FOR_TOKENS_TXN
@@ -42,7 +42,7 @@ test("Correctly parses Uniswap transaction calling swapExactETHForTokens", async
 test("Correctly parses Uniswap swap transaction calling swapExactTokensForTokens", async () => {
   const uniswapTransactionParser = new UniswapTransactionParser(
     TOKENS_BY_NETWORK[Chain.ETHEREUM_MAINNET],
-    DEFAULT_PROVIDER
+    DEFAULT_ETHEREUM_PROVIDER
   );
   const swapResult = await uniswapTransactionParser.parse(
     TransactionFixtures.UNISWAP_EXACT_TOKENS_FOR_TOKENS_TXN
@@ -87,7 +87,7 @@ test("Correctly parses Uniswap swap transaction calling swapExactTokensForTokens
 test("throws if transaction is not Uniswap swap", () => {
   const uniswapTransactionParser = new UniswapTransactionParser(
     TOKENS_BY_NETWORK[Chain.ETHEREUM_MAINNET],
-    DEFAULT_PROVIDER
+    DEFAULT_ETHEREUM_PROVIDER
   );
   return expect(
     uniswapTransactionParser.parse(TransactionFixtures.NON_UNISWAP_TXN)

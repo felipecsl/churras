@@ -14,7 +14,7 @@ import { BigNumber, Contract, utils, Wallet } from "ethers";
 import fetch from "node-fetch";
 import { abi as IUniswapV2Router02ABI } from "@uniswap/v2-periphery/build/IUniswapV2Router02.json";
 import { UNISWAP_ROUTER_ADDRESS } from "../abis";
-import { DEFAULT_PROVIDER } from "../constants";
+import { DEFAULT_ETHEREUM_PROVIDER } from "../constants";
 
 function throwError(errorMessage: string): never {
   throw new Error(errorMessage);
@@ -37,7 +37,7 @@ export default class DeFiTrader {
   ) {
     this.tokenListApiEndpoint = tokenListApiEndpoint;
     this.chainId = chainId;
-    this.provider = DEFAULT_PROVIDER;
+    this.provider = DEFAULT_ETHEREUM_PROVIDER;
   }
 
   async fetchTokens(symbol0: string, symbol1: string): Promise<Token[]> {

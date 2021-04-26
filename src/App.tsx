@@ -1,36 +1,36 @@
-import React from "react";
-import Web3 from "web3";
-import { format } from "d3-format";
-import "./App.css";
-import Token, { BNB_TOKEN, ETH_TOKEN } from "./token/token";
-import { DEFAULT_PROVIDER } from "./constants";
-import AccountSwaps from "./transaction/accountSwaps";
-import TransactionsLoader from "./transaction/transactionsLoader";
-import { RealEtherscanApiClient } from "./etherscanApiClient";
-import UniswapTransactionParser from "./transaction/uniswapTransactionParser";
 import { CircularProgress } from "@material-ui/core";
 import AnimatedNumber from "animated-number-react";
-import ThemeSelector from "./components/themeSelector";
-import { ensure } from "./util";
-import AccountAddressProvider from "./providers/accountAddressProvider";
-import { ChainId } from "@uniswap/sdk";
-import { Chain } from "./chain";
-import { WalletToken } from "./token/walletToken";
-import { TOKENS_BY_NETWORK } from "./token/tokenList";
+import { format } from "d3-format";
 import { utils } from "ethers";
+import React from "react";
+import Web3 from "web3";
+import "./App.css";
+import { Chain, Network } from "./chain";
+import ChainUtils from "./chainUtils";
+import ThemeSelector from "./components/themeSelector";
 import TokenTableRow from "./components/tokenTableRow";
-import EthereumTokenPricesProvider from "./providers/ethereumTokenPricesProvider";
+import { DEFAULT_BSC_PROVIDER, DEFAULT_ETHEREUM_PROVIDER } from "./constants";
+import AccountAddressProvider from "./providers/accountAddressProvider";
 import BscTokenPricesProvider from "./providers/bscTokenPricesProvider";
-import { Web3Provider } from "@ethersproject/providers";
+import EthereumTokenPricesProvider from "./providers/ethereumTokenPricesProvider";
+import TokenPricesProvider from "./providers/tokenPricesProvider";
+import Token, { BNB_TOKEN, ETH_TOKEN } from "./token/token";
 import TokenBalanceResolver from "./token/tokenBalanceResolver";
+import TokenDatabase from "./token/tokenDatabase";
+import { WalletToken } from "./token/walletToken";
+import { ensure, groupBy } from "./util";
 
 interface AppState {
   web3?: Web3;
   isLoadingTokens: boolean;
   chain: number;
   walletTokens: WalletToken[];
-  tokensByAddress: Record<string, Token>;
-  tokensBySymbol: Record<string, Token>;
+}
+
+interface AppProps {
+  networkToPriceProviders: Record<string, TokenPricesProvider>;
+  tokenDatabases: Record<string, TokenDatabase>;
+  tokenBalanceResolver: TokenBalanceResolver;
 }
 
 declare global {
@@ -39,51 +39,60 @@ declare global {
   }
 }
 
-const ETH_PRICE_API_ENDPOINT =
-  "https://api.coingecko.com/api/v3/simple/price?ids=ethereum&vs_currencies=usd";
+const ETH_BNB_PRICE_API_ENDPOINT =
+  "https://api.coingecko.com/api/v3/simple/price?ids=binancecoin,ethereum&vs_currencies=usd";
 
-class App extends React.Component<any, AppState> {
+class App extends React.Component<AppProps, AppState> {
+  static defaultProps = {
+    networkToPriceProviders: Object.fromEntries([
+      [Network[Network.ETHEREUM], new EthereumTokenPricesProvider()],
+      [Network[Network.BSC], new BscTokenPricesProvider()],
+    ]),
+    tokenDatabases: Object.fromEntries([
+      [Network[Network.ETHEREUM], new TokenDatabase(Network.ETHEREUM)],
+      [Network[Network.BSC], new TokenDatabase(Network.BSC)],
+    ]),
+    tokenBalanceResolver: new TokenBalanceResolver(
+      Object.fromEntries([
+        [Network[Network.ETHEREUM], DEFAULT_ETHEREUM_PROVIDER],
+        [Network[Network.BSC], DEFAULT_BSC_PROVIDER],
+      ])
+    ),
+  };
+
   private readonly addressProvider = new AccountAddressProvider();
-  private readonly ethereumTokenPricesProvider = new EthereumTokenPricesProvider();
-  private readonly bscTokenPricesProvider = new BscTokenPricesProvider();
 
-  constructor(props: any) {
+  constructor(props: AppProps) {
     super(props);
 
     this.state = {
       web3: undefined,
       isLoadingTokens: false,
       chain: Chain.ETHEREUM_MAINNET,
-      tokensByAddress: {},
-      tokensBySymbol: {},
       walletTokens: [],
     };
   }
 
-  isMetamaskInstalled() {
-    return typeof window.ethereum !== "undefined";
-  }
-
-  private isEthereum(): boolean {
-    return [Chain.ETHEREUM_MAINNET, Chain.ETHEREUM_TESTNET].includes(
-      this.state.chain
+  private async updateEthBnbBalances() {
+    const { walletTokens } = this.state;
+    const { tokenBalanceResolver } = this.props;
+    const accountAddress = this.ensureAccountAddress();
+    const ethBnbPrice = await this.fetchEthBnbPrice();
+    const ethBalance = await tokenBalanceResolver.ethBalance(accountAddress);
+    const bnbBalance = await tokenBalanceResolver.bnbBalance(accountAddress);
+    walletTokens.push(
+      new WalletToken(ETH_TOKEN, {
+        balance: ethBalance.toString(),
+        price: ethBnbPrice.eth,
+      })
     );
-  }
-
-  private async updateEthOrBnbBalance(balance: any) {
-    if (this.state.web3) {
-      const { walletTokens } = this.state;
-      const mainToken = this.isEthereum() ? ETH_TOKEN : BNB_TOKEN;
-      walletTokens.push(
-        new WalletToken(mainToken, {
-          balance: this.state.web3.utils.fromWei(balance),
-          price: await this.fetchEthPrice(),
-        })
-      );
-      this.setState({ walletTokens });
-    } else {
-      console.error("web3 is not yet initialized");
-    }
+    walletTokens.push(
+      new WalletToken(BNB_TOKEN, {
+        balance: bnbBalance.toString(),
+        price: ethBnbPrice.bnb,
+      })
+    );
+    this.setState({ walletTokens });
   }
 
   private ensureAccountAddress(): string {
@@ -93,7 +102,7 @@ class App extends React.Component<any, AppState> {
     ) as string;
   }
 
-  async loadAccountTransactions() {
+  /*async loadAccountTransactions() {
     const accountAddress = this.ensureAccountAddress();
     if (accountAddress) {
       const transactionsLoader = new TransactionsLoader(
@@ -101,7 +110,7 @@ class App extends React.Component<any, AppState> {
       );
       const uniswapTransactionParser = new UniswapTransactionParser(
         TOKENS_BY_NETWORK[this.state.chain],
-        DEFAULT_PROVIDER
+        DEFAULT_ETHEREUM_PROVIDER
       );
       const accountSwaps = new AccountSwaps(
         transactionsLoader,
@@ -109,29 +118,7 @@ class App extends React.Component<any, AppState> {
       );
       console.log(await accountSwaps.loadAccountSwaps(accountAddress));
     }
-  }
-
-  private async checkChainId(): Promise<Chain> {
-    if (!this.isMetamaskInstalled()) {
-      return Chain.UNKNOWN;
-    }
-    const chainId = await window.ethereum.request({ method: "eth_chainId" });
-    switch (parseInt(chainId)) {
-      case ChainId.MAINNET:
-        return Chain.ETHEREUM_MAINNET;
-      case ChainId.ROPSTEN:
-      case ChainId.RINKEBY:
-      case ChainId.GÖRLI:
-      case ChainId.KOVAN:
-        return Chain.ETHEREUM_TESTNET;
-      case 56:
-        return Chain.BSC_MAINNET;
-      case 97:
-        return Chain.BSC_TESTNET;
-      default:
-        return Chain.UNKNOWN;
-    }
-  }
+  }*/
 
   private isChainSupported(chain: number) {
     // For now only Ethereum Mainnet supported
@@ -139,7 +126,7 @@ class App extends React.Component<any, AppState> {
   }
 
   private async loadBalances(accountAddress: string) {
-    if (!this.isMetamaskInstalled()) {
+    if (!ChainUtils.isMetamaskInstalled()) {
       return;
     }
     const { chain } = this.state;
@@ -149,32 +136,24 @@ class App extends React.Component<any, AppState> {
     }
     const web3 = new Web3(window.ethereum);
     this.setState({ web3, isLoadingTokens: true });
-    const { walletTokens, tokensBySymbol } = this.state;
-    // balanceOf will fail for "ETH" presumably because it's set to an invalid address (0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee)
-    // so we just exclude it intially and re-add below in `updateEthBalance()`
-    delete tokensBySymbol["ETH"];
+    const { walletTokens } = this.state;
+    const { tokenDatabases, tokenBalanceResolver } = this.props;
     // 1. fetch all token balances
-    const tokenBalanceResolver = new TokenBalanceResolver(
-      accountAddress,
-      new Web3Provider(window.ethereum)
-    );
-    const tokensToBalances = Object.values(tokensBySymbol).map((token) =>
-      tokenBalanceResolver.resolveBalance(token)
-    );
+    const tokensToBalances = Object.values(tokenDatabases)
+      .flatMap((db) => db.allTokens())
+      .map((t) => tokenBalanceResolver.resolveBalance(accountAddress, t));
     const results = await Promise.all(tokensToBalances);
     // 2. filter results to only the tokens which have a positive balance
     const positiveBalances = results.filter(({ balance }) => balance > 0);
     // 3. fetch the prices for each token with a positive balance
-    const addresses = positiveBalances.map(({ token }) => token.address);
-    const tokenPrices = await this.fetchTokenPrices(addresses);
+    const positiveBalanceTokens = positiveBalances.map(({ token }) => token);
+    const tokenPrices = await this.fetchTokenPrices(positiveBalanceTokens);
     positiveBalances.forEach(({ token, balance }) => {
-      walletTokens.push(
-        new WalletToken(token, { balance, price: tokenPrices[token.symbol] })
-      );
+      const price = tokenPrices.get(token) as string;
+      walletTokens.push(new WalletToken(token, { balance, price }));
     });
     this.setState({ walletTokens });
-    const ethOrBnbBalance = await web3.eth.getBalance(accountAddress);
-    await this.updateEthOrBnbBalance(ethOrBnbBalance);
+    await this.updateEthBnbBalances();
     this.setState({ isLoadingTokens: false });
   }
 
@@ -187,44 +166,42 @@ class App extends React.Component<any, AppState> {
     this.loadBalances(accountAddress);
   }
 
-  private async fetchEthPrice(): Promise<string> {
-    const res = await fetch(ETH_PRICE_API_ENDPOINT);
+  private async fetchEthBnbPrice(): Promise<{ eth: string; bnb: string }> {
+    const res = await fetch(ETH_BNB_PRICE_API_ENDPOINT);
     const results = await res.json();
-    return results["ethereum"]["usd"];
+    return {
+      eth: results.ethereum.usd,
+      bnb: results.binancecoin.usd,
+    };
   }
 
-  async fetchTokenPrices(
-    tokenAddresses: string[]
-  ): Promise<Record<string, string>> {
-    const { tokensByAddress, chain } = this.state;
-    // select correct provider based on the current chain in use
-    const provider =
-      chain === Chain.ETHEREUM_MAINNET
-        ? this.ethereumTokenPricesProvider
-        : this.bscTokenPricesProvider;
-    const results = await provider.fetchPrices(tokenAddresses);
-    const symbolToPrice: Record<string, string> = {};
-    results.forEach(([tokenAddress, price]) => {
-      const token = tokensByAddress[utils.getAddress(tokenAddress)];
-      if (token) {
-        symbolToPrice[token.symbol] = price;
-      } else {
-        console.error(`Unable to find token with address ${tokenAddress}`);
-      }
-    });
-    return symbolToPrice;
+  /* Fetch prices for all the provided tokens. Returns a map of Token to price */
+  async fetchTokenPrices(tokens: Token[]): Promise<Map<Token, string>> {
+    const { tokenDatabases, networkToPriceProviders } = this.props;
+    // select correct provider and token database based on the tokens network
+    const tokensByNetwork = groupBy(tokens, (t) => t.network);
+    const tokenToPrice = new Map<Token, string>();
+    for (const [network, tokens] of Object.entries(tokensByNetwork)) {
+      const priceProvider = networkToPriceProviders[network];
+      const tokenDatabase = tokenDatabases[network];
+      const tokenAddresses = tokens.map((t) => t.address);
+      const prices = await priceProvider.fetchPrices(tokenAddresses);
+      prices.forEach(([tokenAddress, price]) => {
+        const token =
+          tokenDatabase.tokensByAddress[utils.getAddress(tokenAddress)];
+        if (token) {
+          tokenToPrice.set(token, price);
+        } else {
+          console.error(`Unable to find token with address ${tokenAddress}`);
+        }
+      });
+    }
+    return tokenToPrice;
   }
 
   async componentDidMount() {
-    const chain = await this.checkChainId();
-    const tokensByAddress = TOKENS_BY_NETWORK[chain];
-    const tokensBySymbol = Object.fromEntries(
-      Object.values(tokensByAddress).map((token) => [
-        token.symbol,
-        token as Token,
-      ])
-    );
-    this.setState({ tokensByAddress, tokensBySymbol, chain }, () => {
+    const chain = await ChainUtils.checkChainId();
+    this.setState({ chain }, () => {
       // Register this as a callback after setState() finished because loadBalances() relies on
       // this state that we just set above.
       const connectedAccountAddress = this.addressProvider.currentAccountAddress();
@@ -274,7 +251,7 @@ class App extends React.Component<any, AppState> {
     const currencyFormat = format("$,.2f");
     const accountSize = this.determineUSDAccountSize();
     const sortedTokens = this.sortTokenList();
-    const isMetamaskInstalled = this.isMetamaskInstalled();
+    const isMetamaskInstalled = ChainUtils.isMetamaskInstalled();
     const isUnsupportedChain =
       isMetamaskInstalled && !this.isChainSupported(chain);
     const showConnectToMetamaskButton = isMetamaskInstalled && !accountAddress;

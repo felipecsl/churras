@@ -1856,14 +1856,6 @@ export const ALL_ETHEREUM_TOKENS = {
     logoURI:
       "https://tokens.1inch.exchange/0x0000852600ceb001e08e00bc008be620d60031f2.png",
   },
-  "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee": {
-    symbol: "ETH",
-    name: "Ethereum",
-    decimals: 18,
-    address: "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
-    logoURI:
-      "https://tokens.1inch.exchange/0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee.png",
-  },
   "0x0000000000b3f879cb30fe243b4dfee438691c04": {
     symbol: "GST2",
     name: "Gastoken.io 2",
