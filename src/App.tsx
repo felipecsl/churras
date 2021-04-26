@@ -9,8 +9,7 @@ import { Chain, Network } from "./chain";
 import ChainUtils from "./chainUtils";
 import ThemeSelector from "./components/themeSelector";
 import TokenTableRow from "./components/tokenTableRow";
-import { DEFAULT_BSC_PROVIDER, DEFAULT_ETHEREUM_PROVIDER } from "./constants";
-import { RealEtherscanApiClient } from "./etherscanApiClient";
+import { DEFAULT_BSC_PROVIDER, INFURA_ETHEREUM_PROVIDER } from "./constants";
 import AccountAddressProvider from "./providers/accountAddressProvider";
 import BscTokenPricesProvider from "./providers/bscTokenPricesProvider";
 import EthereumTokenPricesProvider from "./providers/ethereumTokenPricesProvider";
@@ -18,11 +17,7 @@ import TokenPricesProvider from "./providers/tokenPricesProvider";
 import Token, { BNB_TOKEN, ETH_TOKEN } from "./token/token";
 import TokenBalanceResolver from "./token/tokenBalanceResolver";
 import TokenDatabase from "./token/tokenDatabase";
-import { TOKENS_BY_NETWORK } from "./token/tokenList";
 import { WalletToken } from "./token/walletToken";
-import AccountSwaps from "./transaction/accountSwaps";
-import TransactionsLoader from "./transaction/transactionsLoader";
-import UniswapTransactionParser from "./transaction/uniswapTransactionParser";
 import { ensure, groupBy } from "./util";
 
 interface AppState {
@@ -35,6 +30,7 @@ interface AppState {
 interface AppProps {
   networkToPriceProviders: Record<string, TokenPricesProvider>;
   tokenDatabases: Record<string, TokenDatabase>;
+  tokenBalanceResolver: TokenBalanceResolver;
 }
 
 declare global {
@@ -56,6 +52,12 @@ class App extends React.Component<AppProps, AppState> {
       [Network[Network.ETHEREUM], new TokenDatabase(Network.ETHEREUM)],
       [Network[Network.BSC], new TokenDatabase(Network.BSC)],
     ]),
+    tokenBalanceResolver: new TokenBalanceResolver(
+      Object.fromEntries([
+        [Network[Network.ETHEREUM], INFURA_ETHEREUM_PROVIDER],
+        [Network[Network.BSC], DEFAULT_BSC_PROVIDER],
+      ])
+    ),
   };
 
   private readonly addressProvider = new AccountAddressProvider();
@@ -94,7 +96,7 @@ class App extends React.Component<AppProps, AppState> {
     ) as string;
   }
 
-  async loadAccountTransactions() {
+  /*async loadAccountTransactions() {
     const accountAddress = this.ensureAccountAddress();
     if (accountAddress) {
       const transactionsLoader = new TransactionsLoader(
@@ -110,7 +112,7 @@ class App extends React.Component<AppProps, AppState> {
       );
       console.log(await accountSwaps.loadAccountSwaps(accountAddress));
     }
-  }
+  }*/
 
   private isChainSupported(chain: number) {
     // For now only Ethereum Mainnet supported
@@ -129,16 +131,11 @@ class App extends React.Component<AppProps, AppState> {
     const web3 = new Web3(window.ethereum);
     this.setState({ web3, isLoadingTokens: true });
     const { walletTokens } = this.state;
-    const tokenBalanceResolver = new TokenBalanceResolver(
-      accountAddress,
-      DEFAULT_ETHEREUM_PROVIDER,
-      DEFAULT_BSC_PROVIDER
-    );
-    const { tokenDatabases } = this.props;
+    const { tokenDatabases, tokenBalanceResolver } = this.props;
     // 1. fetch all token balances
     const tokensToBalances = Object.values(tokenDatabases)
       .flatMap((db) => db.allTokens())
-      .map((t) => tokenBalanceResolver.resolveBalance(t));
+      .map((t) => tokenBalanceResolver.resolveBalance(accountAddress, t));
     const results = await Promise.all(tokensToBalances);
     // 2. filter results to only the tokens which have a positive balance
     const positiveBalances = results.filter(({ balance }) => balance > 0);
