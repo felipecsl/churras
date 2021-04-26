@@ -1,5 +1,6 @@
 import { Provider } from "@ethersproject/providers";
-import { ethers, utils } from "ethers";
+import { BigNumber, ethers, utils } from "ethers";
+import { Network } from "../chain";
 import { ensureValue } from "../util";
 import Token from "./token";
 
@@ -23,5 +24,28 @@ export default class TokenBalanceResolver {
     const contract = new ethers.Contract(tokenAddress, abi, provider);
     const balance = await contract.balanceOf(accountAddress);
     return { token, balance: +utils.formatUnits(balance, token.decimals) };
+  }
+
+  async ethBalance(accountAddress: string): Promise<string> {
+    const balance = await this.balanceOf(
+      this.networkProviders[Network[Network.ETHEREUM]],
+      accountAddress
+    );
+    return utils.formatEther(balance);
+  }
+
+  async bnbBalance(accountAddress: string): Promise<string> {
+    const balance = await this.balanceOf(
+      this.networkProviders[Network[Network.BSC]],
+      accountAddress
+    );
+    return utils.formatEther(balance);
+  }
+
+  private async balanceOf(
+    provider: Provider,
+    accountAddress: string
+  ): Promise<BigNumber> {
+    return await provider.getBalance(accountAddress);
   }
 }

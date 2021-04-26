@@ -39,8 +39,8 @@ declare global {
   }
 }
 
-const ETH_PRICE_API_ENDPOINT =
-  "https://api.coingecko.com/api/v3/simple/price?ids=ethereum&vs_currencies=usd";
+const ETH_BNB_PRICE_API_ENDPOINT =
+  "https://api.coingecko.com/api/v3/simple/price?ids=binancecoin,ethereum&vs_currencies=usd";
 
 class App extends React.Component<AppProps, AppState> {
   static defaultProps = {
@@ -73,20 +73,26 @@ class App extends React.Component<AppProps, AppState> {
     };
   }
 
-  private async updateEthOrBnbBalance(balance: any) {
-    if (this.state.web3) {
-      const { walletTokens, chain } = this.state;
-      const mainToken = ChainUtils.isEthereum(chain) ? ETH_TOKEN : BNB_TOKEN;
-      walletTokens.push(
-        new WalletToken(mainToken, {
-          balance: this.state.web3.utils.fromWei(balance),
-          price: await this.fetchEthPrice(),
-        })
-      );
-      this.setState({ walletTokens });
-    } else {
-      console.error("web3 is not yet initialized");
-    }
+  private async updateEthBnbBalances() {
+    const { walletTokens } = this.state;
+    const { tokenBalanceResolver } = this.props;
+    const accountAddress = this.ensureAccountAddress();
+    const ethBnbPrice = await this.fetchEthBnbPrice();
+    const ethBalance = await tokenBalanceResolver.ethBalance(accountAddress);
+    const bnbBalance = await tokenBalanceResolver.bnbBalance(accountAddress);
+    walletTokens.push(
+      new WalletToken(ETH_TOKEN, {
+        balance: ethBalance.toString(),
+        price: ethBnbPrice.eth,
+      })
+    );
+    walletTokens.push(
+      new WalletToken(BNB_TOKEN, {
+        balance: bnbBalance.toString(),
+        price: ethBnbPrice.bnb,
+      })
+    );
+    this.setState({ walletTokens });
   }
 
   private ensureAccountAddress(): string {
@@ -147,8 +153,7 @@ class App extends React.Component<AppProps, AppState> {
       walletTokens.push(new WalletToken(token, { balance, price }));
     });
     this.setState({ walletTokens });
-    const ethOrBnbBalance = await web3.eth.getBalance(accountAddress);
-    await this.updateEthOrBnbBalance(ethOrBnbBalance);
+    await this.updateEthBnbBalances();
     this.setState({ isLoadingTokens: false });
   }
 
@@ -161,10 +166,13 @@ class App extends React.Component<AppProps, AppState> {
     this.loadBalances(accountAddress);
   }
 
-  private async fetchEthPrice(): Promise<string> {
-    const res = await fetch(ETH_PRICE_API_ENDPOINT);
+  private async fetchEthBnbPrice(): Promise<{ eth: string; bnb: string }> {
+    const res = await fetch(ETH_BNB_PRICE_API_ENDPOINT);
     const results = await res.json();
-    return results["ethereum"]["usd"];
+    return {
+      eth: results.ethereum.usd,
+      bnb: results.binancecoin.usd,
+    };
   }
 
   /* Fetch prices for all the provided tokens. Returns a map of Token to price */
