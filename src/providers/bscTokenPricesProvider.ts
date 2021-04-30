@@ -7,7 +7,9 @@ export default class BscTokenPricesProvider implements TokenPricesProvider {
     this.apiHost = apiHost;
   }
 
-  async fetchPrices(tokenAddresses: string[]): Promise<[string, string][]> {
+  async fetchPrices(
+    tokenAddresses: string[]
+  ): Promise<[string, string | undefined][]> {
     const apiUrl = `${this.apiHost}/api/tokens`;
     const res = await fetch(apiUrl);
     const results = await res.json();
