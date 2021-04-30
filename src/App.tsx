@@ -163,16 +163,16 @@ class App extends React.Component<AppProps, AppState> {
     });
   }
 
-  // WIP
-  private async loadYieldFarms() {
-    // autofarm
-    const accountAddress = this.ensureAccountAddress();
-    const pendingAuto = await this.props.tokenBalanceResolver.autoFarmContractPendingAuto(
-      6,
-      accountAddress
-    );
-    console.log(utils.formatEther(pendingAuto));
-  }
+  // // WIP
+  // private async loadYieldFarms() {
+  //   // autofarm
+  //   const accountAddress = this.ensureAccountAddress();
+  //   const pendingAuto = await this.props.tokenBalanceResolver.autoFarmContractPendingAuto(
+  //     6,
+  //     accountAddress
+  //   );
+  //   console.log(utils.formatEther(pendingAuto));
+  // }
 
   async connectToMetaMask() {
     const { accountCacheProvider, metaMaskProvider } = this.props;
@@ -227,6 +227,7 @@ class App extends React.Component<AppProps, AppState> {
         } else {
           // we already have tokens, update the state and we're done
           this.setState({ walletTokens: tokens });
+          // TODO: refresh prices and balances in the background
         }
       }
     });
