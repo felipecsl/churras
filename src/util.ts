@@ -15,6 +15,15 @@ export function ensureValue<T>(val: T | undefined, errorMessage: string): T {
   return val ?? throwError(errorMessage);
 }
 
+// returns true if the provided array is not empty
+export function any<T>(arr: T[]): boolean {
+  return Array.isArray(arr) && arr.length > 0;
+}
+
+export function none<T>(arr: T[]): boolean {
+  return Array.isArray(arr) && arr.length === 0;
+}
+
 export const groupBy = <T, K extends keyof any>(
   list: T[],
   getKey: (item: T) => K
