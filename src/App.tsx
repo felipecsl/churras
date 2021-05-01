@@ -9,6 +9,7 @@ import { Chain, Network } from "./chain";
 import ThemeSelector from "./components/themeSelector";
 import TokenTableRow from "./components/tokenTableRow";
 import { DEFAULT_BSC_PROVIDER, DEFAULT_ETHEREUM_PROVIDER } from "./constants";
+import GithubLogo from "./images/github.svg";
 import AccountCacheProvider from "./providers/accountCacheProvider";
 import BscTokenPricesProvider from "./providers/bscTokenPricesProvider";
 import EthereumTokenPricesProvider from "./providers/ethereumTokenPricesProvider";
@@ -449,6 +450,78 @@ class App extends React.Component<AppProps, AppState> {
             </div>
           </div>
         </main>
+        <footer className="footer bg-white dark:text-gray-300 dark:bg-gray-700 relative pt-1 border-b-2 border-blue-700">
+          <div className="container max-w-7xl mx-auto px-6">
+            <div className="sm:flex sm:mt-8">
+              <div className="mt-8 sm:mt-0 sm:w-full sm:px-8 grid grid-cols-2 justify-items-start">
+                <div>
+                  <div className="my-2 text-5xl">🥩</div>
+                  <div className="my-5">
+                    <p className="leading-relaxed">
+                      Churras is your DeFi wallet dashboard. <br /> It supports
+                      both Ethereum and Binance Smart Chain. <br /> Track your
+                      balance, tokens, yields and be your own bank.
+                    </p>
+                  </div>
+                  <div className="my-5">
+                    <a
+                      href="https://github.com/felipecsl/churras"
+                      target="_blank"
+                      rel="noreferrer"
+                    >
+                      <img
+                        src={GithubLogo}
+                        alt="Churras Github"
+                        className="fill-current filter dark:invert"
+                      />
+                    </a>
+                  </div>
+                </div>
+                <div>
+                  <div className="font-bold text-gray-900 dark:text-gray-200 uppercase mb-8">
+                    About
+                  </div>
+                  <div className="my-4">
+                    <a
+                      href="#"
+                      className="text-blue-700  text-md hover:text-blue-500"
+                    >
+                      What is this?
+                    </a>
+                  </div>
+                  <div className="my-4">
+                    <a
+                      href="#"
+                      className="text-blue-700  text-md hover:text-blue-500"
+                    >
+                      Docs
+                    </a>
+                  </div>
+                  <div className="my-4">
+                    <a
+                      href="#"
+                      className="text-blue-700  text-md hover:text-blue-500"
+                    >
+                      Contact
+                    </a>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div className="container mx-auto px-6">
+            <div className="mt-16 border-t-2 border-gray-200 dark:border-gray-600 flex flex-col items-center">
+              <div className="sm:w-2/3 text-center py-6">
+                <p className="text-sm text-blue-700 font-bold mb-2">
+                  Built with ☕️ by{" "}
+                  <a className="underline" href="https://felipecsl.com">
+                    Felipe Lima
+                  </a>
+                </p>
+              </div>
+            </div>
+          </div>
+        </footer>
       </div>
     );
   }
