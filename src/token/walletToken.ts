@@ -6,9 +6,10 @@ export class WalletToken implements Token {
   readonly address: string;
   readonly decimals: number;
   readonly logoURI: string;
-  readonly balance: string;
-  readonly price: string;
   readonly network: string;
+  // TODO: Consider whether or not these should realy be mutable
+  balance: string;
+  price: string;
 
   constructor(
     { symbol, name, address, decimals, logoURI, network }: Token,
@@ -22,5 +23,10 @@ export class WalletToken implements Token {
     this.balance = balance;
     this.network = network;
     this.price = price;
+  }
+
+  static toToken(walletToken: WalletToken): Token {
+    const { symbol, name, address, decimals, logoURI, network } = walletToken;
+    return { symbol, name, address, decimals, logoURI, network };
   }
 }

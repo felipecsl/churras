@@ -2,6 +2,7 @@ import { CircularProgress } from "@material-ui/core";
 import AnimatedNumber from "animated-number-react";
 import { format } from "d3-format";
 import { utils } from "ethers";
+import _ from "lodash";
 import React from "react";
 import "./App.css";
 import { Chain, Network } from "./chain";
@@ -76,22 +77,25 @@ class App extends React.Component<AppProps, AppState> {
     };
   }
 
-  private async fetchEthBnbBalances(): Promise<WalletToken[]> {
+  private async fetchEthBnbTokens(): Promise<{
+    eth: WalletToken;
+    bnb: WalletToken;
+  }> {
     const { tokenBalanceResolver, ethBnbPriceFetcher } = this.props;
     const accountAddress = this.ensureAccountAddress();
     const ethBnbPrice = await ethBnbPriceFetcher();
     const ethBalance = await tokenBalanceResolver.ethBalance(accountAddress);
     const bnbBalance = await tokenBalanceResolver.bnbBalance(accountAddress);
-    return [
-      new WalletToken(ETH_TOKEN, {
+    return {
+      eth: new WalletToken(ETH_TOKEN, {
         balance: ethBalance.toString(),
         price: ethBnbPrice.eth,
       }),
-      new WalletToken(BNB_TOKEN, {
+      bnb: new WalletToken(BNB_TOKEN, {
         balance: bnbBalance.toString(),
         price: ethBnbPrice.bnb,
       }),
-    ];
+    };
   }
 
   private ensureAccountAddress(): string {
@@ -134,7 +138,6 @@ class App extends React.Component<AppProps, AppState> {
       return;
     }
     this.setState({ isLoadingTokens: true });
-    const { walletTokens } = this.state;
     const {
       tokenDatabases,
       tokenBalanceResolver,
@@ -150,17 +153,50 @@ class App extends React.Component<AppProps, AppState> {
     // 3. fetch the prices for each token with a positive balance
     const positiveBalanceTokens = positiveBalances.map(({ token }) => token);
     const tokenPrices = await this.fetchTokenPrices(positiveBalanceTokens);
-    positiveBalances.forEach(({ token, balance }) => {
+    const walletTokens = positiveBalances.map(({ token, balance }) => {
       const price = tokenPrices.get(token) as string;
-      walletTokens.push(new WalletToken(token, { balance, price }));
+      return new WalletToken(token, { balance, price });
     });
-    const ethBnbTokens = await this.fetchEthBnbBalances();
-    const completeWalletTokens = [...walletTokens, ...ethBnbTokens];
+    const ethBnbTokens = await this.fetchEthBnbTokens();
+    const completeWalletTokens = [
+      ...walletTokens,
+      ...Object.values(ethBnbTokens),
+    ];
     accountCacheProvider.update({ tokens: completeWalletTokens });
     this.setState({
       walletTokens: completeWalletTokens,
       isLoadingTokens: false,
     });
+  }
+
+  private async refreshPrices(
+    walletTokens: WalletToken[]
+  ): Promise<WalletToken[]> {
+    const tokenPrices = await this.fetchTokenPrices(walletTokens);
+    const keySet = Array.from(tokenPrices.keys());
+    const findTokenPrice = (predicate: (t: Token) => boolean) => {
+      const key = keySet.find((t) => predicate(t));
+      return key && tokenPrices.get(key);
+    };
+    walletTokens.forEach((walletToken) => {
+      const asToken = WalletToken.toToken(walletToken);
+      // we cannot simply call `tokenPrices[walletToken]` here because the key equality check will fail
+      // instead, using isEqual will perform a deep comparison (similarly to how Kotlin data classes work)
+      const price = findTokenPrice((t) => _.isEqual(t, asToken));
+      walletToken.price = price as string;
+    });
+    const ethBnbTokens = await this.fetchEthBnbTokens();
+    const bnb = walletTokens.find((wt) => wt.symbol === "BNB");
+    if (bnb) {
+      bnb.price = ethBnbTokens.bnb.price;
+      bnb.balance = ethBnbTokens.bnb.balance;
+    }
+    const eth = walletTokens.find((wt) => wt.symbol === "ETH");
+    if (eth) {
+      eth.price = ethBnbTokens.eth.price;
+      eth.balance = ethBnbTokens.eth.balance;
+    }
+    return walletTokens;
   }
 
   // // WIP
@@ -214,7 +250,7 @@ class App extends React.Component<AppProps, AppState> {
 
   async componentDidMount() {
     const chain = await this.props.metaMaskProvider.chainId();
-    this.setState({ chain }, () => {
+    this.setState({ chain }, async () => {
       const { accountCacheProvider } = this.props;
       // Register this as a callback after setState() finished because loadBalances() relies on
       // this state that we just set above.
@@ -228,6 +264,8 @@ class App extends React.Component<AppProps, AppState> {
           // we already have tokens, update the state and we're done
           this.setState({ walletTokens: tokens });
           // TODO: refresh prices and balances in the background
+          const updatedTokens = await this.refreshPrices(tokens);
+          this.setState({ walletTokens: updatedTokens });
         }
       }
     });
