@@ -104,7 +104,7 @@
     "build": "craco build",
     "server:build": "tsc --resolveJsonModule --outDir build src/server/server.ts",
     "server:run": "node build/server/server.js",
-    "test": "craco test"
+    "test": "yarn jest"
   },
   "homepage": "https://churras.org",
   "eslintConfig": {
