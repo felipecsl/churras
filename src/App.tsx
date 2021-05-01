@@ -180,8 +180,8 @@ class App extends React.Component<AppProps, AppState> {
     };
     walletTokens.forEach((walletToken) => {
       const asToken = WalletToken.toToken(walletToken);
-      // we cannot simply call `tokenPrices[walletToken]` here because the key equality check will fail
-      // instead, using isEqual will perform a deep comparison (similarly to how Kotlin data classes work)
+      // We cannot simply call `tokenPrices.get(asToken)` here because the key equality check will fail.
+      // Instead, using `isEqual()` will perform a deep comparison (similarly to how Kotlin data classes work)
       const price = findTokenPrice((t) => _.isEqual(t, asToken));
       walletToken.price = price as string;
     });
