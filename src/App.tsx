@@ -418,17 +418,21 @@ class App extends React.Component<AppProps, AppState> {
                             <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-800">
                               <thead className="bg-gray-50 dark:bg-gray-900">
                                 <tr>
-                                  {["Token", "Quantity", "Price", "Value"].map(
-                                    (col: string) => (
-                                      <th
-                                        scope="col"
-                                        key={col}
-                                        className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider"
-                                      >
-                                        {col}
-                                      </th>
-                                    )
-                                  )}
+                                  {[
+                                    "Token",
+                                    "Network",
+                                    "Quantity",
+                                    "Price",
+                                    "Value",
+                                  ].map((col: string) => (
+                                    <th
+                                      scope="col"
+                                      key={col}
+                                      className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider"
+                                    >
+                                      {col}
+                                    </th>
+                                  ))}
                                 </tr>
                               </thead>
                               <tbody className="bg-white dark:bg-black divide-y divide-gray-200 dark:divide-gray-800">
@@ -482,26 +486,17 @@ class App extends React.Component<AppProps, AppState> {
                     About
                   </div>
                   <div className="my-4">
-                    <a
-                      href="#"
-                      className="text-blue-700  text-md hover:text-blue-500"
-                    >
+                    <a href="#" className="text-md">
                       What is this?
                     </a>
                   </div>
                   <div className="my-4">
-                    <a
-                      href="#"
-                      className="text-blue-700  text-md hover:text-blue-500"
-                    >
+                    <a href="#" className="text-md">
                       Docs
                     </a>
                   </div>
                   <div className="my-4">
-                    <a
-                      href="#"
-                      className="text-blue-700  text-md hover:text-blue-500"
-                    >
+                    <a href="#" className="text-md">
                       Contact
                     </a>
                   </div>
@@ -512,7 +507,7 @@ class App extends React.Component<AppProps, AppState> {
           <div className="container mx-auto px-6">
             <div className="mt-16 border-t-2 border-gray-200 dark:border-gray-600 flex flex-col items-center">
               <div className="sm:w-2/3 text-center py-6">
-                <p className="text-sm text-blue-700 font-bold mb-2">
+                <p className="text-sm font-bold mb-2">
                   Built with ☕️ by{" "}
                   <a className="underline" href="https://felipecsl.com">
                     Felipe Lima
