@@ -1,4 +1,5 @@
 import { format } from "d3-format";
+import { WalletToken } from "./token/walletToken";
 
 export const percentFormat = format(".2%");
 export const currencyFormat = format("($.2f");
@@ -34,3 +35,18 @@ export const groupBy = <T, K extends keyof any>(
     previous[group].push(currentItem);
     return previous;
   }, {} as Record<K, T[]>);
+
+export function sortTokens(walletTokens: WalletToken[]): WalletToken[] {
+  walletTokens.sort((a, b) => {
+    var nameA = a.symbol;
+    var nameB = b.symbol;
+    if (nameA < nameB) {
+      return -1;
+    } else if (nameA > nameB) {
+      return 1;
+    } else {
+      return 0;
+    }
+  });
+  return walletTokens;
+}

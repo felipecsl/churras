@@ -1,32 +1,21 @@
 import { CircularProgress } from "@material-ui/core";
 import AnimatedNumber from "animated-number-react";
 import { format } from "d3-format";
-import { utils } from "ethers";
-import _ from "lodash";
 import React from "react";
+import AccountSnapshot from "./accountSnapshot";
 import "./App.css";
-import { Chain, Network } from "./chain";
+import { Chain } from "./chain";
 import ThemeSelector from "./components/themeSelector";
 import TokenTableRow from "./components/tokenTableRow";
-import { DEFAULT_BSC_PROVIDER, DEFAULT_ETHEREUM_PROVIDER } from "./constants";
 import GithubLogo from "./images/github.svg";
 import Logo from "./images/logo.svg";
 import TwitterLogo from "./images/twitter.svg";
 import AccountCacheProvider from "./providers/accountCacheProvider";
-import BscTokenPricesProvider from "./providers/bscTokenPricesProvider";
-import EthereumTokenPricesProvider from "./providers/ethereumTokenPricesProvider";
 import DefaultMetaMaskProvider, {
   MetaMaskProvider,
 } from "./providers/metamaskProvider";
-import TokenPricesProvider from "./providers/tokenPricesProvider";
-import EthBnbPriceFetcher from "./token/ethBnbPriceFetcher";
-import Token, { BNB_TOKEN, ETH_TOKEN } from "./token/token";
-import DefaultTokenBalanceResolver, {
-  TokenBalanceResolver,
-} from "./token/tokenBalanceResolver";
-import TokenDatabase from "./token/tokenDatabase";
 import { WalletToken } from "./token/walletToken";
-import { any, ensure, groupBy, none } from "./util";
+import { any, none, sortTokens } from "./util";
 
 interface AppState {
   isLoadingTokens: boolean;
@@ -35,12 +24,9 @@ interface AppState {
 }
 
 interface AppProps {
-  networkToPriceProviders: Record<string, TokenPricesProvider>;
-  tokenDatabases: Record<string, TokenDatabase>;
-  tokenBalanceResolver: TokenBalanceResolver;
   accountCacheProvider: AccountCacheProvider;
   metaMaskProvider: MetaMaskProvider;
-  ethBnbPriceFetcher: () => Promise<{ eth: string; bnb: string }>;
+  accountSnapshot: AccountSnapshot;
 }
 
 declare global {
@@ -51,23 +37,9 @@ declare global {
 
 class App extends React.Component<AppProps, AppState> {
   public static defaultProps = {
-    networkToPriceProviders: Object.fromEntries([
-      [Network[Network.ETHEREUM], new EthereumTokenPricesProvider()],
-      [Network[Network.BSC], new BscTokenPricesProvider()],
-    ]),
-    tokenDatabases: Object.fromEntries([
-      [Network[Network.ETHEREUM], new TokenDatabase(Network.ETHEREUM)],
-      [Network[Network.BSC], new TokenDatabase(Network.BSC)],
-    ]),
-    tokenBalanceResolver: new DefaultTokenBalanceResolver(
-      Object.fromEntries([
-        [Network[Network.ETHEREUM], DEFAULT_ETHEREUM_PROVIDER],
-        [Network[Network.BSC], DEFAULT_BSC_PROVIDER],
-      ])
-    ),
     accountCacheProvider: new AccountCacheProvider(),
     metaMaskProvider: new DefaultMetaMaskProvider(),
-    ethBnbPriceFetcher: new EthBnbPriceFetcher().fetchEthBnbPrice,
+    accountSnapshot: new AccountSnapshot(),
   };
 
   constructor(props: AppProps) {
@@ -78,34 +50,6 @@ class App extends React.Component<AppProps, AppState> {
       chain: Chain.ETHEREUM_MAINNET,
       walletTokens: [],
     };
-  }
-
-  private async fetchEthBnbTokens(): Promise<{
-    eth: WalletToken;
-    bnb: WalletToken;
-  }> {
-    const { tokenBalanceResolver, ethBnbPriceFetcher } = this.props;
-    const accountAddress = this.ensureAccountAddress();
-    const ethBnbPrice = await ethBnbPriceFetcher();
-    const ethBalance = await tokenBalanceResolver.ethBalance(accountAddress);
-    const bnbBalance = await tokenBalanceResolver.bnbBalance(accountAddress);
-    return {
-      eth: new WalletToken(ETH_TOKEN, {
-        balance: ethBalance.toString(),
-        price: ethBnbPrice.eth,
-      }),
-      bnb: new WalletToken(BNB_TOKEN, {
-        balance: bnbBalance.toString(),
-        price: ethBnbPrice.bnb,
-      }),
-    };
-  }
-
-  private ensureAccountAddress(): string {
-    return ensure(
-      this.accountAddress.bind(this),
-      "Missing account address"
-    ) as string;
   }
 
   /*async loadAccountTransactions() {
@@ -126,89 +70,6 @@ class App extends React.Component<AppProps, AppState> {
     }
   }*/
 
-  private isChainSupported(chain: number) {
-    // For now only Ethereum Mainnet supported
-    return chain === Chain.ETHEREUM_MAINNET || chain === Chain.BSC_MAINNET;
-  }
-
-  private async loadBalances(accountAddress: string) {
-    if (!this.props.metaMaskProvider.isMetaMaskInstalled()) {
-      return;
-    }
-    const { chain } = this.state;
-    if (!this.isChainSupported(chain)) {
-      console.log(`Unsupported chain ${Chain[chain]}`);
-      return;
-    }
-    this.setState({ isLoadingTokens: true });
-    const {
-      tokenDatabases,
-      tokenBalanceResolver,
-      accountCacheProvider,
-    } = this.props;
-    // 1. fetch all token balances
-    const tokensToBalances = Object.values(tokenDatabases)
-      .flatMap((db) => db.allTokens())
-      .map((t) => tokenBalanceResolver.resolveBalance(accountAddress, t));
-    const results = await Promise.all(tokensToBalances);
-    // 2. filter results to only the tokens which have a positive balance
-    const positiveBalances = results.filter(({ balance }) => balance > 0);
-    // 3. fetch the prices for each token with a positive balance
-    const positiveBalanceTokens = positiveBalances.map(({ token }) => token);
-    const tokenPrices = await this.fetchTokenPrices(positiveBalanceTokens);
-    const walletTokens = positiveBalances.map(({ token, balance }) => {
-      const price = tokenPrices.get(token) as string;
-      return new WalletToken(token, { balance, price });
-    });
-    const ethBnbTokens = await this.fetchEthBnbTokens();
-    const completeWalletTokens = [
-      ...walletTokens,
-      ...Object.values(ethBnbTokens),
-    ];
-    accountCacheProvider.update({ tokens: completeWalletTokens });
-    this.setState({
-      walletTokens: completeWalletTokens,
-      isLoadingTokens: false,
-    });
-  }
-
-  private async refreshPrices(
-    walletTokens: WalletToken[]
-  ): Promise<WalletToken[]> {
-    // ETH and BNB prices are fetched further below, separately.
-    // Since these tokens have no ERC-20 address, we can't fetch their prices the same way.
-    const walletTokensExceptETHandBNB = walletTokens.filter(
-      (t) => !["ETH", "BNB"].includes(t.symbol)
-    );
-    const tokenPrices = await this.fetchTokenPrices(
-      walletTokensExceptETHandBNB
-    );
-    const keySet = Array.from(tokenPrices.keys());
-    const findTokenPrice = (predicate: (t: Token) => boolean) => {
-      const key = keySet.find((t) => predicate(t));
-      return key && tokenPrices.get(key);
-    };
-    walletTokens.forEach((walletToken) => {
-      const asToken = WalletToken.toToken(walletToken);
-      // We cannot simply call `tokenPrices.get(asToken)` here because the key equality check will fail.
-      // Instead, using `isEqual()` will perform a deep comparison (similarly to how Kotlin data classes work)
-      const price = findTokenPrice((t) => _.isEqual(t, asToken));
-      walletToken.price = price as string;
-    });
-    const ethBnbTokens = await this.fetchEthBnbTokens();
-    const bnb = walletTokens.find((wt) => wt.symbol === "BNB");
-    if (bnb) {
-      bnb.price = ethBnbTokens.bnb.price;
-      bnb.balance = ethBnbTokens.bnb.balance;
-    }
-    const eth = walletTokens.find((wt) => wt.symbol === "ETH");
-    if (eth) {
-      eth.price = ethBnbTokens.eth.price;
-      eth.balance = ethBnbTokens.eth.balance;
-    }
-    return walletTokens;
-  }
-
   // // WIP
   // private async loadYieldFarms() {
   //   // autofarm
@@ -225,61 +86,51 @@ class App extends React.Component<AppProps, AppState> {
     const accounts = await metaMaskProvider.requestAccounts();
     const accountAddress = accounts[0];
     accountCacheProvider.update({ accountAddress, tokens: [] });
-    this.loadBalances(accountAddress);
-  }
-
-  /* Fetch prices for all the provided tokens. Returns a map of Token to price */
-  async fetchTokenPrices(tokens: Token[]): Promise<Map<Token, string>> {
-    const { tokenDatabases, networkToPriceProviders } = this.props;
-    // select correct provider and token database based on the tokens network
-    const tokensByNetwork = groupBy(tokens, (t) => t.network);
-    const tokenToPrice = new Map<Token, string>();
-    for (const [network, tokens] of Object.entries(tokensByNetwork)) {
-      const priceProvider = networkToPriceProviders[network];
-      const tokenDatabase = tokenDatabases[network];
-      const tokenAddresses = tokens.map((t) => t.address);
-      const prices = await priceProvider.fetchPrices(tokenAddresses);
-      prices.forEach(([tokenAddress, price]) => {
-        const token =
-          tokenDatabase.tokensByAddress[utils.getAddress(tokenAddress)];
-        if (token && price) {
-          tokenToPrice.set(token, price);
-        } else {
-          console.error(
-            `Unable to find price for token with address ${tokenAddress}`
-          );
-        }
-      });
-    }
-    return tokenToPrice;
-  }
-
-  private accountAddress(): string | undefined {
-    return this.props.accountCacheProvider.get().accountAddress;
+    this.loadAccount(accountAddress);
   }
 
   async componentDidMount() {
     const chain = await this.props.metaMaskProvider.chainId();
     this.setState({ chain }, async () => {
-      const { accountCacheProvider } = this.props;
+      const { accountCacheProvider, accountSnapshot } = this.props;
       // Register this as a callback after setState() finished because loadBalances() relies on
       // this state that we just set above.
       const { accountAddress, tokens } = accountCacheProvider.get();
       if (accountAddress) {
         if (none(tokens)) {
-          // User has previously connected to MetaMask, but wallet tokens array is empty,
-          // so we'll make an attempt to load 'em all
-          this.loadBalances(accountAddress as string);
+          // We already have the user account address but wallet tokens is empty, so we'll make
+          // an attempt to load them.
+          this.loadAccount(accountAddress);
         } else {
           // we already have tokens, update the state first and then refresh prices in the background
           this.setState({ walletTokens: tokens });
           // TODO: also refresh balances in the background
-          const updatedTokens = await this.refreshPrices(tokens);
+          const updatedTokens = await accountSnapshot.refreshPrices(
+            accountAddress,
+            tokens
+          );
           this.setState({ walletTokens: updatedTokens });
           accountCacheProvider.update({ tokens: updatedTokens });
         }
       }
     });
+  }
+
+  private async loadAccount(accountAddress: string) {
+    const { chain } = this.state;
+    const { accountCacheProvider, accountSnapshot } = this.props;
+    if (!this.isChainSupported(chain)) {
+      console.log(`Unsupported chain ${Chain[chain]}`);
+      return;
+    } else {
+      this.setState({ isLoadingTokens: true });
+      const walletTokens = await accountSnapshot.loadAccount(accountAddress);
+      accountCacheProvider.update({ tokens: walletTokens });
+      this.setState({
+        walletTokens: walletTokens,
+        isLoadingTokens: false,
+      });
+    }
   }
 
   /* Returns the total account size in USD */
@@ -295,32 +146,21 @@ class App extends React.Component<AppProps, AppState> {
     }
   }
 
-  sortTokenList(): WalletToken[] {
-    const { walletTokens } = this.state;
-    const sortedTokens = walletTokens;
-    sortedTokens.sort((a, b) => {
-      var nameA = a.symbol;
-      var nameB = b.symbol;
-      if (nameA < nameB) {
-        return -1;
-      } else if (nameA > nameB) {
-        return 1;
-      } else {
-        return 0;
-      }
-    });
-    return sortedTokens;
+  private isChainSupported(chain: number) {
+    // For now only Ethereum Mainnet supported
+    return chain === Chain.ETHEREUM_MAINNET || chain === Chain.BSC_MAINNET;
   }
 
   render() {
     if (!this.state) {
       return <div>Loading...</div>;
     }
-    const accountAddress = this.accountAddress();
+    const { accountCacheProvider } = this.props;
+    const { accountAddress } = accountCacheProvider.get();
     const { walletTokens, isLoadingTokens, chain } = this.state;
     const currencyFormat = format("$,.2f");
     const accountSize = this.determineUSDAccountSize();
-    const sortedTokens = this.sortTokenList();
+    const sortedTokens = sortTokens(walletTokens);
     const isMetaMaskInstalled = this.props.metaMaskProvider.isMetaMaskInstalled();
     const isUnsupportedChain =
       isMetaMaskInstalled && !this.isChainSupported(chain);
