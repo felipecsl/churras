@@ -112,4 +112,17 @@ test("Caches wallet address and tokens with accountCacheProvider", async () => {
       network: "BSC",
     },
   ]);
+  // re-render component, this time from cached data
+  render(
+    <App
+      networkToPriceProviders={networkToPriceProviders}
+      tokenDatabases={Object.fromEntries([
+        [Network[Network.ETHEREUM], new TokenDatabase(Network.ETHEREUM)],
+      ])}
+      accountCacheProvider={accountCacheProvider}
+      tokenBalanceResolver={fakeTokenBalanceResolver}
+      metaMaskProvider={fakeMetaMaskProvider}
+      ethBnbPriceFetcher={fakeEthBnbPriceFetcher}
+    />
+  );
 });

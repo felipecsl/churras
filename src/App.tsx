@@ -10,6 +10,8 @@ import ThemeSelector from "./components/themeSelector";
 import TokenTableRow from "./components/tokenTableRow";
 import { DEFAULT_BSC_PROVIDER, DEFAULT_ETHEREUM_PROVIDER } from "./constants";
 import GithubLogo from "./images/github.svg";
+import Logo from "./images/logo.svg";
+import TwitterLogo from "./images/twitter.svg";
 import AccountCacheProvider from "./providers/accountCacheProvider";
 import BscTokenPricesProvider from "./providers/bscTokenPricesProvider";
 import EthereumTokenPricesProvider from "./providers/ethereumTokenPricesProvider";
@@ -173,7 +175,14 @@ class App extends React.Component<AppProps, AppState> {
   private async refreshPrices(
     walletTokens: WalletToken[]
   ): Promise<WalletToken[]> {
-    const tokenPrices = await this.fetchTokenPrices(walletTokens);
+    // ETH and BNB prices are fetched further below, separately.
+    // Since these tokens have no ERC-20 address, we can't fetch their prices the same way.
+    const walletTokensExceptETHandBNB = walletTokens.filter(
+      (t) => !["ETH", "BNB"].includes(t.symbol)
+    );
+    const tokenPrices = await this.fetchTokenPrices(
+      walletTokensExceptETHandBNB
+    );
     const keySet = Array.from(tokenPrices.keys());
     const findTokenPrice = (predicate: (t: Token) => boolean) => {
       const key = keySet.find((t) => predicate(t));
@@ -262,11 +271,12 @@ class App extends React.Component<AppProps, AppState> {
           // so we'll make an attempt to load 'em all
           this.loadBalances(accountAddress as string);
         } else {
-          // we already have tokens, update the state and we're done
+          // we already have tokens, update the state first and then refresh prices in the background
           this.setState({ walletTokens: tokens });
-          // TODO: refresh prices and balances in the background
+          // TODO: also refresh balances in the background
           const updatedTokens = await this.refreshPrices(tokens);
           this.setState({ walletTokens: updatedTokens });
+          accountCacheProvider.update({ tokens: updatedTokens });
         }
       }
     });
@@ -321,7 +331,11 @@ class App extends React.Component<AppProps, AppState> {
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="flex items-center justify-between h-16">
               <div className="flex items-center">
-                <div className="flex-shrink-0 text-4xl">🥩</div>
+                <div className="flex-shrink-0 text-4xl">
+                  <a href="https://churras.org">
+                    <img src={Logo} alt="Churras logo" width="64" height="64" />
+                  </a>
+                </div>
                 <div className="hidden md:block">
                   <div className="ml-10 flex items-start space-x-4">
                     <a
@@ -459,19 +473,30 @@ class App extends React.Component<AppProps, AppState> {
             <div className="sm:flex sm:mt-8">
               <div className="mt-8 sm:mt-0 sm:w-full sm:px-8 grid grid-cols-2 justify-items-start">
                 <div>
-                  <div className="my-2 text-5xl">🥩</div>
+                  <div className="my-2 text-5xl">
+                    <a href="https://churras.org">
+                      <img
+                        src={Logo}
+                        alt="Churras logo"
+                        width="64"
+                        height="64"
+                      />
+                    </a>
+                  </div>
                   <div className="my-5">
                     <p className="leading-relaxed">
                       Churras is your DeFi wallet dashboard. <br /> It supports
                       both Ethereum and Binance Smart Chain. <br /> Track your
-                      balance, tokens, yields and be your own bank.
+                      account balance, tokens, yields and <br /> be your own
+                      bank.
                     </p>
                   </div>
-                  <div className="my-5">
+                  <div className="my-5 flex">
                     <a
                       href="https://github.com/felipecsl/churras"
                       target="_blank"
                       rel="noreferrer"
+                      className="flex mr-4"
                     >
                       <img
                         src={GithubLogo}
@@ -479,24 +504,39 @@ class App extends React.Component<AppProps, AppState> {
                         className="fill-current filter dark:invert"
                       />
                     </a>
+                    <a
+                      href="https://twitter.com/churras_org"
+                      target="_blank"
+                      rel="noreferrer"
+                      className="flex"
+                    >
+                      <img
+                        src={TwitterLogo}
+                        alt="Churras Twitter"
+                        className="fill-current filter dark:invert"
+                      />
+                    </a>
                   </div>
                 </div>
                 <div>
-                  <div className="font-bold text-gray-900 dark:text-gray-200 uppercase mb-8">
+                  <div className="font-bold text-gray-900 dark:text-gray-200 uppercase my-8">
                     About
                   </div>
                   <div className="my-4">
-                    <a href="#" className="text-md">
-                      What is this?
+                    <a href="https://docs.churras.org/" className="text-md">
+                      Documentation
                     </a>
                   </div>
                   <div className="my-4">
-                    <a href="#" className="text-md">
-                      Docs
+                    <a
+                      href="https://github.com/felipecsl/churras"
+                      className="text-md"
+                    >
+                      Source Code
                     </a>
                   </div>
                   <div className="my-4">
-                    <a href="#" className="text-md">
+                    <a href="mailto:felipe.lima@gmail.com" className="text-md">
                       Contact
                     </a>
                   </div>
