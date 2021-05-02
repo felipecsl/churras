@@ -1,4 +1,4 @@
-# 🥩 Churras
+# ![logo](https://raw.githubusercontent.com/felipecsl/churras/cc3c32687678908265582112554bcac8507ad6f8/public/favicon.svg) Churras
 
 "churras" is a shorthand for "churrasco", which is a delicious [Brazilian style barbecue](https://www.merriam-webster.com/dictionary/churrasco).
 
