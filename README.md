@@ -1,4 +1,7 @@
-# ![logo](https://raw.githubusercontent.com/felipecsl/churras/cc3c32687678908265582112554bcac8507ad6f8/public/favicon.svg) Churras
+<h1>
+  <img src="https://raw.githubusercontent.com/felipecsl/churras/cc3c32687678908265582112554bcac8507ad6f8/public/favicon.svg" alt="logo" width="40" height="40"/>
+  Churras
+</h1>
 
 "churras" is a shorthand for "churrasco", which is a delicious [Brazilian style barbecue](https://www.merriam-webster.com/dictionary/churrasco).
 
