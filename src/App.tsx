@@ -326,7 +326,7 @@ class App extends React.Component<AppProps, AppState> {
       isMetaMaskInstalled && !this.isChainSupported(chain);
     const showConnectToMetamaskButton = isMetaMaskInstalled && !accountAddress;
     return (
-      <div>
+      <div className="flex flex-col h-screen justify-between">
         <nav className="bg-gray-800 dark:bg-gray-700">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="flex items-center justify-between h-16">
@@ -372,7 +372,7 @@ class App extends React.Component<AppProps, AppState> {
             </h1>
           </div>
         </header>
-        <main>
+        <main className="mb-auto">
           <div className="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
             <div className="py-8 text-base leading-6 space-y-4 text-gray-700 dark:text-gray-300 sm:text-lg sm:leading-7">
               {!isMetaMaskInstalled && (
@@ -468,7 +468,7 @@ class App extends React.Component<AppProps, AppState> {
             </div>
           </div>
         </main>
-        <footer className="footer bg-white dark:text-gray-300 dark:bg-gray-700 relative pt-1 border-b-2 border-blue-700">
+        <footer className="footer bg-white dark:text-gray-300 dark:bg-gray-700 relative pt-1 border-b-2 border-gray-700">
           <div className="container max-w-7xl mx-auto px-6">
             <div className="sm:flex sm:mt-8">
               <div className="mt-8 sm:mt-0 sm:w-full sm:px-8 grid grid-cols-2 justify-items-start">
