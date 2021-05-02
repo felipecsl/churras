@@ -1,34 +1,19 @@
 import { render, screen } from "@testing-library/react";
 import React from "react";
+import AccountSnapshot from "../accountSnapshot";
 import App from "../App";
-import { Chain, Network } from "../chain";
-import { DEFAULT_BSC_PROVIDER, DEFAULT_ETHEREUM_PROVIDER } from "../constants";
+import { Chain } from "../chain";
 import AccountCacheProvider from "../providers/accountCacheProvider";
 import Token from "../token/token";
-import TokenBalanceResolver from "../token/tokenBalanceResolver";
-import TokenDatabase from "../token/tokenDatabase";
 import FakeMetaMaskProvider from "./fakeMetaMaskProvider";
 import "./matchMedia";
 import FakeTokenPricesProvider from "./providers/fakeTokenPricesProvider";
 import FakeTokenBalanceResolver from "./token/fakeTokenBalanceResolver";
 
-const tokenBalanceResolver = new TokenBalanceResolver(
-  Object.fromEntries([
-    [Network[Network.ETHEREUM], DEFAULT_ETHEREUM_PROVIDER],
-    [Network[Network.BSC], DEFAULT_BSC_PROVIDER],
-  ])
-);
-
 const flushPromises = () => new Promise(setImmediate);
 
 test("renders basic layout", () => {
-  render(
-    <App
-      networkToPriceProviders={{}}
-      tokenDatabases={{}}
-      tokenBalanceResolver={tokenBalanceResolver}
-    />
-  );
+  render(<App />);
   const titleElement = screen.getAllByText(/Dashboard/i);
   expect(titleElement).toHaveLength(4);
   titleElement.forEach((t: any) => expect(t).toBeInTheDocument());
@@ -48,29 +33,22 @@ test("Caches wallet address and tokens with accountCacheProvider", async () => {
     logoURI:
       "https://tokens.1inch.exchange/0x514910771af9ca656af840dff83e8264ecf986ca.png",
   } as Token;
-  const fakeTokenBalanceResolver = new FakeTokenBalanceResolver(
+  const tokenBalanceResolver = new FakeTokenBalanceResolver(
     Object.fromEntries([[token.address, 1234]])
   );
-  const networkToPriceProviders = Object.fromEntries([
-    [
-      Network[Network.ETHEREUM],
-      new FakeTokenPricesProvider(
-        Object.fromEntries([[token.address, "43.21"]])
-      ),
-    ],
-  ]);
-  const fakeEthBnbPriceFetcher = () =>
-    Promise.resolve({ eth: "666", bnb: "333" });
+  const tokenPriceProviderFactory = (_: string) =>
+    new FakeTokenPricesProvider(Object.fromEntries([[token.address, "43.21"]]));
+  const ethBnbPriceFetcher = () => Promise.resolve({ eth: "666", bnb: "333" });
+  const accountSnapshot = new AccountSnapshot({
+    tokenPriceProviderFactory,
+    tokenBalanceResolver,
+    ethBnbPriceFetcher,
+  });
   render(
     <App
-      networkToPriceProviders={networkToPriceProviders}
-      tokenDatabases={Object.fromEntries([
-        [Network[Network.ETHEREUM], new TokenDatabase(Network.ETHEREUM)],
-      ])}
+      accountSnapshot={accountSnapshot}
       accountCacheProvider={accountCacheProvider}
-      tokenBalanceResolver={fakeTokenBalanceResolver}
       metaMaskProvider={fakeMetaMaskProvider}
-      ethBnbPriceFetcher={fakeEthBnbPriceFetcher}
     />
   );
   const connectButton = screen.getAllByText("Connect to MetaMask");
@@ -115,14 +93,8 @@ test("Caches wallet address and tokens with accountCacheProvider", async () => {
   // re-render component, this time from cached data
   render(
     <App
-      networkToPriceProviders={networkToPriceProviders}
-      tokenDatabases={Object.fromEntries([
-        [Network[Network.ETHEREUM], new TokenDatabase(Network.ETHEREUM)],
-      ])}
       accountCacheProvider={accountCacheProvider}
-      tokenBalanceResolver={fakeTokenBalanceResolver}
       metaMaskProvider={fakeMetaMaskProvider}
-      ethBnbPriceFetcher={fakeEthBnbPriceFetcher}
     />
   );
 });
