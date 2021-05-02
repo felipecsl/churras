@@ -1,6 +1,7 @@
 import { InfuraProvider } from "@ethersproject/providers";
 import React from "react";
 import ReactDOM from "react-dom";
+import AccountSnapshot from "./accountSnapshot";
 import App from "./App";
 import { Network } from "./chain";
 import { DEFAULT_BSC_PROVIDER, INFURA_API_KEY } from "./constants";
@@ -18,9 +19,10 @@ const tokenBalanceResolver = new TokenBalanceResolver(
     [Network[Network.BSC], DEFAULT_BSC_PROVIDER],
   ])
 );
+const accountSnapshot = new AccountSnapshot({ tokenBalanceResolver });
 ReactDOM.render(
   <React.StrictMode>
-    <App tokenBalanceResolver={tokenBalanceResolver} />
+    <App accountSnapshot={accountSnapshot} />
   </React.StrictMode>,
   document.getElementById("root")
 );
