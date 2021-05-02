@@ -1,7 +1,8 @@
-import React from "react";
-import { WalletToken } from "../token/walletToken";
 import { format } from "d3-format";
+import React from "react";
+import { Network } from "../chain";
 import { MIN_DISPLAY_AMOUNT } from "../constants";
+import { WalletToken } from "../token/walletToken";
 
 interface TokenTableRowProps {
   token: WalletToken;
@@ -18,6 +19,11 @@ export default class TokenTableRow extends React.Component<
     const balance = +token.balance;
     // total token amount in USD
     const equity = price * balance;
+    const isEthereum = token.network === Network[Network.ETHEREUM];
+    const network = isEthereum ? "Ethereum" : "BSC";
+    const networkPillColor = isEthereum
+      ? "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200"
+      : "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-400";
     const currencyFormat = format("$,.2f");
     const amountFormat = format(".2f");
     // do not display row if amount is not more than $5 cents
@@ -37,6 +43,13 @@ export default class TokenTableRow extends React.Component<
                 </div>
               </div>
             </div>
+          </td>
+          <td className="px-6 py-4 whitespace-nowrap">
+            <span
+              className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${networkPillColor}`}
+            >
+              {network}
+            </span>
           </td>
           <td className="px-6 py-4 whitespace-nowrap">
             <div className="text-sm text-gray-900 dark:text-gray-100">

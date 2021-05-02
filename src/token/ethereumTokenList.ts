@@ -691,6 +691,7 @@ export const ALL_ETHEREUM_TOKENS = {
   "0x5e74c9036fb86bd7ecdcb084a0673efc32ea31cb": {
     symbol: "sETH",
     name: "Synth sETH",
+    synth: true,
     decimals: 18,
     address: "0x5e74c9036fb86bd7ecdcb084a0673efc32ea31cb",
     logoURI:
@@ -1593,8 +1594,8 @@ export const ALL_ETHEREUM_TOKENS = {
       "https://tokens.1inch.exchange/0xdb25f211ab05b1c97d595516f45794528a807ad8.png",
   },
   "0xdd974d5c2e2928dea5f71b9825b8b646686bd200": {
-    symbol: "KNC",
-    name: "KyberNetwork",
+    symbol: "KNCL",
+    name: "KyberNetwork Legacy",
     address: "0xdd974d5c2e2928dea5f71b9825b8b646686bd200",
     decimals: 18,
     logoURI:
@@ -1931,6 +1932,7 @@ export const ALL_ETHEREUM_TOKENS = {
   "0x8a8079c7149b8a1611e5c5d978dca3be16545f83": {
     symbol: "iADA",
     name: "Synth iADA",
+    synth: true,
     decimals: 18,
     address: "0x8a8079c7149b8a1611e5c5d978dca3be16545f83",
     logoURI:
@@ -1979,6 +1981,7 @@ export const ALL_ETHEREUM_TOKENS = {
   "0x57ab1ec28d129707052df4df418d58a2d46d5f51": {
     symbol: "sUSD",
     name: "Synth sUSD",
+    synth: true,
     decimals: 18,
     address: "0x57ab1ec28d129707052df4df418d58a2d46d5f51",
     logoURI:
@@ -1987,6 +1990,7 @@ export const ALL_ETHEREUM_TOKENS = {
   "0xd71ecff9342a5ced620049e616c5035f1db98620": {
     symbol: "sEUR",
     name: "Synth sEUR",
+    synth: true,
     decimals: 18,
     address: "0xd71ecff9342a5ced620049e616c5035f1db98620",
     logoURI:
@@ -1995,6 +1999,7 @@ export const ALL_ETHEREUM_TOKENS = {
   "0xd6014ea05bde904448b743833ddf07c3c7837481": {
     symbol: "iBTC",
     name: "Synth iBTC",
+    synth: true,
     decimals: 18,
     address: "0xd6014ea05bde904448b743833ddf07c3c7837481",
     logoURI:
@@ -2003,6 +2008,7 @@ export const ALL_ETHEREUM_TOKENS = {
   "0xfe18be6b3bd88a2d2a7f928d00292e7a9963cfc6": {
     symbol: "sBTC",
     name: "Synth sBTC",
+    synth: true,
     decimals: 18,
     address: "0xfe18be6b3bd88a2d2a7f928d00292e7a9963cfc6",
     logoURI:
@@ -2011,6 +2017,7 @@ export const ALL_ETHEREUM_TOKENS = {
   "0xf48e200eaf9906362bb1442fca31e0835773b8b4": {
     symbol: "sAUD",
     name: "Synth sAUD",
+    synth: true,
     decimals: 18,
     address: "0xf48e200eaf9906362bb1442fca31e0835773b8b4",
     logoURI:
@@ -2019,6 +2026,7 @@ export const ALL_ETHEREUM_TOKENS = {
   "0xeabacd844a196d7faf3ce596edebf9900341b420": {
     symbol: "sCEX",
     name: "Synth sCEX",
+    synth: true,
     decimals: 18,
     address: "0xeabacd844a196d7faf3ce596edebf9900341b420",
     logoURI:
@@ -2027,6 +2035,7 @@ export const ALL_ETHEREUM_TOKENS = {
   "0x27269b3e45a4d3e79a3d6bfee0c8fb13d0d711a6": {
     symbol: "iXRP",
     name: "Synth iXRP",
+    synth: true,
     decimals: 18,
     address: "0x27269b3e45a4d3e79a3d6bfee0c8fb13d0d711a6",
     logoURI:
@@ -2035,6 +2044,7 @@ export const ALL_ETHEREUM_TOKENS = {
   "0x336213e1ddfc69f4701fc3f86f4ef4a160c1159d": {
     symbol: "iCEX",
     name: "Synth iCEX",
+    synth: true,
     decimals: 18,
     address: "0x336213e1ddfc69f4701fc3f86f4ef4a160c1159d",
     logoURI:
@@ -2043,6 +2053,7 @@ export const ALL_ETHEREUM_TOKENS = {
   "0xcb98f42221b2c251a4e74a1609722ee09f0cc08e": {
     symbol: "iDASH",
     name: "Synth iDASH",
+    synth: true,
     decimals: 18,
     address: "0xcb98f42221b2c251a4e74a1609722ee09f0cc08e",
     logoURI:
@@ -2051,6 +2062,7 @@ export const ALL_ETHEREUM_TOKENS = {
   "0xd50c1746d835d2770dda3703b69187bffeb14126": {
     symbol: "iETC",
     name: "Synth iETC",
+    synth: true,
     decimals: 18,
     address: "0xd50c1746d835d2770dda3703b69187bffeb14126",
     logoURI:
@@ -2059,6 +2071,7 @@ export const ALL_ETHEREUM_TOKENS = {
   "0x4adf728e2df4945082cdd6053869f51278fae196": {
     symbol: "iXMR",
     name: "Synth iXMR",
+    synth: true,
     decimals: 18,
     address: "0x4adf728e2df4945082cdd6053869f51278fae196",
     logoURI:
@@ -2067,6 +2080,7 @@ export const ALL_ETHEREUM_TOKENS = {
   "0xe36e2d3c7c34281fa3bc737950a68571736880a1": {
     symbol: "sADA",
     name: "Synth sADA",
+    synth: true,
     decimals: 18,
     address: "0xe36e2d3c7c34281fa3bc737950a68571736880a1",
     logoURI:
@@ -2075,6 +2089,7 @@ export const ALL_ETHEREUM_TOKENS = {
   "0xfe33ae95a9f0da8a845af33516edc240dcd711d6": {
     symbol: "sDASH",
     name: "Synth sDASH",
+    synth: true,
     decimals: 18,
     address: "0xfe33ae95a9f0da8a845af33516edc240dcd711d6",
     logoURI:
@@ -2083,6 +2098,7 @@ export const ALL_ETHEREUM_TOKENS = {
   "0x88c8cf3a212c0369698d13fe98fcb76620389841": {
     symbol: "sEOS",
     name: "Synth sEOS",
+    synth: true,
     decimals: 18,
     address: "0x88c8cf3a212c0369698d13fe98fcb76620389841",
     logoURI:
@@ -2091,6 +2107,7 @@ export const ALL_ETHEREUM_TOKENS = {
   "0x22602469d704bffb0936c7a7cfcd18f7aa269375": {
     symbol: "sETC",
     name: "Synth sETC",
+    synth: true,
     decimals: 18,
     address: "0x22602469d704bffb0936c7a7cfcd18f7aa269375",
     logoURI:
@@ -2099,6 +2116,7 @@ export const ALL_ETHEREUM_TOKENS = {
   "0x23348160d7f5aca21195df2b70f28fce2b0be9fc": {
     symbol: "sFTSE",
     name: "Synth sFTSE",
+    synth: true,
     decimals: 18,
     address: "0x23348160d7f5aca21195df2b70f28fce2b0be9fc",
     logoURI:
@@ -2107,6 +2125,7 @@ export const ALL_ETHEREUM_TOKENS = {
   "0x757de3ac6b830a931ef178c6634c5c551773155c": {
     symbol: "sNIKKEI",
     name: "Synth sNIKKEI",
+    synth: true,
     decimals: 18,
     address: "0x757de3ac6b830a931ef178c6634c5c551773155c",
     logoURI:
@@ -2115,6 +2134,7 @@ export const ALL_ETHEREUM_TOKENS = {
   "0x5299d6f7472dcc137d7f3c4bcfbbb514babf341a": {
     symbol: "sXMR",
     name: "Synth sXMR",
+    synth: true,
     decimals: 18,
     address: "0x5299d6f7472dcc137d7f3c4bcfbbb514babf341a",
     logoURI:
@@ -2123,6 +2143,7 @@ export const ALL_ETHEREUM_TOKENS = {
   "0xa2b0fde6d710e201d0d608e924a484d1a5fed57c": {
     symbol: "sXRP",
     name: "Synth sXRP",
+    synth: true,
     decimals: 18,
     address: "0xa2b0fde6d710e201d0d608e924a484d1a5fed57c",
     logoURI:
@@ -2131,6 +2152,7 @@ export const ALL_ETHEREUM_TOKENS = {
   "0x0f83287ff768d1c1e17a42f44d644d7f22e8ee1d": {
     symbol: "sCHF",
     name: "Synth sCHF",
+    synth: true,
     decimals: 18,
     address: "0x0f83287ff768d1c1e17a42f44d644d7f22e8ee1d",
     logoURI:
@@ -2139,6 +2161,7 @@ export const ALL_ETHEREUM_TOKENS = {
   "0xf6b1c627e95bfc3c1b4c9b825a032ff0fbf3e07d": {
     symbol: "sJPY",
     name: "Synth sJPY",
+    synth: true,
     decimals: 18,
     address: "0xf6b1c627e95bfc3c1b4c9b825a032ff0fbf3e07d",
     logoURI:
@@ -2147,6 +2170,7 @@ export const ALL_ETHEREUM_TOKENS = {
   "0x6a22e5e94388464181578aa7a6b869e00fe27846": {
     symbol: "sXAG",
     name: "Synth sXAG",
+    synth: true,
     decimals: 18,
     address: "0x6a22e5e94388464181578aa7a6b869e00fe27846",
     logoURI:
@@ -2155,6 +2179,7 @@ export const ALL_ETHEREUM_TOKENS = {
   "0xf2e08356588ec5cd9e437552da87c0076b4970b0": {
     symbol: "sTRX",
     name: "Synth sTRX",
+    synth: true,
     decimals: 18,
     address: "0xf2e08356588ec5cd9e437552da87c0076b4970b0",
     logoURI:
@@ -2163,6 +2188,7 @@ export const ALL_ETHEREUM_TOKENS = {
   "0xc14103c2141e842e228fbac594579e798616ce7a": {
     symbol: "sLTC",
     name: "Synth sLTC",
+    synth: true,
     decimals: 18,
     address: "0xc14103c2141e842e228fbac594579e798616ce7a",
     logoURI:
@@ -2171,6 +2197,7 @@ export const ALL_ETHEREUM_TOKENS = {
   "0xa9859874e1743a32409f75bb11549892138bba1e": {
     symbol: "iETH",
     name: "Synth iETH",
+    synth: true,
     decimals: 18,
     address: "0xa9859874e1743a32409f75bb11549892138bba1e",
     logoURI:
@@ -2179,6 +2206,7 @@ export const ALL_ETHEREUM_TOKENS = {
   "0xc5807183a9661a533cb08cbc297594a0b864dc12": {
     symbol: "iTRX",
     name: "Synth iTRX",
+    synth: true,
     decimals: 18,
     address: "0xc5807183a9661a533cb08cbc297594a0b864dc12",
     logoURI:
@@ -2187,6 +2215,7 @@ export const ALL_ETHEREUM_TOKENS = {
   "0x2d7ac061fc3db53c39fe1607fb8cec1b2c162b01": {
     symbol: "iLINK",
     name: "Synth iLINK",
+    synth: true,
     decimals: 18,
     address: "0x2d7ac061fc3db53c39fe1607fb8cec1b2c162b01",
     logoURI:
@@ -2195,6 +2224,7 @@ export const ALL_ETHEREUM_TOKENS = {
   "0xe1afe1fd76fd88f78cbf599ea1846231b8ba3b6b": {
     symbol: "sDEFI",
     name: "Synth sDEFI",
+    synth: true,
     decimals: 18,
     address: "0xe1afe1fd76fd88f78cbf599ea1846231b8ba3b6b",
     logoURI:
@@ -2203,6 +2233,7 @@ export const ALL_ETHEREUM_TOKENS = {
   "0x97fe22e7341a0cd8db6f6c021a24dc8f4dad855f": {
     symbol: "sGBP",
     name: "Synth sGBP",
+    synth: true,
     decimals: 18,
     address: "0x97fe22e7341a0cd8db6f6c021a24dc8f4dad855f",
     logoURI:
@@ -2211,6 +2242,7 @@ export const ALL_ETHEREUM_TOKENS = {
   "0x261efcdd24cea98652b9700800a13dfbca4103ff": {
     symbol: "sXAU",
     name: "Synth sXAU",
+    synth: true,
     decimals: 18,
     address: "0x261efcdd24cea98652b9700800a13dfbca4103ff",
     logoURI:
@@ -2219,6 +2251,7 @@ export const ALL_ETHEREUM_TOKENS = {
   "0x617aecb6137b5108d1e7d4918e3725c8cebdb848": {
     symbol: "sBNB",
     name: "Synth sBNB",
+    synth: true,
     decimals: 18,
     address: "0x617aecb6137b5108d1e7d4918e3725c8cebdb848",
     logoURI:
@@ -2227,6 +2260,7 @@ export const ALL_ETHEREUM_TOKENS = {
   "0x2e59005c5c0f0a4d77cca82653d48b46322ee5cd": {
     symbol: "sXTZ",
     name: "Synth sXTZ",
+    synth: true,
     decimals: 18,
     address: "0x2e59005c5c0f0a4d77cca82653d48b46322ee5cd",
     logoURI:
@@ -2235,6 +2269,7 @@ export const ALL_ETHEREUM_TOKENS = {
   "0xbbc455cb4f1b9e4bfc4b73970d360c8f032efee6": {
     symbol: "sLINK",
     name: "Synth sLINK",
+    synth: true,
     decimals: 18,
     address: "0xbbc455cb4f1b9e4bfc4b73970d360c8f032efee6",
     logoURI:
@@ -2243,6 +2278,7 @@ export const ALL_ETHEREUM_TOKENS = {
   "0xafd870f32ce54efdbf677466b612bf8ad164454b": {
     symbol: "iBNB",
     name: "Synth iBNB",
+    synth: true,
     decimals: 18,
     address: "0xafd870f32ce54efdbf677466b612bf8ad164454b",
     logoURI:
@@ -2251,6 +2287,7 @@ export const ALL_ETHEREUM_TOKENS = {
   "0x8deef89058090ac5655a99eeb451a4f9183d1678": {
     symbol: "iXTZ",
     name: "Synth iXTZ",
+    synth: true,
     decimals: 18,
     address: "0x8deef89058090ac5655a99eeb451a4f9183d1678",
     logoURI:
@@ -2259,6 +2296,7 @@ export const ALL_ETHEREUM_TOKENS = {
   "0x79da1431150c9b82d2e5dfc1c68b33216846851e": {
     symbol: "iLTC",
     name: "Synth iLTC",
+    synth: true,
     decimals: 18,
     address: "0x79da1431150c9b82d2e5dfc1c68b33216846851e",
     logoURI:
@@ -2267,6 +2305,7 @@ export const ALL_ETHEREUM_TOKENS = {
   "0xf4eebdd0704021ef2a6bbe993fdf93030cd784b4": {
     symbol: "iEOS",
     name: "Synth iEOS",
+    synth: true,
     decimals: 18,
     address: "0xf4eebdd0704021ef2a6bbe993fdf93030cd784b4",
     logoURI:
@@ -2275,6 +2314,7 @@ export const ALL_ETHEREUM_TOKENS = {
   "0x14d10003807ac60d07bb0ba82caeac8d2087c157": {
     symbol: "iDEFI",
     name: "Synth iDEFI",
+    synth: true,
     decimals: 18,
     address: "0x14d10003807ac60d07bb0ba82caeac8d2087c157",
     logoURI:
@@ -3699,6 +3739,7 @@ export const ALL_ETHEREUM_TOKENS = {
   "0x6d16cf3ec5f763d4d99cb0b0b110eefd93b11b56": {
     symbol: "sOIL",
     name: "Synth sOIL",
+    synth: true,
     decimals: 18,
     address: "0x6d16cf3ec5f763d4d99cb0b0b110eefd93b11b56",
     logoURI:
@@ -3707,6 +3748,7 @@ export const ALL_ETHEREUM_TOKENS = {
   "0xa5a5df41883cdc00c4ccc6e8097130535399d9a3": {
     symbol: "iOIL",
     name: "Synth iOIL",
+    synth: true,
     decimals: 18,
     address: "0xa5a5df41883cdc00c4ccc6e8097130535399d9a3",
     logoURI:
@@ -4455,14 +4497,6 @@ export const ALL_ETHEREUM_TOKENS = {
     address: "0x4c11249814f11b9346808179cf06e71ac328c1b5",
     logoURI:
       "https://tokens.1inch.exchange/0x4c11249814f11b9346808179cf06e71ac328c1b5.png",
-  },
-  "0xb1dc9124c395c1e97773ab855d66e879f053a289": {
-    symbol: "YAX",
-    name: "yAxis",
-    decimals: 18,
-    address: "0xb1dc9124c395c1e97773ab855d66e879f053a289",
-    logoURI:
-      "https://tokens.1inch.exchange/0xb1dc9124c395c1e97773ab855d66e879f053a289.png",
   },
   "0xfbeea1c75e4c4465cb2fccc9c6d6afe984558e20": {
     symbol: "DDIM",
@@ -5288,11 +5322,11 @@ export const ALL_ETHEREUM_TOKENS = {
     logoURI:
       "https://tokens.1inch.exchange/0xd2877702675e6ceb975b4a1dff9fb7baf4c91ea9.png",
   },
-  "0x913d8adf7ce6986a8cbfee5a54725d9eea4f0729": {
-    symbol: "EASY",
-    name: "EASY",
+  "0x00aba6fe5557de1a1d565658cbddddf7c710a1eb": {
+    symbol: "EZ",
+    name: "EASY V2",
     decimals: 18,
-    address: "0x913d8adf7ce6986a8cbfee5a54725d9eea4f0729",
+    address: "0x00aba6fe5557de1a1d565658cbddddf7c710a1eb",
     logoURI:
       "https://tokens.1inch.exchange/0x913d8adf7ce6986a8cbfee5a54725d9eea4f0729.png",
   },
@@ -5411,6 +5445,7 @@ export const ALL_ETHEREUM_TOKENS = {
   "0x1715ac0743102bf5cd58efbb6cf2dc2685d967b6": {
     symbol: "sDOT",
     name: "Synth sDOT",
+    synth: true,
     decimals: 18,
     address: "0x1715ac0743102bf5cd58efbb6cf2dc2685d967b6",
     logoURI:
@@ -5419,6 +5454,7 @@ export const ALL_ETHEREUM_TOKENS = {
   "0xeb029507d3e043dd6c87f2917c4e82b902c35618": {
     symbol: "sCOMP",
     name: "Synth sCOMP",
+    synth: true,
     decimals: 18,
     address: "0xeb029507d3e043dd6c87f2917c4e82b902c35618",
     logoURI:
@@ -5427,6 +5463,7 @@ export const ALL_ETHEREUM_TOKENS = {
   "0xd2df355c19471c8bd7d8a3aa27ff4e26a21b4076": {
     symbol: "sAAVE",
     name: "Synth sAAVE",
+    synth: true,
     decimals: 18,
     address: "0xd2df355c19471c8bd7d8a3aa27ff4e26a21b4076",
     logoURI:
@@ -5435,6 +5472,7 @@ export const ALL_ETHEREUM_TOKENS = {
   "0x592244301cea952d6dab2fdc1fe6bd9e53917306": {
     symbol: "iYFI",
     name: "Synth iYFI",
+    synth: true,
     decimals: 18,
     address: "0x592244301cea952d6dab2fdc1fe6bd9e53917306",
     logoURI:
@@ -5443,6 +5481,7 @@ export const ALL_ETHEREUM_TOKENS = {
   "0x36a00ff9072570ef4b9292117850b8fe08d96cce": {
     symbol: "iUNI",
     name: "Synth iUNI",
+    synth: true,
     decimals: 18,
     address: "0x36a00ff9072570ef4b9292117850b8fe08d96cce",
     logoURI:
@@ -5451,6 +5490,7 @@ export const ALL_ETHEREUM_TOKENS = {
   "0x0fed38108bdb8e62ef7b5680e8e0726e2f29e0de": {
     symbol: "iREN",
     name: "Synth iREN",
+    synth: true,
     decimals: 18,
     address: "0x0fed38108bdb8e62ef7b5680e8e0726e2f29e0de",
     logoURI:
@@ -5459,6 +5499,7 @@ export const ALL_ETHEREUM_TOKENS = {
   "0x46a97629c9c1f58de6ec18c7f536e7e6d6a6ecde": {
     symbol: "iDOT",
     name: "Synth iDOT",
+    synth: true,
     decimals: 18,
     address: "0x46a97629c9c1f58de6ec18c7f536e7e6d6a6ecde",
     logoURI:
@@ -5467,6 +5508,7 @@ export const ALL_ETHEREUM_TOKENS = {
   "0x6345728b1cce16e6f8c509950b5c84fff88530d9": {
     symbol: "iCOMP",
     name: "Synth iCOMP",
+    synth: true,
     decimals: 18,
     address: "0x6345728b1cce16e6f8c509950b5c84fff88530d9",
     logoURI:
@@ -5475,6 +5517,7 @@ export const ALL_ETHEREUM_TOKENS = {
   "0x992058b7db08f9734d84485bfbc243c4ee6954a7": {
     symbol: "sYFI",
     name: "Synth sYFI",
+    synth: true,
     decimals: 18,
     address: "0x992058b7db08f9734d84485bfbc243c4ee6954a7",
     logoURI:
@@ -5483,6 +5526,7 @@ export const ALL_ETHEREUM_TOKENS = {
   "0x30635297e450b930f8693297eba160d9e6c8ebcf": {
     symbol: "sUNI",
     name: "Synth sUNI",
+    synth: true,
     decimals: 18,
     address: "0x30635297e450b930f8693297eba160d9e6c8ebcf",
     logoURI:
@@ -5491,6 +5535,7 @@ export const ALL_ETHEREUM_TOKENS = {
   "0xd31533e8d0f3df62060e94b3f1318137bb6e3525": {
     symbol: "sREN",
     name: "Synth sREN",
+    synth: true,
     decimals: 18,
     address: "0xd31533e8d0f3df62060e94b3f1318137bb6e3525",
     logoURI:
@@ -5499,6 +5544,7 @@ export const ALL_ETHEREUM_TOKENS = {
   "0x176c674ee533c6139b0dc8b458d72a93dcb3e705": {
     symbol: "iAAVE",
     name: "Synth iAAVE",
+    synth: true,
     decimals: 18,
     address: "0x176c674ee533c6139b0dc8b458d72a93dcb3e705",
     logoURI:
@@ -5539,6 +5585,7 @@ export const ALL_ETHEREUM_TOKENS = {
   "0x918da91ccbc32b7a6a0cc4ecd5987bbab6e31e6d": {
     symbol: "sTSLA",
     name: "Synth sTSLA",
+    synth: true,
     decimals: 18,
     address: "0x918da91ccbc32b7a6a0cc4ecd5987bbab6e31e6d",
     logoURI:
@@ -7496,14 +7543,6 @@ export const ALL_ETHEREUM_TOKENS = {
     logoURI:
       "https://tokens.1inch.exchange/0x0ace20a35ee382bda90d1d93cee65f5970fc01c8.png",
   },
-  "0x3883f5e181fccaf8410fa61e12b59bad963fb645": {
-    symbol: "THETA",
-    name: "Theta Token",
-    decimals: 18,
-    address: "0x3883f5e181fccaf8410fa61e12b59bad963fb645",
-    logoURI:
-      "https://tokens.1inch.exchange/0x3883f5e181fccaf8410fa61e12b59bad963fb645.png",
-  },
   "0xa92e7c82b11d10716ab534051b271d2f6aef7df5": {
     symbol: "ARA",
     name: "Ara Token",
@@ -7727,5 +7766,368 @@ export const ALL_ETHEREUM_TOKENS = {
     address: "0x55296f69f40ea6d20e478533c15a6b08b654e758",
     logoURI:
       "https://tokens.1inch.exchange/0x55296f69f40ea6d20e478533c15a6b08b654e758.png",
+  },
+  "0x0f71b8de197a1c84d31de0f1fa7926c365f052b3": {
+    symbol: "ARCONA",
+    name: "Arcona Distribution Contract",
+    decimals: 18,
+    address: "0x0f71b8de197a1c84d31de0f1fa7926c365f052b3",
+    logoURI:
+      "https://tokens.1inch.exchange/0x0f71b8de197a1c84d31de0f1fa7926c365f052b3.png",
+  },
+  "0x9534ad65fb398e27ac8f4251dae1780b989d136e": {
+    symbol: "PYR",
+    name: "PYR Token",
+    decimals: 18,
+    address: "0x9534ad65fb398e27ac8f4251dae1780b989d136e",
+    logoURI:
+      "https://tokens.1inch.exchange/0x9534ad65fb398e27ac8f4251dae1780b989d136e.png",
+  },
+  "0xa31b1767e09f842ecfd4bc471fe44f830e3891aa": {
+    symbol: "ROOBEE",
+    name: "ROOBEE",
+    decimals: 18,
+    address: "0xa31b1767e09f842ecfd4bc471fe44f830e3891aa",
+    logoURI:
+      "https://tokens.1inch.exchange/0xa31b1767e09f842ecfd4bc471fe44f830e3891aa.png",
+  },
+  "0xf3ae5d769e153ef72b4e3591ac004e89f48107a1": {
+    symbol: "DPR",
+    name: "Deeper Network",
+    decimals: 18,
+    address: "0xf3ae5d769e153ef72b4e3591ac004e89f48107a1",
+    logoURI:
+      "https://tokens.1inch.exchange/0xf3ae5d769e153ef72b4e3591ac004e89f48107a1.png",
+  },
+  "0xd9b312d77bc7bed9b9cecb56636300bed4fe5ce9": {
+    symbol: "GAINS",
+    name: "Gains",
+    decimals: 18,
+    address: "0xd9b312d77bc7bed9b9cecb56636300bed4fe5ce9",
+    logoURI:
+      "https://tokens.1inch.exchange/0xd9b312d77bc7bed9b9cecb56636300bed4fe5ce9.png",
+  },
+  "0x5f98805a4e8be255a32880fdec7f6728c6568ba0": {
+    symbol: "LUSD",
+    name: "LUSD Stablecoin",
+    decimals: 18,
+    address: "0x5f98805a4e8be255a32880fdec7f6728c6568ba0",
+    logoURI:
+      "https://tokens.1inch.exchange/0x5f98805a4e8be255a32880fdec7f6728c6568ba0.png",
+  },
+  "0x1da87b114f35e1dc91f72bf57fc07a768ad40bb0": {
+    symbol: "EQZ",
+    name: "Equalizer",
+    decimals: 18,
+    address: "0x1da87b114f35e1dc91f72bf57fc07a768ad40bb0",
+    logoURI:
+      "https://tokens.1inch.exchange/0x1da87b114f35e1dc91f72bf57fc07a768ad40bb0.png",
+  },
+  "0xe0b9a2c3e9f40cf74b2c7f591b2b0cca055c3112": {
+    symbol: "GS",
+    name: "Gen Shards",
+    decimals: 18,
+    address: "0xe0b9a2c3e9f40cf74b2c7f591b2b0cca055c3112",
+    logoURI:
+      "https://tokens.1inch.exchange/0xe0b9a2c3e9f40cf74b2c7f591b2b0cca055c3112.png",
+  },
+  "0xa8006c4ca56f24d6836727d106349320db7fef82": {
+    symbol: "INXT",
+    name: "Internxt",
+    decimals: 8,
+    address: "0xa8006c4ca56f24d6836727d106349320db7fef82",
+    logoURI:
+      "https://tokens.1inch.exchange/0xa8006c4ca56f24d6836727d106349320db7fef82.png",
+  },
+  "0x383518188c0c6d7730d91b2c03a03c837814a899": {
+    symbol: "OHM",
+    name: "Olympus",
+    decimals: 9,
+    address: "0x383518188c0c6d7730d91b2c03a03c837814a899",
+    logoURI:
+      "https://tokens.1inch.exchange/0x383518188c0c6d7730d91b2c03a03c837814a899.png",
+  },
+  "0x5eaa69b29f99c84fe5de8200340b4e9b4ab38eac": {
+    symbol: "RAZE",
+    name: "Raze Network",
+    decimals: 18,
+    address: "0x5eaa69b29f99c84fe5de8200340b4e9b4ab38eac",
+    logoURI:
+      "https://tokens.1inch.exchange/0x5eaa69b29f99c84fe5de8200340b4e9b4ab38eac.png",
+  },
+  "0x88acdd2a6425c3faae4bc9650fd7e27e0bebb7ab": {
+    symbol: "MIST",
+    name: "Alchemist",
+    decimals: 18,
+    address: "0x88acdd2a6425c3faae4bc9650fd7e27e0bebb7ab",
+    logoURI:
+      "https://tokens.1inch.exchange/0x88acdd2a6425c3faae4bc9650fd7e27e0bebb7ab.png",
+  },
+  "0x3d6f0dea3ac3c607b3998e6ce14b6350721752d9": {
+    symbol: "CARDS",
+    name: "CARD.STARTER",
+    decimals: 18,
+    address: "0x3d6f0dea3ac3c607b3998e6ce14b6350721752d9",
+    logoURI:
+      "https://tokens.1inch.exchange/0x3d6f0dea3ac3c607b3998e6ce14b6350721752d9.png",
+  },
+  "0x33840024177a7daca3468912363bed8b425015c5": {
+    symbol: "EBOX",
+    name: "ethbox Token",
+    decimals: 18,
+    address: "0x33840024177a7daca3468912363bed8b425015c5",
+    logoURI:
+      "https://tokens.1inch.exchange/0x33840024177a7daca3468912363bed8b425015c5.png",
+  },
+  "0xec213f83defb583af3a000b1c0ada660b1902a0f": {
+    symbol: "PRE",
+    name: "Presearch",
+    decimals: 18,
+    address: "0xec213f83defb583af3a000b1c0ada660b1902a0f",
+    logoURI:
+      "https://tokens.1inch.exchange/0xec213f83defb583af3a000b1c0ada660b1902a0f.png",
+  },
+  "0xf418588522d5dd018b425e472991e52ebbeeeeee": {
+    symbol: "PUSH",
+    name: "Ethereum Push Notification Service",
+    decimals: 18,
+    address: "0xf418588522d5dd018b425e472991e52ebbeeeeee",
+    logoURI:
+      "https://tokens.1inch.exchange/0xf418588522d5dd018b425e472991e52ebbeeeeee.png",
+  },
+  "0xd8e3fb3b08eba982f2754988d70d57edc0055ae6": {
+    symbol: "ZORA",
+    name: "Zoracles",
+    decimals: 9,
+    address: "0xd8e3fb3b08eba982f2754988d70d57edc0055ae6",
+    logoURI:
+      "https://tokens.1inch.exchange/0xd8e3fb3b08eba982f2754988d70d57edc0055ae6.png",
+  },
+  "0xc477d038d5420c6a9e0b031712f61c5120090de9": {
+    symbol: "BOSON",
+    name: "Boson Token",
+    decimals: 18,
+    address: "0xc477d038d5420c6a9e0b031712f61c5120090de9",
+    logoURI:
+      "https://tokens.1inch.exchange/0xc477d038d5420c6a9e0b031712f61c5120090de9.png",
+  },
+  "0xdd1ad9a21ce722c151a836373babe42c868ce9a4": {
+    symbol: "UBI",
+    name: "Universal Basic Income",
+    decimals: 18,
+    address: "0xdd1ad9a21ce722c151a836373babe42c868ce9a4",
+    logoURI:
+      "https://tokens.1inch.exchange/0xdd1ad9a21ce722c151a836373babe42c868ce9a4.png",
+  },
+  "0x53c8395465a84955c95159814461466053dedede": {
+    symbol: "DG",
+    name: "DeGate Token",
+    decimals: 18,
+    address: "0x53c8395465a84955c95159814461466053dedede",
+    logoURI:
+      "https://tokens.1inch.exchange/0x53c8395465a84955c95159814461466053dedede.png",
+  },
+  "0x16c52ceece2ed57dad87319d91b5e3637d50afa4": {
+    symbol: "TCAP",
+    name: "TCAP Token",
+    decimals: 18,
+    address: "0x16c52ceece2ed57dad87319d91b5e3637d50afa4",
+    logoURI:
+      "https://tokens.1inch.exchange/0x16c52ceece2ed57dad87319d91b5e3637d50afa4.png",
+  },
+  "0x44564d0bd94343f72e3c8a0d22308b7fa71db0bb": {
+    symbol: "BASK",
+    name: "BasketDAO Gov",
+    decimals: 18,
+    address: "0x44564d0bd94343f72e3c8a0d22308b7fa71db0bb",
+    logoURI:
+      "https://tokens.1inch.exchange/0x44564d0bd94343f72e3c8a0d22308b7fa71db0bb.png",
+  },
+  "0x5cf04716ba20127f1e2297addcf4b5035000c9eb": {
+    symbol: "NKN",
+    name: "NKN",
+    decimals: 18,
+    address: "0x5cf04716ba20127f1e2297addcf4b5035000c9eb",
+    logoURI:
+      "https://tokens.1inch.exchange/0x5cf04716ba20127f1e2297addcf4b5035000c9eb.png",
+  },
+  "0x4730fb1463a6f1f44aeb45f6c5c422427f37f4d0": {
+    symbol: "FOUR",
+    name: "The 4th Pillar Token",
+    decimals: 18,
+    address: "0x4730fb1463a6f1f44aeb45f6c5c422427f37f4d0",
+    logoURI:
+      "https://tokens.1inch.exchange/0x4730fb1463a6f1f44aeb45f6c5c422427f37f4d0.png",
+  },
+  "0x08d32b0da63e2c3bcf8019c9c5d849d7a9d791e6": {
+    symbol: "DCN",
+    name: "Dentacoin",
+    decimals: 0,
+    address: "0x08d32b0da63e2c3bcf8019c9c5d849d7a9d791e6",
+    logoURI:
+      "https://tokens.1inch.exchange/0x08d32b0da63e2c3bcf8019c9c5d849d7a9d791e6.png",
+  },
+  "0x77fba179c79de5b7653f68b5039af940ada60ce0": {
+    symbol: "FORTH",
+    name: "Ampleforth Governance",
+    decimals: 18,
+    address: "0x77fba179c79de5b7653f68b5039af940ada60ce0",
+    logoURI:
+      "https://tokens.1inch.exchange/0x77fba179c79de5b7653f68b5039af940ada60ce0.png",
+  },
+  "0xcd39b5434a0a92cf47d1f567a7df84be356814f0": {
+    symbol: "s1INCH",
+    name: "Synth s1INCH",
+    synth: true,
+    decimals: 18,
+    address: "0xcd39b5434a0a92cf47d1f567a7df84be356814f0",
+    logoURI:
+      "https://tokens.1inch.exchange/0xcd39b5434a0a92cf47d1f567a7df84be356814f0.png",
+  },
+  "0x0352557b007a4aae1511c114409b932f06f9e2f4": {
+    symbol: "sRUNE",
+    name: "Synth sRUNE",
+    synth: true,
+    decimals: 18,
+    address: "0x0352557b007a4aae1511c114409b932f06f9e2f4",
+    logoURI:
+      "https://tokens.1inch.exchange/0x0352557b007a4aae1511c114409b932f06f9e2f4.png",
+  },
+  "0xd38aeb759891882e78e957c80656572503d8c1b1": {
+    symbol: "sCRV",
+    name: "Synth sCRV",
+    synth: true,
+    decimals: 18,
+    address: "0xd38aeb759891882e78e957c80656572503d8c1b1",
+    logoURI:
+      "https://tokens.1inch.exchange/0xd38aeb759891882e78e957c80656572503d8c1b1.png",
+  },
+  "0x269895a3df4d73b077fc823dd6da1b95f72aaf9b": {
+    symbol: "sKRW",
+    name: "Synth sKRW",
+    synth: true,
+    decimals: 18,
+    address: "0x269895a3df4d73b077fc823dd6da1b95f72aaf9b",
+    logoURI:
+      "https://tokens.1inch.exchange/0x269895a3df4d73b077fc823dd6da1b95f72aaf9b.png",
+  },
+  "0x5a7e3c07604eb515c16b36cd51906a65f021f609": {
+    symbol: "sNFLX",
+    name: "Synth sNFLX",
+    synth: true,
+    decimals: 18,
+    address: "0x5a7e3c07604eb515c16b36cd51906a65f021f609",
+    logoURI:
+      "https://tokens.1inch.exchange/0x5a7e3c07604eb515c16b36cd51906a65f021f609.png",
+  },
+  "0xf50b5e535f62a56a9bd2d8e2434204e726c027fa": {
+    symbol: "sFB",
+    name: "Synth sFB",
+    synth: true,
+    decimals: 18,
+    address: "0xf50b5e535f62a56a9bd2d8e2434204e726c027fa",
+    logoURI:
+      "https://tokens.1inch.exchange/0xf50b5e535f62a56a9bd2d8e2434204e726c027fa.png",
+  },
+  "0xc63b8ecce56ab9c46184ec6ab85e4771fea4c8ad": {
+    symbol: "sGOOG",
+    name: "Synth sGOOG",
+    synth: true,
+    decimals: 18,
+    address: "0xc63b8ecce56ab9c46184ec6ab85e4771fea4c8ad",
+    logoURI:
+      "https://tokens.1inch.exchange/0xc63b8ecce56ab9c46184ec6ab85e4771fea4c8ad.png",
+  },
+  "0x9cf7e61853ea30a41b02169391b393b901eac457": {
+    symbol: "sAMZN",
+    name: "Synth sAMZN",
+    synth: true,
+    decimals: 18,
+    address: "0x9cf7e61853ea30a41b02169391b393b901eac457",
+    logoURI:
+      "https://tokens.1inch.exchange/0x9cf7e61853ea30a41b02169391b393b901eac457.png",
+  },
+  "0x7537aae01f3b218dae75e10d952473823f961b87": {
+    symbol: "sAAPL",
+    name: "Synth sAAPL",
+    synth: true,
+    decimals: 18,
+    address: "0x7537aae01f3b218dae75e10d952473823f961b87",
+    logoURI:
+      "https://tokens.1inch.exchange/0x7537aae01f3b218dae75e10d952473823f961b87.png",
+  },
+  "0xe796d6ca1ceb1b022ece5296226bf784110031cd": {
+    symbol: "BLES",
+    name: "Blind Boxes Token",
+    decimals: 18,
+    address: "0xe796d6ca1ceb1b022ece5296226bf784110031cd",
+    logoURI:
+      "https://tokens.1inch.exchange/0xe796d6ca1ceb1b022ece5296226bf784110031cd.png",
+  },
+  "0x48c3399719b582dd63eb5aadf12a40b4c3f52fa2": {
+    symbol: "SWISE",
+    name: "StakeWise",
+    decimals: 18,
+    address: "0x48c3399719b582dd63eb5aadf12a40b4c3f52fa2",
+    logoURI:
+      "https://tokens.1inch.exchange/0x48c3399719b582dd63eb5aadf12a40b4c3f52fa2.png",
+  },
+  "0xdefa4e8a7bcba345f687a2f1456f5edd9ce97202": {
+    symbol: "KNC",
+    name: "Kyber Network Crystal v2",
+    decimals: 18,
+    address: "0xdefa4e8a7bcba345f687a2f1456f5edd9ce97202",
+    logoURI:
+      "https://tokens.1inch.exchange/0xdefa4e8a7bcba345f687a2f1456f5edd9ce97202.png",
+  },
+  "0x0ada190c81b814548ddc2f6adc4a689ce7c1fe73": {
+    symbol: "YAXIS",
+    name: "yAxis V2",
+    decimals: 18,
+    address: "0x0ada190c81b814548ddc2f6adc4a689ce7c1fe73",
+    logoURI:
+      "https://tokens.1inch.exchange/0x0ada190c81b814548ddc2f6adc4a689ce7c1fe73.png",
+  },
+  "0xff56cc6b1e6ded347aa0b7676c85ab0b3d08b0fa": {
+    symbol: "ORBS",
+    name: "Orbs",
+    decimals: 18,
+    address: "0xff56cc6b1e6ded347aa0b7676c85ab0b3d08b0fa",
+    logoURI:
+      "https://tokens.1inch.exchange/0xff56cc6b1e6ded347aa0b7676c85ab0b3d08b0fa.png",
+  },
+  "0xa02120696c7b8fe16c09c749e4598819b2b0e915": {
+    symbol: "WXT",
+    name: "Wirex Token",
+    decimals: 18,
+    address: "0xa02120696c7b8fe16c09c749e4598819b2b0e915",
+    logoURI:
+      "https://tokens.1inch.exchange/0xa02120696c7b8fe16c09c749e4598819b2b0e915.png",
+  },
+  "0x9eef4ca7ab9fa8bc0650127341c2d3f707a40f8a": {
+    symbol: "sCOIN",
+    name: "Synth sCOIN",
+    synth: true,
+    decimals: 18,
+    address: "0x9eef4ca7ab9fa8bc0650127341c2d3f707a40f8a",
+    logoURI:
+      "https://tokens.1inch.exchange/0x9eef4ca7ab9fa8bc0650127341c2d3f707a40f8a.png",
+  },
+  "0x745a824d6abbd236aa794b5530062778a6ad7523": {
+    symbol: "sMSFT",
+    name: "Synth sMSFT",
+    synth: true,
+    decimals: 18,
+    address: "0x745a824d6abbd236aa794b5530062778a6ad7523",
+    logoURI:
+      "https://tokens.1inch.exchange/0x745a824d6abbd236aa794b5530062778a6ad7523.png",
+  },
+  "0x28a06c02287e657ec3f8e151a13c36a1d43814b0": {
+    symbol: "BAG",
+    name: "BAG",
+    decimals: 18,
+    address: "0x28a06c02287e657ec3f8e151a13c36a1d43814b0",
+    logoURI:
+      "https://tokens.1inch.exchange/0x28a06c02287e657ec3f8e151a13c36a1d43814b0.png",
   },
 } as Record<string, any>;
