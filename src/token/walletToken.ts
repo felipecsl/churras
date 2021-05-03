@@ -8,12 +8,12 @@ export class WalletToken implements Token {
   readonly logoURI: string;
   readonly network: string;
   // TODO: Consider whether or not these should realy be mutable
-  balance: string;
-  price: string;
+  balance: number;
+  price: number;
 
   constructor(
     { symbol, name, address, decimals, logoURI, network }: Token,
-    { balance, price }: { balance: string; price: string }
+    { balance, price }: { balance: number; price: number }
   ) {
     this.symbol = symbol;
     this.name = name;
