@@ -9,8 +9,8 @@ export interface TokenBalanceResolver {
     accountAddress: string,
     token: Token
   ): Promise<{ token: Token; balance: any }>;
-  ethBalance(accountAddress: string): Promise<string>;
-  bnbBalance(accountAddress: string): Promise<string>;
+  ethBalance(accountAddress: string): Promise<number>;
+  bnbBalance(accountAddress: string): Promise<number>;
 }
 
 export default class DefaultTokenBalanceResolver
@@ -74,20 +74,20 @@ export default class DefaultTokenBalanceResolver
     return await contract.pendingAUTO(poolId, userAddress);
   }
 
-  async ethBalance(accountAddress: string): Promise<string> {
+  async ethBalance(accountAddress: string): Promise<number> {
     const balance = await this.balanceOf(
       this.networkProviders[Network[Network.ETHEREUM]],
       accountAddress
     );
-    return utils.formatEther(balance);
+    return +utils.formatEther(balance);
   }
 
-  async bnbBalance(accountAddress: string): Promise<string> {
+  async bnbBalance(accountAddress: string): Promise<number> {
     const balance = await this.balanceOf(
       this.networkProviders[Network[Network.BSC]],
       accountAddress
     );
-    return utils.formatEther(balance);
+    return +utils.formatEther(balance);
   }
 
   private async balanceOf(

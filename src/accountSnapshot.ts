@@ -72,19 +72,21 @@ export default class AccountSnapshot {
     const bnbBalance = await tokenBalanceResolver.bnbBalance(accountAddress);
     return {
       eth: new WalletToken(ETH_TOKEN, {
-        balance: ethBalance.toString(),
-        price: ethBnbPrice.eth,
+        balance: +ethBalance.toString(),
+        price: +ethBnbPrice.eth,
       }),
       bnb: new WalletToken(BNB_TOKEN, {
-        balance: bnbBalance.toString(),
-        price: ethBnbPrice.bnb,
+        balance: +bnbBalance.toString(),
+        price: +ethBnbPrice.bnb,
       }),
     };
   }
 
+  /** Returns all the ERC-20 and BEP-20 tokens found for the provided wallet address */
   async loadAccount(accountAddress: string): Promise<WalletToken[]> {
     const { tokenBalanceResolver } = this;
     // 1. fetch all token balances
+    // TODO: default token databases is hardcoded here, probably shouldn't be
     const tokensToBalances = Object.values(DEFAULT_TOKEN_DATABASES)
       .flatMap((db) => db.allTokens())
       .map((t) => tokenBalanceResolver.resolveBalance(accountAddress, t));
@@ -95,7 +97,7 @@ export default class AccountSnapshot {
     const positiveBalanceTokens = positiveBalances.map(({ token }) => token);
     const tokenPrices = await this.fetchTokenPrices(positiveBalanceTokens);
     const walletTokens = positiveBalances.map(({ token, balance }) => {
-      const price = tokenPrices.get(token) as string;
+      const price = +(tokenPrices.get(token) as string);
       return new WalletToken(token, { balance, price });
     });
     const ethBnbTokens = await this.fetchEthBnbTokens(accountAddress);
@@ -105,44 +107,40 @@ export default class AccountSnapshot {
   /**
    * Given an array of WalletTokens, update their prices with the latest values from the external
    * APIs. Returns a new array of WalletTokens with the updated prices.
+   * TODO remove duplication between this and loadAccount()
    */
   async refreshPrices(
     accountAddress: string,
     walletTokens: WalletToken[]
   ): Promise<WalletToken[]> {
+    const { tokenBalanceResolver } = this;
     // ETH and BNB prices are fetched further below, separately.
     // Since these tokens have no ERC-20 address, we can't fetch their prices the same way.
-    const updatedTokens = [...walletTokens];
-    const walletTokensExceptETHandBNB = updatedTokens.filter(
-      (t) => !["ETH", "BNB"].includes(t.symbol)
+    const tokensExceptETHandBNB = walletTokens
+      .map(WalletToken.toToken)
+      .filter((t) => !["ETH", "BNB"].includes(t.symbol));
+    const tokensToBalances = tokensExceptETHandBNB.map((t) =>
+      tokenBalanceResolver.resolveBalance(accountAddress, t)
     );
-    const tokenPrices = await this.fetchTokenPrices(
-      walletTokensExceptETHandBNB
-    );
+    const results = await Promise.all(tokensToBalances);
+    // 2. filter results to only the tokens which have a positive balance
+    const positiveBalances = results.filter(({ balance }) => balance > 0);
+    // 3. fetch the prices for each token with a positive balance
+    const positiveBalanceTokens = positiveBalances.map(({ token }) => token);
+    const tokenPrices = await this.fetchTokenPrices(positiveBalanceTokens);
     const keySet = Array.from(tokenPrices.keys());
     const findTokenPrice = (predicate: (t: Token) => boolean) => {
       const key = keySet.find((t) => predicate(t));
       return key && tokenPrices.get(key);
     };
-    updatedTokens.forEach((walletToken) => {
-      const asToken = WalletToken.toToken(walletToken);
-      // We cannot simply call `tokenPrices.get(asToken)` here because the key equality check will fail.
+    const updatedTokens = positiveBalances.map(({ token, balance }) => {
+      // We cannot simply call `tokenPrices.get(token)` here because the key equality check will fail.
       // Instead, using `isEqual()` will perform a deep comparison (similarly to how Kotlin data classes work)
-      const price = findTokenPrice((t) => _.isEqual(t, asToken));
-      walletToken.price = price as string;
+      const price = +(findTokenPrice((t) => _.isEqual(t, token)) as string);
+      return new WalletToken(token, { balance, price });
     });
     const ethBnbTokens = await this.fetchEthBnbTokens(accountAddress);
-    const bnb = updatedTokens.find((wt) => wt.symbol === "BNB");
-    if (bnb) {
-      bnb.price = ethBnbTokens.bnb.price;
-      bnb.balance = ethBnbTokens.bnb.balance;
-    }
-    const eth = updatedTokens.find((wt) => wt.symbol === "ETH");
-    if (eth) {
-      eth.price = ethBnbTokens.eth.price;
-      eth.balance = ethBnbTokens.eth.balance;
-    }
-    return updatedTokens;
+    return [...updatedTokens, ...Object.values(ethBnbTokens)];
   }
 
   /* Fetch prices for all the provided tokens. Returns a map of Token to price */

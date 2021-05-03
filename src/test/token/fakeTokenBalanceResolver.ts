@@ -3,17 +3,27 @@ import { TokenBalanceResolver } from "../../token/tokenBalanceResolver";
 
 export default class FakeTokenBalanceResolver implements TokenBalanceResolver {
   private readonly addressToBalance: Record<string, any>;
+  private readonly ethBal: number;
+  private readonly bnbBal: number;
 
-  constructor(addressToBalance: Record<string, any>) {
+  constructor(
+    addressToBalance: Record<string, any>,
+    {
+      ethBalance = 0,
+      bnbBalance = 0,
+    }: { ethBalance?: number; bnbBalance?: number } = {}
+  ) {
     this.addressToBalance = addressToBalance;
+    this.ethBal = ethBalance;
+    this.bnbBal = bnbBalance;
   }
 
-  ethBalance(accountAddress: string): Promise<string> {
-    return Promise.resolve("0");
+  ethBalance(accountAddress: string): Promise<number> {
+    return Promise.resolve(this.ethBal);
   }
 
-  bnbBalance(accountAddress: string): Promise<string> {
-    return Promise.resolve("0");
+  bnbBalance(accountAddress: string): Promise<number> {
+    return Promise.resolve(this.bnbBal);
   }
 
   resolveBalance(
