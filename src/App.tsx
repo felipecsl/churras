@@ -1,6 +1,7 @@
 import { CircularProgress } from "@material-ui/core";
 import AnimatedNumber from "animated-number-react";
 import { format } from "d3-format";
+import _ from "lodash";
 import React from "react";
 import AccountSnapshot from "./accountSnapshot";
 import "./App.css";
@@ -13,12 +14,14 @@ import DefaultMetaMaskProvider, {
   MetaMaskProvider,
 } from "./providers/metamaskProvider";
 import { WalletToken } from "./token/walletToken";
-import { any, none, sortTokens } from "./util";
+import { any, none } from "./util";
 
 interface AppState {
   isLoadingTokens: boolean;
   chain: number;
   walletTokens: WalletToken[];
+  sortOrder: string;
+  sortDirection: string;
 }
 
 interface AppProps {
@@ -46,6 +49,8 @@ class App extends React.Component<AppProps, AppState> {
     this.state = {
       isLoadingTokens: false,
       chain: Chain.ETHEREUM_MAINNET,
+      sortOrder: "token",
+      sortDirection: "asc", // asc or desc
       walletTokens: [],
     };
   }
@@ -149,16 +154,46 @@ class App extends React.Component<AppProps, AppState> {
     return chain === Chain.ETHEREUM_MAINNET || chain === Chain.BSC_MAINNET;
   }
 
+  sortTableBy(target: HTMLElement) {
+    const { sortOrder, sortDirection } = this.state;
+    const newSortorder = target.innerText.toLowerCase();
+    if (sortOrder === newSortorder) {
+      // if the new sort order is the same as the previous one, just invert the direction
+      this.setState({
+        sortDirection: sortDirection === "asc" ? "desc" : "asc",
+      });
+    }
+    this.setState({ sortOrder: newSortorder });
+  }
+
   render() {
     if (!this.state) {
       return <div>Loading...</div>;
     }
+    const columns = {
+      token: "symbol",
+      network: "network",
+      quantity: "balance",
+      price: "price",
+      value: "equity",
+    } as Record<string, string>;
     const { accountCacheProvider } = this.props;
     const { accountAddress } = accountCacheProvider.get();
-    const { walletTokens, isLoadingTokens, chain } = this.state;
+    const {
+      walletTokens,
+      isLoadingTokens,
+      chain,
+      sortOrder,
+      sortDirection,
+    } = this.state;
+    const sortKey = columns[sortOrder];
     const currencyFormat = format("$,.2f");
     const accountSize = this.determineUSDAccountSize();
-    const sortedTokens = sortTokens(walletTokens);
+    const tokens = _.sortBy(
+      walletTokens,
+      (t) => (t as Record<string, any>)[sortKey] as any
+    );
+    const sortedTokens = sortDirection === "asc" ? tokens : tokens.reverse();
     const isMetaMaskInstalled = this.props.metaMaskProvider.isMetaMaskInstalled();
     const isUnsupportedChain =
       isMetaMaskInstalled && !this.isChainSupported(chain);
@@ -233,19 +268,20 @@ class App extends React.Component<AppProps, AppState> {
                             <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-800">
                               <thead className="bg-gray-50 dark:bg-gray-900">
                                 <tr>
-                                  {[
-                                    "Token",
-                                    "Network",
-                                    "Quantity",
-                                    "Price",
-                                    "Value",
-                                  ].map((col: string) => (
+                                  {Object.keys(columns).map((col: string) => (
                                     <th
                                       scope="col"
                                       key={col}
-                                      className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider"
+                                      className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider hover:text-gray-900 dark:hover:text-gray-100"
                                     >
-                                      {col}
+                                      <span
+                                        className="cursor-pointer"
+                                        onClick={(e) =>
+                                          this.sortTableBy(e.currentTarget)
+                                        }
+                                      >
+                                        {col}
+                                      </span>
                                     </th>
                                   ))}
                                 </tr>
