@@ -22,7 +22,7 @@ test("renders basic layout", () => {
 test("Caches wallet address and tokens with accountCacheProvider", async () => {
   const accountCacheProvider = new AccountCacheProvider();
   const fakeMetaMaskProvider = new FakeMetaMaskProvider(
-    ["0xDEADBEEF"],
+    ["0xdb38ae75c5f44276803345f7f02e95a0aeef5944"],
     Chain.ETHEREUM_MAINNET
   );
   const token = {
@@ -55,7 +55,7 @@ test("Caches wallet address and tokens with accountCacheProvider", async () => {
   (connectButton[0] as HTMLButtonElement).click();
   await flushPromises();
   const { accountAddress, tokens } = accountCacheProvider.get();
-  expect(accountAddress).toEqual("0xDEADBEEF");
+  expect(accountAddress).toEqual("0xdb38ae75c5f44276803345f7f02e95a0aeef5944");
   expect(tokens).toEqual([
     {
       symbol: "LINK",
@@ -65,7 +65,7 @@ test("Caches wallet address and tokens with accountCacheProvider", async () => {
       logoURI:
         "https://tokens.1inch.exchange/0x514910771af9ca656af840dff83e8264ecf986ca.png",
       balance: 1234,
-      price: "43.21",
+      price: 43.21,
       network: "ETHEREUM",
     },
     {
@@ -75,8 +75,8 @@ test("Caches wallet address and tokens with accountCacheProvider", async () => {
       decimals: 18,
       logoURI:
         "https://tokens.1inch.exchange/0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee.png",
-      balance: "0",
-      price: "666",
+      balance: 0,
+      price: 666,
       network: "ETHEREUM",
     },
     {
@@ -85,14 +85,15 @@ test("Caches wallet address and tokens with accountCacheProvider", async () => {
       address: "0xbb4CdB9CBd36B01bD1cBaEBF2De08d9173bc095c",
       decimals: 18,
       logoURI: "https://bscscan.com/token/images/binance_32.png",
-      balance: "0",
-      price: "333",
+      balance: 0,
+      price: 333,
       network: "BSC",
     },
   ]);
   // re-render component, this time from cached data
   render(
     <App
+      accountSnapshot={accountSnapshot}
       accountCacheProvider={accountCacheProvider}
       metaMaskProvider={fakeMetaMaskProvider}
     />
