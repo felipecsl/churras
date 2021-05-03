@@ -15,10 +15,7 @@ export default class TokenTableRow extends React.Component<
   render() {
     const { token } = this.props;
     const symbol = token.symbol;
-    const price = +token.price;
-    const balance = +token.balance;
     // total token amount in USD
-    const equity = price * balance;
     const isEthereum = token.network === Network[Network.ETHEREUM];
     const network = isEthereum ? "Ethereum" : "BSC";
     const networkPillColor = isEthereum
@@ -27,7 +24,7 @@ export default class TokenTableRow extends React.Component<
     const currencyFormat = format("$,.2f");
     const amountFormat = format(".2f");
     // do not display row if amount is not more than $5 cents
-    if (equity > MIN_DISPLAY_AMOUNT) {
+    if (token.equity > MIN_DISPLAY_AMOUNT) {
       return (
         <tr key={symbol}>
           <td className="px-6 py-4 whitespace-nowrap">
@@ -53,16 +50,16 @@ export default class TokenTableRow extends React.Component<
           </td>
           <td className="px-6 py-4 whitespace-nowrap">
             <div className="text-sm text-gray-900 dark:text-gray-100">
-              {amountFormat(balance)}
+              {amountFormat(token.balance)}
             </div>
           </td>
           <td className="px-6 py-4 whitespace-nowrap">
             <div className="text-sm font-medium text-gray-900 dark:text-gray-100">
-              {currencyFormat(price)}
+              {currencyFormat(token.price)}
             </div>
           </td>
           <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-100">
-            {currencyFormat(equity)}
+            {currencyFormat(token.equity)}
           </td>
         </tr>
       );

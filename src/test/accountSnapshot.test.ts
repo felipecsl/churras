@@ -61,10 +61,10 @@ test("fetches token prices", async () => {
   });
   const tokens = await accountSnapshot.loadAccount("fakeAccount");
   expect(tokens).toEqual([
-    { ...LINK, ...{ balance: 1234, price: 43.21 } },
-    { ...COMP, ...{ balance: 9876, price: 66.77 } },
-    { ...ETH, ...{ balance: 34.0002323, price: 666 } },
-    { ...BNB, ...{ balance: 203.02032, price: 333 } },
+    new WalletToken(LINK, { balance: 1234, price: 43.21 }),
+    new WalletToken(COMP, { balance: 9876, price: 66.77 }),
+    new WalletToken(ETH, { balance: 34.0002323, price: 666 }),
+    new WalletToken(BNB, { balance: 203.02032, price: 333 }),
   ]);
 });
 
@@ -98,7 +98,7 @@ test("refreshes token prices and balances", async () => {
   expect(tokens).toEqual([
     new WalletToken(COMP, { balance: 123, price: 66.77 }),
     new WalletToken(LINK, { balance: 321, price: 43.21 }),
-    { ...ETH, ...{ balance: 34.0002323, price: 666 } },
-    { ...BNB, ...{ balance: 203.02032, price: 333 } },
+    new WalletToken(ETH, { balance: 34.0002323, price: 666 }),
+    new WalletToken(BNB, { balance: 203.02032, price: 333 }),
   ]);
 });

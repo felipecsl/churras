@@ -66,6 +66,7 @@ test("Caches wallet address and tokens with accountCacheProvider", async () => {
         "https://tokens.1inch.exchange/0x514910771af9ca656af840dff83e8264ecf986ca.png",
       balance: 1234,
       price: 43.21,
+      equity: 53321.14,
       network: "ETHEREUM",
     },
     {
@@ -76,6 +77,7 @@ test("Caches wallet address and tokens with accountCacheProvider", async () => {
       logoURI:
         "https://tokens.1inch.exchange/0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee.png",
       balance: 0,
+      equity: 0,
       price: 666,
       network: "ETHEREUM",
     },
@@ -87,6 +89,7 @@ test("Caches wallet address and tokens with accountCacheProvider", async () => {
       logoURI: "https://bscscan.com/token/images/binance_32.png",
       balance: 0,
       price: 333,
+      equity: 0,
       network: "BSC",
     },
   ]);
