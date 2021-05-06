@@ -1,23 +1,19 @@
-import { render, screen } from "@testing-library/react";
+import { render } from "@testing-library/react";
 import React from "react";
-import AccountSnapshot from "../accountSnapshot";
-import App from "../App";
-import { Chain } from "../chain";
-import AccountCacheProvider from "../providers/accountCacheProvider";
-import Token from "../token/token";
-import FakeMetaMaskProvider from "./fakeMetaMaskProvider";
-import "./matchMedia";
-import FakeTokenPricesProvider from "./providers/fakeTokenPricesProvider";
-import FakeTokenBalanceResolver from "./token/fakeTokenBalanceResolver";
-
-const flushPromises = () => new Promise(setImmediate);
-
-test("renders basic layout", () => {
-  render(<App />);
-  const titleElement = screen.getAllByText(/Dashboard/i);
-  expect(titleElement).toHaveLength(4);
-  titleElement.forEach((t: any) => expect(t).toBeInTheDocument());
-});
+import { RouteComponentProps } from "react-router";
+import { match } from "react-router-dom";
+import AccountSnapshot from "../../accountSnapshot";
+import { Chain } from "../../chain";
+import AccountDetails, {
+  RoutePropsParams,
+} from "../../components/accountDetails";
+import AccountCacheProvider from "../../providers/accountCacheProvider";
+import Token from "../../token/token";
+import FakeMetaMaskProvider from "../fakeMetaMaskProvider";
+import "../matchMedia";
+import FakeTokenPricesProvider from "../providers/fakeTokenPricesProvider";
+import { flushPromises } from "../testUtil";
+import FakeTokenBalanceResolver from "../token/fakeTokenBalanceResolver";
 
 test("Caches wallet address and tokens with accountCacheProvider", async () => {
   const accountCacheProvider = new AccountCacheProvider();
@@ -44,18 +40,24 @@ test("Caches wallet address and tokens with accountCacheProvider", async () => {
     tokenBalanceResolver,
     ethBnbPriceFetcher,
   });
+  const route = {
+    match: {
+      params: {
+        accountAddress: "0xdb38ae75c5f44276803345f7f02e95a0aeef5944",
+      },
+    } as match<any>,
+  } as RouteComponentProps<RoutePropsParams>;
   render(
-    <App
+    <AccountDetails
       accountSnapshot={accountSnapshot}
       accountCacheProvider={accountCacheProvider}
       metaMaskProvider={fakeMetaMaskProvider}
+      chain={Chain.ETHEREUM_MAINNET}
+      route={route}
     />
   );
-  const connectButton = screen.getAllByText("Connect to MetaMask");
-  (connectButton[0] as HTMLButtonElement).click();
   await flushPromises();
-  const { accountAddress, tokens } = accountCacheProvider.get();
-  expect(accountAddress).toEqual("0xdb38ae75c5f44276803345f7f02e95a0aeef5944");
+  const { tokens } = accountCacheProvider.get();
   expect(tokens).toEqual([
     {
       symbol: "LINK",
@@ -95,10 +97,12 @@ test("Caches wallet address and tokens with accountCacheProvider", async () => {
   ]);
   // re-render component, this time from cached data
   render(
-    <App
+    <AccountDetails
       accountSnapshot={accountSnapshot}
       accountCacheProvider={accountCacheProvider}
       metaMaskProvider={fakeMetaMaskProvider}
+      chain={Chain.ETHEREUM_MAINNET}
+      route={route}
     />
   );
 });
