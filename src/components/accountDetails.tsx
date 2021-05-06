@@ -12,13 +12,14 @@ import { WalletToken } from "../token/walletToken";
 import { any, isChainSupported, none } from "../util";
 import TokenTableRow from "./tokenTableRow";
 
-type RoutePropsParams = { accountAddress: string };
+export type RoutePropsParams = { accountAddress: string };
 
 interface AccountDetailsProps {
   accountCacheProvider: AccountCacheProvider;
   metaMaskProvider: MetaMaskProvider;
   accountSnapshot: AccountSnapshot;
   route: RouteComponentProps<RoutePropsParams>;
+  chain: Chain;
 }
 
 export default class AccountDetails extends React.Component<
@@ -26,8 +27,7 @@ export default class AccountDetails extends React.Component<
   any
 > {
   private async loadAccount(accountAddress: string) {
-    const { chain } = this.state;
-    const { accountCacheProvider, accountSnapshot } = this.props;
+    const { accountCacheProvider, accountSnapshot, chain } = this.props;
     if (!isChainSupported(chain)) {
       console.log(`Unsupported chain ${Chain[chain]}`);
       return;
@@ -99,8 +99,8 @@ export default class AccountDetails extends React.Component<
       price: "price",
       value: "equity",
     } as Record<string, string>;
-    const { accountCacheProvider } = this.props;
-    const { accountAddress } = accountCacheProvider.get();
+    const { route } = this.props;
+    const accountAddress = route.match.params.accountAddress;
     const {
       walletTokens,
       isLoadingTokens,

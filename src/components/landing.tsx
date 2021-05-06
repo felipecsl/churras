@@ -2,7 +2,7 @@ import React from "react";
 import { Chain } from "../chain";
 import AccountCacheProvider from "../providers/accountCacheProvider";
 import { MetaMaskProvider } from "../providers/metamaskProvider";
-import { isChainSupported } from "../util";
+import { isChainSupported, navigateTo } from "../util";
 
 interface LandingProps {
   accountCacheProvider: AccountCacheProvider;
@@ -16,7 +16,7 @@ export default class Landing extends React.Component<LandingProps, any> {
     const accounts = await metaMaskProvider.requestAccounts();
     const accountAddress = accounts[0];
     accountCacheProvider.update({ accountAddress, tokens: [] });
-    window.location.href = `/address/${accountAddress}`;
+    navigateTo(`/address/${accountAddress}`);
   }
 
   render() {

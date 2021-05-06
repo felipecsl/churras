@@ -12,6 +12,7 @@ import DefaultMetaMaskProvider, {
   MetaMaskProvider,
 } from "./providers/metamaskProvider";
 import { WalletToken } from "./token/walletToken";
+import { navigateTo } from "./util";
 
 interface AppState {
   isLoadingTokens: boolean;
@@ -89,7 +90,7 @@ class App extends React.Component<AppProps, AppState> {
       // this state that we just set above.
       const { accountAddress } = accountCacheProvider.get();
       if (window.location.pathname === "/" && accountAddress) {
-        window.location.href = `/address/${accountAddress}`;
+        navigateTo(`/address/${accountAddress}`);
       }
     });
   }
@@ -124,6 +125,7 @@ class App extends React.Component<AppProps, AppState> {
                         accountCacheProvider={accountCacheProvider}
                         accountSnapshot={accountSnapshot}
                         route={props}
+                        chain={chain}
                       />
                     )}
                   />
