@@ -1,5 +1,5 @@
 import React from "react";
-import { BrowserRouter as Router, Route, Switch } from "react-router-dom";
+import { HashRouter as Router, Route, Switch } from "react-router-dom";
 import AccountSnapshot from "./accountSnapshot";
 import "./App.css";
 import { Chain } from "./chain";
@@ -90,7 +90,7 @@ class App extends React.Component<AppProps, AppState> {
       // this state that we just set above.
       const { accountAddress } = accountCacheProvider.get();
       if (window.location.pathname === "/" && accountAddress) {
-        navigateTo(`/address/${accountAddress}`);
+        navigateTo(`#/address/${accountAddress}`);
       }
     });
   }
@@ -103,49 +103,51 @@ class App extends React.Component<AppProps, AppState> {
     } = this.props;
     const { chain } = this.state;
     return (
-      <Router>
-        <div className="flex flex-col h-screen justify-between">
-          <NavigationComponent />
-          <header className="bg-white dark:bg-gray-800 shadow">
-            <div className="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
-              <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-300">
-                Dashboard
-              </h1>
-            </div>
-          </header>
-          <main className="mb-auto">
-            <div className="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
-              <div className="py-8 text-base leading-6 space-y-4 text-gray-700 dark:text-gray-300 sm:text-lg sm:leading-7">
-                <Switch>
-                  <Route
-                    path="/address/:accountAddress"
-                    render={(props) => (
-                      <AccountDetails
-                        metaMaskProvider={metaMaskProvider}
-                        accountCacheProvider={accountCacheProvider}
-                        accountSnapshot={accountSnapshot}
-                        route={props}
-                        chain={chain}
-                      />
-                    )}
-                  />
-                  <Route
-                    path="/"
-                    render={(props) => (
-                      <Landing
-                        accountCacheProvider={accountCacheProvider}
-                        metaMaskProvider={metaMaskProvider}
-                        chain={chain}
-                      />
-                    )}
-                  />
-                </Switch>
+      <React.StrictMode>
+        <Router>
+          <div className="flex flex-col h-screen justify-between">
+            <NavigationComponent />
+            <header className="bg-white dark:bg-gray-800 shadow">
+              <div className="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
+                <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-300">
+                  Dashboard
+                </h1>
               </div>
-            </div>
-          </main>
-          <FooterComponent />
-        </div>
-      </Router>
+            </header>
+            <main className="mb-auto">
+              <div className="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
+                <div className="py-8 text-base leading-6 space-y-4 text-gray-700 dark:text-gray-300 sm:text-lg sm:leading-7">
+                  <Switch>
+                    <Route
+                      path="/address/:accountAddress"
+                      render={(props) => (
+                        <AccountDetails
+                          metaMaskProvider={metaMaskProvider}
+                          accountCacheProvider={accountCacheProvider}
+                          accountSnapshot={accountSnapshot}
+                          route={props}
+                          chain={chain}
+                        />
+                      )}
+                    />
+                    <Route
+                      path="/"
+                      render={(props) => (
+                        <Landing
+                          accountCacheProvider={accountCacheProvider}
+                          metaMaskProvider={metaMaskProvider}
+                          chain={chain}
+                        />
+                      )}
+                    />
+                  </Switch>
+                </div>
+              </div>
+            </main>
+            <FooterComponent />
+          </div>
+        </Router>
+      </React.StrictMode>
     );
   }
 }

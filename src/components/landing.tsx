@@ -16,7 +16,7 @@ export default class Landing extends React.Component<LandingProps, any> {
     const accounts = await metaMaskProvider.requestAccounts();
     const accountAddress = accounts[0];
     accountCacheProvider.update({ accountAddress, tokens: [] });
-    navigateTo(`/address/${accountAddress}`);
+    navigateTo(`#/address/${accountAddress}`);
   }
 
   render() {

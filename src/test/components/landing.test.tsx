@@ -57,6 +57,6 @@ test("Caches wallet address and tokens with accountCacheProvider", async () => {
   const { accountAddress } = accountCacheProvider.get();
   expect(accountAddress).toEqual("0xdb38ae75c5f44276803345f7f02e95a0aeef5944");
   expect(window.location.href).toEqual(
-    `/address/0xdb38ae75c5f44276803345f7f02e95a0aeef5944`
+    `#/address/0xdb38ae75c5f44276803345f7f02e95a0aeef5944`
   );
 });
