@@ -1,4 +1,5 @@
 import { format } from "d3-format";
+import { Chain } from "./chain";
 
 export const percentFormat = format(".2%");
 export const currencyFormat = format("($.2f");
@@ -34,3 +35,8 @@ export const groupBy = <T, K extends keyof any>(
     previous[group].push(currentItem);
     return previous;
   }, {} as Record<K, T[]>);
+
+export function isChainSupported(chain: number): boolean {
+  // For now only Ethereum Mainnet supported
+  return chain === Chain.ETHEREUM_MAINNET || chain === Chain.BSC_MAINNET;
+}
