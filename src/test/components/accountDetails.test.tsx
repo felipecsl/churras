@@ -57,7 +57,9 @@ test("Caches wallet address and tokens with accountCacheProvider", async () => {
     />
   );
   await flushPromises();
-  const { tokens } = accountCacheProvider.get();
+  const tokens = accountCacheProvider.get(
+    "0xdb38ae75c5f44276803345f7f02e95a0aeef5944"
+  );
   expect(tokens).toEqual([
     {
       symbol: "LINK",
