@@ -82,27 +82,24 @@ export default class AccountSnapshot {
 
   /** Returns all the ERC-20 and BEP-20 tokens found for the provided wallet address */
   async loadAccount(accountAddress: string): Promise<WalletToken[]> {
-    // 1. fetch all token balances
     // TODO: default token databases is hardcoded here, probably shouldn't be
-    const tokens = Object.values(DEFAULT_TOKEN_DATABASES).flatMap((db) =>
-      db.allTokens()
-    );
+    const databases = Object.values(DEFAULT_TOKEN_DATABASES);
+    const tokens = databases.flatMap((db) => db.allTokens());
     return this.refreshTokens(accountAddress, tokens);
   }
 
   /**
-   * Given an array of WalletTokens, update their prices with the latest values from the external
+   * Given an array of `Token`s, update their prices with the latest values from the external
    * APIs. Returns a new array of WalletTokens with the updated prices.
-   * TODO remove duplication between this and loadAccount()
    */
   async refreshTokens(
     accountAddress: string,
-    walletTokens: Token[]
+    tokens: Token[]
   ): Promise<WalletToken[]> {
     const { tokenBalanceResolver } = this;
     // ETH and BNB prices are fetched further below, separately.
     // Since these tokens have no ERC-20 address, we can't fetch their prices the same way.
-    const tokensExceptETHandBNB = walletTokens.filter(
+    const tokensExceptETHandBNB = tokens.filter(
       (t) => !["ETH", "BNB"].includes(t.symbol)
     );
     const tokensToBalances = tokensExceptETHandBNB.map((t) =>
