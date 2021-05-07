@@ -54,8 +54,10 @@ test("Caches wallet address and tokens with accountCacheProvider", async () => {
   const connectButton = screen.getAllByText("Connect to MetaMask");
   (connectButton[0] as HTMLButtonElement).click();
   await flushPromises();
-  const { accountAddress } = accountCacheProvider.get();
-  expect(accountAddress).toEqual("0xdb38ae75c5f44276803345f7f02e95a0aeef5944");
+  const tokens = accountCacheProvider.get(
+    "0xdb38ae75c5f44276803345f7f02e95a0aeef5944"
+  );
+  expect(tokens).toEqual([]);
   expect(window.location.href).toEqual(
     `#/address/0xdb38ae75c5f44276803345f7f02e95a0aeef5944`
   );

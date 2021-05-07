@@ -22,10 +22,26 @@ interface AccountDetailsProps {
   chain: Chain;
 }
 
+interface AccountDetailsState {
+  sortOrder: string;
+  sortDirection: string;
+  isLoadingTokens: boolean;
+  walletTokens: WalletToken[];
+}
+
 export default class AccountDetails extends React.Component<
   AccountDetailsProps,
-  any
+  AccountDetailsState
 > {
+  constructor(props: AccountDetailsProps) {
+    super(props);
+    this.state = {
+      isLoadingTokens: false,
+      sortOrder: "token",
+      sortDirection: "asc", // asc or desc
+      walletTokens: [],
+    };
+  }
   private async loadAccount(accountAddress: string) {
     const { accountCacheProvider, accountSnapshot, chain } = this.props;
     if (!isChainSupported(chain)) {
@@ -34,7 +50,7 @@ export default class AccountDetails extends React.Component<
     } else {
       this.setState({ isLoadingTokens: true });
       const walletTokens = await accountSnapshot.loadAccount(accountAddress);
-      accountCacheProvider.update({ tokens: walletTokens });
+      accountCacheProvider.update(accountAddress, walletTokens);
       this.setState({
         walletTokens: walletTokens,
         isLoadingTokens: false,
@@ -45,7 +61,7 @@ export default class AccountDetails extends React.Component<
   async componentDidMount() {
     const { accountCacheProvider, accountSnapshot, route } = this.props;
     const accountAddress = route.match.params.accountAddress;
-    const { tokens } = accountCacheProvider.get();
+    const tokens = accountCacheProvider.get(accountAddress);
     if (none(tokens)) {
       // We already have the user account address but wallet tokens is empty, so we'll make
       // an attempt to load them.
@@ -59,7 +75,7 @@ export default class AccountDetails extends React.Component<
         tokens
       );
       this.setState({ walletTokens: updatedTokens });
-      accountCacheProvider.update({ tokens: updatedTokens });
+      accountCacheProvider.update(accountAddress, updatedTokens);
     }
   }
 
@@ -164,7 +180,10 @@ export default class AccountDetails extends React.Component<
                         </thead>
                         <tbody className="bg-white dark:bg-black divide-y divide-gray-200 dark:divide-gray-800">
                           {sortedTokens.map((token: WalletToken) => (
-                            <TokenTableRow key={token.symbol} token={token} />
+                            <TokenTableRow
+                              key={`${token.symbol}-${token.network}`}
+                              token={token}
+                            />
                           ))}
                         </tbody>
                       </table>

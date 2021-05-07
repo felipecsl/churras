@@ -15,16 +15,15 @@ export default class Landing extends React.Component<LandingProps, any> {
     const { accountCacheProvider, metaMaskProvider } = this.props;
     const accounts = await metaMaskProvider.requestAccounts();
     const accountAddress = accounts[0];
-    accountCacheProvider.update({ accountAddress, tokens: [] });
+    accountCacheProvider.update(accountAddress, []);
     navigateTo(`#/address/${accountAddress}`);
   }
 
   render() {
-    const { accountCacheProvider, metaMaskProvider, chain } = this.props;
-    const { accountAddress } = accountCacheProvider.get();
+    const { metaMaskProvider, chain } = this.props;
     const isMetaMaskInstalled = metaMaskProvider.isMetaMaskInstalled();
     const isUnsupportedChain = isMetaMaskInstalled && !isChainSupported(chain);
-    const showConnectToMetamaskButton = isMetaMaskInstalled && !accountAddress;
+    const showConnectToMetamaskButton = isMetaMaskInstalled;
     return (
       <>
         {!isMetaMaskInstalled && (

@@ -1,11 +1,5 @@
 import { WalletToken } from "../token/walletToken";
-
-// Simple localStorage-backed wallet data cache
-interface AccountCache {
-  // wallet address
-  accountAddress?: string;
-  tokens: WalletToken[];
-}
+import { any } from "../util";
 
 export default class AccountCacheProvider {
   private readonly storage: Storage;
@@ -14,23 +8,34 @@ export default class AccountCacheProvider {
     this.storage = storage;
   }
 
-  get(): AccountCache {
-    const accountAddress = this.storage.accountAddress;
-    const tokens = JSON.parse(this.storage.tokens || "[]");
-    return { accountAddress, tokens };
+  private getCache() {
+    return JSON.parse(this.storage.churrasCache || "{}");
   }
 
-  update({ accountAddress, tokens }: AccountCache) {
-    if (accountAddress) {
-      this.storage.accountAddress = accountAddress;
+  /** Returns the first cached address found or undefined if none exist */
+  getSingleAccountAddress(): string | undefined {
+    const churrasCache = this.getCache();
+    const addresses = Object.keys(churrasCache);
+    if (any(addresses)) {
+      return addresses[0];
+    } else {
+      return undefined;
     }
-    if (tokens) {
-      this.storage.tokens = JSON.stringify(tokens);
-    }
+  }
+
+  /** Returns the cached tokens array for the provided address or empty array if account not found */
+  get(address: string): WalletToken[] {
+    const churrasCache = this.getCache();
+    return churrasCache[address] || [];
+  }
+
+  update(address: string, tokens: WalletToken[]) {
+    const churrasCache = this.getCache();
+    churrasCache[address] = tokens;
+    this.storage.churrasCache = JSON.stringify(churrasCache);
   }
 
   clear() {
-    this.storage.accountAddress = undefined;
-    this.storage.tokens = undefined;
+    delete this.storage.churrasCache;
   }
 }

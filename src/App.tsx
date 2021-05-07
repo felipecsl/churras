@@ -11,15 +11,10 @@ import AccountCacheProvider from "./providers/accountCacheProvider";
 import DefaultMetaMaskProvider, {
   MetaMaskProvider,
 } from "./providers/metamaskProvider";
-import { WalletToken } from "./token/walletToken";
 import { navigateTo } from "./util";
 
 interface AppState {
-  isLoadingTokens: boolean;
   chain: number;
-  walletTokens: WalletToken[];
-  sortOrder: string;
-  sortDirection: string;
 }
 
 interface AppProps {
@@ -45,11 +40,7 @@ class App extends React.Component<AppProps, AppState> {
     super(props);
 
     this.state = {
-      isLoadingTokens: false,
       chain: Chain.ETHEREUM_MAINNET,
-      sortOrder: "token",
-      sortDirection: "asc", // asc or desc
-      walletTokens: [],
     };
   }
 
@@ -88,8 +79,8 @@ class App extends React.Component<AppProps, AppState> {
       const { accountCacheProvider } = this.props;
       // Register this as a callback after setState() finished because loadBalances() relies on
       // this state that we just set above.
-      const { accountAddress } = accountCacheProvider.get();
-      if (window.location.pathname === "/" && accountAddress) {
+      const accountAddress = accountCacheProvider.getSingleAccountAddress();
+      if (window.location.hash === "" && accountAddress) {
         navigateTo(`#/address/${accountAddress}`);
       }
     });
