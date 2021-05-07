@@ -91,7 +91,7 @@ test("refreshes token prices and balances", async () => {
     new WalletToken(COMP, { balance: 0.9, price: 0.34 }),
     new WalletToken(LINK, { balance: 2.1, price: 1.2 }),
   ];
-  const tokens = await accountSnapshot.refreshPrices(
+  const tokens = await accountSnapshot.refreshTokens(
     "fakeAccount",
     walletTokens
   );

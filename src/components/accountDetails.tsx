@@ -69,8 +69,7 @@ export default class AccountDetails extends React.Component<
     } else {
       // we already have tokens, update the state first and then refresh prices in the background
       this.setState({ walletTokens: tokens });
-      // TODO: also refresh balances in the background
-      const updatedTokens = await accountSnapshot.refreshPrices(
+      const updatedTokens = await accountSnapshot.refreshTokens(
         accountAddress,
         tokens
       );

@@ -21,20 +21,18 @@ export type TokenPriceProviderFactory = (
 ) => TokenPricesProvider;
 export type TokenDatabaseFactory = (network: string) => TokenDatabase;
 
-const DEFAULT_TOKEN_PRICE_PROVIDERS = Object.fromEntries([
-  [Network[Network.ETHEREUM], new EthereumTokenPricesProvider()],
-  [Network[Network.BSC], new BscTokenPricesProvider()],
-]);
-const DEFAULT_TOKEN_DATABASES = Object.fromEntries([
-  [Network[Network.ETHEREUM], new TokenDatabase(Network.ETHEREUM)],
-  [Network[Network.BSC], new TokenDatabase(Network.BSC)],
-]);
-const DEFAULT_TOKEN_BALANCE_RESOLVER = new DefaultTokenBalanceResolver(
-  Object.fromEntries([
-    [Network[Network.ETHEREUM], DEFAULT_ETHEREUM_PROVIDER],
-    [Network[Network.BSC], DEFAULT_BSC_PROVIDER],
-  ])
-);
+const DEFAULT_TOKEN_PRICE_PROVIDERS = {
+  [Network[Network.ETHEREUM]]: new EthereumTokenPricesProvider(),
+  [Network[Network.BSC]]: new BscTokenPricesProvider(),
+};
+const DEFAULT_TOKEN_DATABASES = {
+  [Network[Network.ETHEREUM]]: new TokenDatabase(Network.ETHEREUM),
+  [Network[Network.BSC]]: new TokenDatabase(Network.BSC),
+};
+const DEFAULT_TOKEN_BALANCE_RESOLVER = new DefaultTokenBalanceResolver({
+  [Network[Network.ETHEREUM]]: DEFAULT_ETHEREUM_PROVIDER,
+  [Network[Network.BSC]]: DEFAULT_BSC_PROVIDER,
+});
 
 export default class AccountSnapshot {
   private readonly tokenPriceProviderFactory: TokenPriceProviderFactory;
@@ -109,7 +107,7 @@ export default class AccountSnapshot {
    * APIs. Returns a new array of WalletTokens with the updated prices.
    * TODO remove duplication between this and loadAccount()
    */
-  async refreshPrices(
+  async refreshTokens(
     accountAddress: string,
     walletTokens: WalletToken[]
   ): Promise<WalletToken[]> {

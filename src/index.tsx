@@ -13,12 +13,10 @@ const ethereumProvider = InfuraProvider.getWebSocketProvider(
   "homestead",
   INFURA_API_KEY
 );
-const tokenBalanceResolver = new TokenBalanceResolver(
-  Object.fromEntries([
-    [Network[Network.ETHEREUM], ethereumProvider],
-    [Network[Network.BSC], DEFAULT_BSC_PROVIDER],
-  ])
-);
+const tokenBalanceResolver = new TokenBalanceResolver({
+  [Network[Network.ETHEREUM]]: ethereumProvider,
+  [Network[Network.BSC]]: DEFAULT_BSC_PROVIDER,
+});
 const accountSnapshot = new AccountSnapshot({ tokenBalanceResolver });
 ReactDOM.render(
   <React.StrictMode>

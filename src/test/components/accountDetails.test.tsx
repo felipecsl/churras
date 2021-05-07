@@ -29,11 +29,11 @@ test("Caches wallet address and tokens with accountCacheProvider", async () => {
     logoURI:
       "https://tokens.1inch.exchange/0x514910771af9ca656af840dff83e8264ecf986ca.png",
   } as Token;
-  const tokenBalanceResolver = new FakeTokenBalanceResolver(
-    Object.fromEntries([[token.address, 1234]])
-  );
+  const tokenBalanceResolver = new FakeTokenBalanceResolver({
+    [token.address]: 1234,
+  });
   const tokenPriceProviderFactory = (_: string) =>
-    new FakeTokenPricesProvider(Object.fromEntries([[token.address, "43.21"]]));
+    new FakeTokenPricesProvider({ [token.address]: "43.21" });
   const ethBnbPriceFetcher = () => Promise.resolve({ eth: "666", bnb: "333" });
   const accountSnapshot = new AccountSnapshot({
     tokenPriceProviderFactory,
