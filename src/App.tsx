@@ -80,7 +80,7 @@ class App extends React.Component<AppProps, AppState> {
       // Register this as a callback after setState() finished because loadBalances() relies on
       // this state that we just set above.
       const accountAddress = accountCacheProvider.getSingleAccountAddress();
-      if (window.location.hash === "" && accountAddress) {
+      if (["", "#/"].includes(window.location.hash) && accountAddress) {
         navigateTo(`#/address/${accountAddress}`);
       }
     });

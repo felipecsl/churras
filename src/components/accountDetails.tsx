@@ -85,10 +85,9 @@ export default class AccountDetails extends React.Component<
     if (isLoadingTokens) {
       return 0;
     } else {
-      return walletTokens.reduce(
-        (acc: number, wt: WalletToken) => acc + +wt.price * +wt.balance,
-        0
-      );
+      return walletTokens
+        .filter((wt) => wt.price && wt.balance)
+        .reduce((acc, wt) => acc + +wt.price * +wt.balance, 0);
     }
   }
 
