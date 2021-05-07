@@ -93,7 +93,7 @@ test("refreshes token prices and balances", async () => {
   ];
   const tokens = await accountSnapshot.refreshTokens(
     "fakeAccount",
-    walletTokens
+    walletTokens.map(WalletToken.toToken)
   );
   expect(tokens).toEqual([
     new WalletToken(COMP, { balance: 123, price: 66.77 }),

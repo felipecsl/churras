@@ -71,7 +71,7 @@ export default class AccountDetails extends React.Component<
       this.setState({ walletTokens: tokens });
       const updatedTokens = await accountSnapshot.refreshTokens(
         accountAddress,
-        tokens
+        tokens.map(WalletToken.toToken)
       );
       this.setState({ walletTokens: updatedTokens });
       accountCacheProvider.update(accountAddress, updatedTokens);

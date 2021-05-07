@@ -82,24 +82,12 @@ export default class AccountSnapshot {
 
   /** Returns all the ERC-20 and BEP-20 tokens found for the provided wallet address */
   async loadAccount(accountAddress: string): Promise<WalletToken[]> {
-    const { tokenBalanceResolver } = this;
     // 1. fetch all token balances
     // TODO: default token databases is hardcoded here, probably shouldn't be
-    const tokensToBalances = Object.values(DEFAULT_TOKEN_DATABASES)
-      .flatMap((db) => db.allTokens())
-      .map((t) => tokenBalanceResolver.resolveBalance(accountAddress, t));
-    const results = await Promise.all(tokensToBalances);
-    // 2. filter results to only the tokens which have a positive balance
-    const positiveBalances = results.filter(({ balance }) => balance > 0);
-    // 3. fetch the prices for each token with a positive balance
-    const positiveBalanceTokens = positiveBalances.map(({ token }) => token);
-    const tokenPrices = await this.fetchTokenPrices(positiveBalanceTokens);
-    const walletTokens = positiveBalances.map(({ token, balance }) => {
-      const price = +(tokenPrices.get(token) as string);
-      return new WalletToken(token, { balance, price });
-    });
-    const ethBnbTokens = await this.fetchEthBnbTokens(accountAddress);
-    return [...walletTokens, ...Object.values(ethBnbTokens)];
+    const tokens = Object.values(DEFAULT_TOKEN_DATABASES).flatMap((db) =>
+      db.allTokens()
+    );
+    return this.refreshTokens(accountAddress, tokens);
   }
 
   /**
@@ -109,14 +97,14 @@ export default class AccountSnapshot {
    */
   async refreshTokens(
     accountAddress: string,
-    walletTokens: WalletToken[]
+    walletTokens: Token[]
   ): Promise<WalletToken[]> {
     const { tokenBalanceResolver } = this;
     // ETH and BNB prices are fetched further below, separately.
     // Since these tokens have no ERC-20 address, we can't fetch their prices the same way.
-    const tokensExceptETHandBNB = walletTokens
-      .map(WalletToken.toToken)
-      .filter((t) => !["ETH", "BNB"].includes(t.symbol));
+    const tokensExceptETHandBNB = walletTokens.filter(
+      (t) => !["ETH", "BNB"].includes(t.symbol)
+    );
     const tokensToBalances = tokensExceptETHandBNB.map((t) =>
       tokenBalanceResolver.resolveBalance(accountAddress, t)
     );
