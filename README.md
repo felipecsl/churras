@@ -3,9 +3,11 @@
   Churras
 </h1>
 
-"churras" is a shorthand for "churrasco", which is a delicious [Brazilian style barbecue](https://www.merriam-webster.com/dictionary/churrasco).
+Churras is a dApp providing a crypto wallet dashboard. Currently it displays all your ERC-20 and BEP-20
+tokens from Ethereum and BSC chains and your wallet balance. Over time we'll be adding more features
+so you'll also be able to track your yield farms, pools and NFTs.
 
-Churras is a simple Metamask wallet dashboard.
+"Churras" is a shorthand for "churrasco", which is a delicious [Brazilian style barbecue](https://www.merriam-webster.com/dictionary/churrasco).
 
 ## Available Scripts
 

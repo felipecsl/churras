@@ -12,7 +12,6 @@ import DefaultTokenBalanceResolver, {
 } from "./token/tokenBalanceResolver";
 import TokenDatabase from "./token/tokenDatabase";
 import { WalletToken } from "./token/walletToken";
-import { groupBy } from "./util";
 
 type EthBnbPricePair = Promise<{ eth: string; bnb: string }>;
 type EthBnbPriceProvider = () => EthBnbPricePair;
@@ -89,8 +88,8 @@ export default class AccountSnapshot {
   }
 
   /**
-   * Given an array of `Token`s, update their prices with the latest values from the external
-   * APIs. Returns a new array of WalletTokens with the updated prices.
+   * Given an array of `Token`s, update their prices and balances with the latest values from the
+   * external * APIs. Returns a new array of WalletTokens with the updated prices/balances.
    */
   async refreshTokens(
     accountAddress: string,
@@ -133,7 +132,7 @@ export default class AccountSnapshot {
       tokenPriceProviderFactory: networkToPriceProviders,
     } = this;
     // select correct provider and token database based on the tokens network
-    const tokensByNetwork = groupBy(tokens, (t) => t.network);
+    const tokensByNetwork = _.groupBy(tokens, (t) => t.network);
     const tokenToPrice = new Map<Token, string>();
     for (const [network, tokens] of Object.entries(tokensByNetwork)) {
       const priceProvider = networkToPriceProviders(network);

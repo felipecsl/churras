@@ -25,17 +25,6 @@ export function none<T>(arr: T[]): boolean {
   return Array.isArray(arr) && arr.length === 0;
 }
 
-export const groupBy = <T, K extends keyof any>(
-  list: T[],
-  getKey: (item: T) => K
-): Record<K, T[]> =>
-  list.reduce((previous, currentItem) => {
-    const group = getKey(currentItem);
-    if (!previous[group]) previous[group] = [];
-    previous[group].push(currentItem);
-    return previous;
-  }, {} as Record<K, T[]>);
-
 export function isChainSupported(chain: number): boolean {
   // For now only Ethereum Mainnet supported
   return chain === Chain.ETHEREUM_MAINNET || chain === Chain.BSC_MAINNET;

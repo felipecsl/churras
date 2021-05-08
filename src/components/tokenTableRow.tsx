@@ -22,7 +22,7 @@ export default class TokenTableRow extends React.Component<
       ? "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200"
       : "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-400";
     const currencyFormat = format("$,.2f");
-    const amountFormat = format(".2f");
+    const amountFormat = format(",.2f");
     // do not display row if amount is not more than $5 cents
     if (token.equity > MIN_DISPLAY_AMOUNT) {
       return (
