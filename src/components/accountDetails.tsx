@@ -1,16 +1,19 @@
-import { CircularProgress } from "@material-ui/core";
+import { CircularProgress, Snackbar } from "@material-ui/core";
 import AnimatedNumber from "animated-number-react";
+import ClipboardJS from "clipboard";
 import { format } from "d3-format";
 import _ from "lodash";
 import React from "react";
 import { RouteComponentProps } from "react-router-dom";
 import AccountSnapshot from "../accountSnapshot";
 import { Chain } from "../chain";
+import Copy from "../images/copy.svg";
 import AccountCacheProvider from "../providers/accountCacheProvider";
 import { MetaMaskProvider } from "../providers/metamaskProvider";
 import { WalletToken } from "../token/walletToken";
-import { any, isChainSupported, none } from "../util";
+import { addressShorthand, any, isChainSupported, none } from "../util";
 import TokenTableRow from "./tokenTableRow";
+import MuiAlert from "@material-ui/lab/Alert";
 
 export type RoutePropsParams = { accountAddress: string };
 
@@ -27,6 +30,11 @@ interface AccountDetailsState {
   sortDirection: string;
   isLoadingTokens: boolean;
   walletTokens: WalletToken[];
+  snackbarOpen: boolean;
+}
+
+function Alert(props: any) {
+  return <MuiAlert elevation={6} variant="filled" {...props} />;
 }
 
 export default class AccountDetails extends React.Component<
@@ -40,6 +48,7 @@ export default class AccountDetails extends React.Component<
       sortOrder: "token",
       sortDirection: "asc", // asc or desc
       walletTokens: [],
+      snackbarOpen: false,
     };
   }
   private async loadAccount(accountAddress: string) {
@@ -102,6 +111,13 @@ export default class AccountDetails extends React.Component<
     this.setState({ sortOrder: newSortorder });
   }
 
+  handleCloseSnackbar(event: any, reason: string) {
+    if (reason === "clickaway") {
+      return;
+    }
+    this.setState({ snackbarOpen: false });
+  }
+
   render() {
     if (!this.state) {
       return <div>Loading...</div>;
@@ -115,11 +131,17 @@ export default class AccountDetails extends React.Component<
     } as Record<string, string>;
     const { route } = this.props;
     const accountAddress = route.match.params.accountAddress;
+    const shorthandAddress = addressShorthand(accountAddress);
+    const clipboard = new ClipboardJS("#copy");
+    clipboard.on("success", (e) => {
+      this.setState({ snackbarOpen: true });
+    });
     const {
       walletTokens,
       isLoadingTokens,
       sortOrder,
       sortDirection,
+      snackbarOpen,
     } = this.state;
     const sortKey = columns[sortOrder];
     const currencyFormat = format("$,.2f");
@@ -138,17 +160,37 @@ export default class AccountDetails extends React.Component<
         ) : (
           any(walletTokens) && (
             <div>
+              <h1 className="font-bold leading-8 text-4xl text-center mb-8">
+                <AnimatedNumber
+                  value={accountSize}
+                  formatValue={currencyFormat}
+                />
+              </h1>
               {accountAddress && (
-                <div className="pb-3">
+                <div className="pb-3 overflow-auto">
                   <code className="float-left">
-                    <small>{accountAddress}</small>
+                    <small>{shorthandAddress}</small>
                   </code>
-                  <p className="font-semibold text-2xl text-right">
-                    <AnimatedNumber
-                      value={accountSize}
-                      formatValue={currencyFormat}
-                    />
-                  </p>
+                  <img
+                    data-clipboard-text={accountAddress}
+                    alt="Copy to clipboard"
+                    title="Copy to clipboard"
+                    className="fill-current filter dark:invert ml-3 mt-2 cursor-pointer float-left"
+                    id="copy"
+                    src={Copy}
+                  />
+                  <Snackbar
+                    open={snackbarOpen}
+                    autoHideDuration={3000}
+                    onClose={this.handleCloseSnackbar.bind(this)}
+                  >
+                    <Alert
+                      onClose={this.handleCloseSnackbar.bind(this)}
+                      severity="info"
+                    >
+                      Copied!
+                    </Alert>
+                  </Snackbar>
                 </div>
               )}
               <div className="clear-both flex flex-col">

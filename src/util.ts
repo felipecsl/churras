@@ -35,3 +35,10 @@ export function isChainSupported(chain: number): boolean {
 export function navigateTo(href: string) {
   window.location.href = href;
 }
+
+export function addressShorthand(address: string): string {
+  const length = address.length;
+  const prefix = address.substring(0, 6);
+  const suffix = address.substring(length - 4, length);
+  return `${prefix}...${suffix}`;
+}
