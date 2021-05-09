@@ -1,4 +1,6 @@
-import TokenPricesProvider from "../../providers/tokenPricesProvider";
+import TokenPricesProvider, {
+  TokenPriceResult,
+} from "../../providers/tokenPricesProvider";
 
 export default class FakeTokenPricesProvider implements TokenPricesProvider {
   private readonly addressToPrice: Record<string, string>;
@@ -7,11 +9,11 @@ export default class FakeTokenPricesProvider implements TokenPricesProvider {
     this.addressToPrice = addressToPrice;
   }
 
-  fetchPrices(
-    tokenAddresses: string[]
-  ): Promise<[string, string | undefined][]> {
+  fetchPrices(tokenAddresses: string[]): Promise<TokenPriceResult[]> {
     return Promise.resolve(
-      tokenAddresses.map((addr) => [addr, this.addressToPrice[addr]])
+      tokenAddresses.map((addr) => {
+        return { address: addr, price: this.addressToPrice[addr] };
+      })
     );
   }
 }

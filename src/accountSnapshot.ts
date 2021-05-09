@@ -2,6 +2,12 @@ import { utils } from "ethers";
 import _ from "lodash";
 import { Network } from "./chain";
 import { DEFAULT_BSC_PROVIDER, DEFAULT_ETHEREUM_PROVIDER } from "./constants";
+import AutoFarmVault, {
+  AutoFarmStakedVaultInfo,
+} from "./integrations/autoFarmVault";
+import PancakeswapSyrupPool, {
+  PancakeswapSyrupPoolInfo,
+} from "./integrations/pancakswapSyrupPool";
 import BscTokenPricesProvider from "./providers/bscTokenPricesProvider";
 import EthereumTokenPricesProvider from "./providers/ethereumTokenPricesProvider";
 import TokenPricesProvider from "./providers/tokenPricesProvider";
@@ -38,6 +44,8 @@ export default class AccountSnapshot {
   private readonly tokenDatabaseFactory: TokenDatabaseFactory;
   private readonly tokenBalanceResolver: TokenBalanceResolver;
   private readonly ethBnbPriceFetcher: EthBnbPriceProvider;
+  private readonly autoFarmVault: AutoFarmVault;
+  private readonly pancakeswapSyrupPool: PancakeswapSyrupPool;
 
   constructor({
     tokenPriceProviderFactory = (network) =>
@@ -45,16 +53,26 @@ export default class AccountSnapshot {
     tokenDatabaseFactory = (network) => DEFAULT_TOKEN_DATABASES[network],
     tokenBalanceResolver = DEFAULT_TOKEN_BALANCE_RESOLVER,
     ethBnbPriceFetcher = new EthBnbPriceFetcher().fetchEthBnbPrice,
+    autoFarmVault = new AutoFarmVault(
+      DEFAULT_BSC_PROVIDER,
+      DEFAULT_TOKEN_PRICE_PROVIDERS[Network[Network.BSC]],
+      DEFAULT_TOKEN_DATABASES[Network[Network.BSC]]
+    ),
+    pancakeswapSyrupPool = new PancakeswapSyrupPool(DEFAULT_BSC_PROVIDER),
   }: {
     tokenPriceProviderFactory?: TokenPriceProviderFactory;
     tokenDatabaseFactory?: TokenDatabaseFactory;
     tokenBalanceResolver?: TokenBalanceResolver;
     ethBnbPriceFetcher?: () => EthBnbPricePair;
+    autoFarmVault?: AutoFarmVault;
+    pancakeswapSyrupPool?: PancakeswapSyrupPool;
   } = {}) {
     this.tokenPriceProviderFactory = tokenPriceProviderFactory;
     this.tokenDatabaseFactory = tokenDatabaseFactory;
     this.tokenBalanceResolver = tokenBalanceResolver;
     this.ethBnbPriceFetcher = ethBnbPriceFetcher;
+    this.autoFarmVault = autoFarmVault;
+    this.pancakeswapSyrupPool = pancakeswapSyrupPool;
   }
 
   private async fetchEthBnbTokens(
@@ -85,6 +103,20 @@ export default class AccountSnapshot {
     const databases = Object.values(DEFAULT_TOKEN_DATABASES);
     const tokens = databases.flatMap((db) => db.allTokens());
     return this.refreshTokens(accountAddress, tokens);
+  }
+
+  async loadYieldFarms(
+    accountAddress: string
+  ): Promise<[AutoFarmStakedVaultInfo, PancakeswapSyrupPoolInfo]> {
+    const { autoFarmVault, pancakeswapSyrupPool } = this;
+    const autoFarmVaultState = await autoFarmVault.loadVaultState(
+      6,
+      accountAddress
+    );
+    const pancakeswapSyrupPoolInfo = await pancakeswapSyrupPool.poolInfo(
+      accountAddress
+    );
+    return [autoFarmVaultState, pancakeswapSyrupPoolInfo];
   }
 
   /**
@@ -139,14 +171,13 @@ export default class AccountSnapshot {
       const tokenDatabase = tokenDatabases(network);
       const tokenAddresses = tokens.map((t) => t.address);
       const prices = await priceProvider.fetchPrices(tokenAddresses);
-      prices.forEach(([tokenAddress, price]) => {
-        const token =
-          tokenDatabase.tokensByAddress[utils.getAddress(tokenAddress)];
+      prices.forEach(({ address, price }) => {
+        const token = tokenDatabase.tokensByAddress[utils.getAddress(address)];
         if (token && price) {
           tokenToPrice.set(token, price);
         } else {
           console.error(
-            `Unable to find price for token with address ${tokenAddress}`
+            `Unable to find price for token with address ${address}`
           );
         }
       });
