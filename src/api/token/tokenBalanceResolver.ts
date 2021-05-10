@@ -1,7 +1,6 @@
-import { InfuraProvider, Provider } from "@ethersproject/providers";
+import { Provider } from "@ethersproject/providers";
 import { BigNumber, ethers, utils } from "ethers";
 import { Network } from "../../chain";
-import { DEFAULT_BSC_PROVIDER, INFURA_API_KEY } from "../../constants";
 import { ensureValue } from "../util";
 import Token from "./token";
 
