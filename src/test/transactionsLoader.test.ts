@@ -1,4 +1,4 @@
-import TransactionsLoader from "../transaction/transactionsLoader";
+import TransactionsLoader from "../api/transaction/transactionsLoader";
 import { FakeEtherscanApiClient } from "./fakeEtherscanApiClient";
 
 process.on("unhandledRejection", (reason, p) => {

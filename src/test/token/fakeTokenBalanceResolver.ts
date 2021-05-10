@@ -1,5 +1,5 @@
-import { default as token } from "../../token/token";
-import { TokenBalanceResolver } from "../../token/tokenBalanceResolver";
+import { default as token } from "../../api/token/token";
+import { TokenBalanceResolver } from "../../api/token/tokenBalanceResolver";
 
 export default class FakeTokenBalanceResolver implements TokenBalanceResolver {
   private readonly addressToBalance: Record<string, any>;

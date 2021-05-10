@@ -1,6 +1,6 @@
 import { Provider } from "@ethersproject/providers";
 import { BigNumber, ethers, utils } from "ethers";
-import { Network } from "../chain";
+import { Network } from "../../chain";
 import { ensureValue } from "../util";
 import Token from "./token";
 

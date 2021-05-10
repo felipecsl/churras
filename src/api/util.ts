@@ -1,5 +1,6 @@
 import { format } from "d3-format";
-import { Chain } from "./chain";
+import { Chain } from "../chain";
+import fetch from "node-fetch";
 
 export const percentFormat = format(".2%");
 export const currencyFormat = format("($.2f");
@@ -30,15 +31,18 @@ export function isChainSupported(chain: number): boolean {
   return chain === Chain.ETHEREUM_MAINNET || chain === Chain.BSC_MAINNET;
 }
 
-// to make jest tests happy
-// https://stackoverflow.com/questions/54021037/how-to-mock-window-location-href-with-jest-vuejs
-export function navigateTo(href: string) {
-  window.location.href = href;
-}
-
 export function addressShorthand(address: string): string {
   const length = address.length;
   const prefix = address.substring(0, 6);
   const suffix = address.substring(length - 4, length);
   return `${prefix}...${suffix}`;
+}
+
+export async function fetchJson(
+  url: string,
+  debug: boolean = true
+): Promise<any> {
+  if (debug) console.log(`fetching ${url}`);
+  const res = await fetch(url);
+  return await res.json();
 }

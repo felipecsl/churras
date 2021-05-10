@@ -1,4 +1,4 @@
-import { Chain, Network } from "../chain";
+import { Chain, Network } from "../../chain";
 import { throwError } from "../util";
 import Token from "./token";
 import { TOKENS_BY_NETWORK } from "./tokenList";

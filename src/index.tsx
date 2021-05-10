@@ -1,13 +1,13 @@
 import { InfuraProvider } from "@ethersproject/providers";
 import React from "react";
 import ReactDOM from "react-dom";
-import AccountSnapshot from "./accountSnapshot";
+import AccountSnapshot from "./api/accountSnapshot";
 import App from "./App";
 import { Network } from "./chain";
 import { DEFAULT_BSC_PROVIDER, INFURA_API_KEY } from "./constants";
 import "./index.css";
 import reportWebVitals from "./reportWebVitals";
-import TokenBalanceResolver from "./token/tokenBalanceResolver";
+import TokenBalanceResolver from "./api/token/tokenBalanceResolver";
 
 const ethereumProvider = InfuraProvider.getWebSocketProvider(
   "homestead",

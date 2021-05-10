@@ -18,8 +18,8 @@
     "@testing-library/jest-dom": "^5.11.4",
     "@testing-library/react": "^11.1.0",
     "@testing-library/user-event": "^12.1.10",
-    "@types/clipboard": "^2.0.1",
     "@types/d3-format": "^2.0.0",
+    "@types/express": "^4.17.11",
     "@types/jest": "^26.0.22",
     "@types/lodash": "^4.14.168",
     "@types/node": "^12.0.0",
@@ -58,6 +58,7 @@
     "eslint-plugin-testing-library": "^3.9.2",
     "eslint-webpack-plugin": "^2.1.0",
     "ethers": "^5.0.31",
+    "express-async-handler": "^1.1.4",
     "file-loader": "6.1.1",
     "fs-extra": "^9.0.1",
     "gh-pages": "^3.1.0",
@@ -108,7 +109,9 @@
     "start": "craco start",
     "build": "craco build",
     "server:build": "tsc --resolveJsonModule --outDir build src/server/server.ts",
+    "api:build": "tsc --lib es2019 --esModuleInterop --outDir build src/api/apiServer.ts",
     "server:run": "node build/server/server.js",
+    "api:run": "node build/api/apiServer.js",
     "test": "yarn run jest"
   },
   "homepage": "https://churras.org",
@@ -117,6 +120,9 @@
       "react-app",
       "react-app/jest"
     ]
+  },
+  "resolutions": {
+    "@types/react": "^16.9.53"
   },
   "browserslist": {
     "production": [

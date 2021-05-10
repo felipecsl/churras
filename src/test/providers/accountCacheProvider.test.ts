@@ -1,6 +1,6 @@
-import AccountCacheProvider from "../../providers/accountCacheProvider";
-import { ETH_TOKEN } from "../../token/token";
-import { WalletToken } from "../../token/walletToken";
+import AccountCacheProvider from "../../api/providers/accountCacheProvider";
+import { ETH_TOKEN } from "../../api/token/token";
+import { WalletToken } from "../../api/token/walletToken";
 
 test("set and get data", () => {
   const provider = new AccountCacheProvider();

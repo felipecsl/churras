@@ -1,6 +1,6 @@
 import TokenPricesProvider, {
   TokenPriceResult,
-} from "../../providers/tokenPricesProvider";
+} from "../../api/providers/tokenPricesProvider";
 
 export default class FakeTokenPricesProvider implements TokenPricesProvider {
   private readonly addressToPrice: Record<string, string>;

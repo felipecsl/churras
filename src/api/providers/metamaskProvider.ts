@@ -1,5 +1,5 @@
 import { ChainId } from "@uniswap/sdk";
-import { Chain } from "../chain";
+import { Chain } from "../../chain";
 
 export interface MetaMaskProvider {
   requestAccounts(): Promise<string[]>;

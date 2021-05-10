@@ -1,4 +1,4 @@
-import { Network } from "../chain";
+import { Network } from "../../chain";
 import Token from "./token";
 
 // source: https://api.pancakeswap.info/api/tokens

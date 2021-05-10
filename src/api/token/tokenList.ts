@@ -1,5 +1,5 @@
 import { utils } from "ethers";
-import { Chain, Network } from "../chain";
+import { Chain, Network } from "../../chain";
 import { ALL_BSC_TOKENS } from "./bscTokenList";
 import { ALL_ETHEREUM_TOKENS } from "./ethereumTokenList";
 import Token from "./token";

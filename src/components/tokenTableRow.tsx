@@ -2,7 +2,7 @@ import { format } from "d3-format";
 import React from "react";
 import { Network } from "../chain";
 import { MIN_DISPLAY_AMOUNT } from "../constants";
-import { WalletToken } from "../token/walletToken";
+import { WalletToken } from "../api/token/walletToken";
 
 interface TokenTableRowProps {
   token: WalletToken;

@@ -1,9 +1,9 @@
 import { Chain } from "../chain";
 import { DEFAULT_ETHEREUM_PROVIDER } from "../constants";
-import { TOKENS_BY_NETWORK } from "../token/tokenList";
-import AccountSwaps from "../transaction/accountSwaps";
-import TransactionsLoader from "../transaction/transactionsLoader";
-import UniswapTransactionParser from "../transaction/uniswapTransactionParser";
+import { TOKENS_BY_NETWORK } from "../api/token/tokenList";
+import AccountSwaps from "../api/transaction/accountSwaps";
+import TransactionsLoader from "../api/transaction/transactionsLoader";
+import UniswapTransactionParser from "../api/transaction/uniswapTransactionParser";
 import { FakeEtherscanApiClient } from "./fakeEtherscanApiClient";
 
 jest.setTimeout(10000);

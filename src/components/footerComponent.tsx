@@ -1,8 +1,8 @@
 import React from "react";
-import DiscordLogo from "./images/discord.svg";
-import GithubLogo from "./images/github.svg";
-import Logo from "./images/logo.svg";
-import TwitterLogo from "./images/twitter.svg";
+import DiscordLogo from "../images/discord.svg";
+import GithubLogo from "../images/github.svg";
+import Logo from "../images/logo.svg";
+import TwitterLogo from "../images/twitter.svg";
 
 export default class FooterComponent extends React.Component<any, any> {
   render() {

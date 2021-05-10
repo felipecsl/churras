@@ -1,4 +1,5 @@
 import TokenPricesProvider, { TokenPriceResult } from "./tokenPricesProvider";
+import { fetchJson } from "../util";
 
 export default class BscTokenPricesProvider implements TokenPricesProvider {
   private readonly apiHost: string;
@@ -10,8 +11,7 @@ export default class BscTokenPricesProvider implements TokenPricesProvider {
   /** TODO cache results to avoid overloading the API */
   async fetchPrices(tokenAddresses: string[]): Promise<TokenPriceResult[]> {
     const apiUrl = `${this.apiHost}/api/tokens`;
-    const res = await fetch(apiUrl);
-    const results = await res.json();
+    const results = await fetchJson(apiUrl);
     return Object.entries(results.data)
       .filter(([key]) => tokenAddresses.includes(key))
       .map(([key, value]: [string, any]) => {

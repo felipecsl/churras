@@ -1,17 +1,17 @@
 import React from "react";
 import { HashRouter as Router, Route, Switch } from "react-router-dom";
-import AccountSnapshot from "./accountSnapshot";
+import AccountSnapshot from "./api/accountSnapshot";
 import "./App.css";
 import { Chain } from "./chain";
 import AccountDetails from "./components/accountDetails";
 import Landing from "./components/landing";
-import FooterComponent from "./footerComponent";
-import NavigationComponent from "./navigationComponent";
-import AccountCacheProvider from "./providers/accountCacheProvider";
+import FooterComponent from "./components/footerComponent";
+import NavigationComponent from "./components/navigationComponent";
+import AccountCacheProvider from "./api/providers/accountCacheProvider";
 import DefaultMetaMaskProvider, {
   MetaMaskProvider,
-} from "./providers/metamaskProvider";
-import { navigateTo } from "./util";
+} from "./api/providers/metamaskProvider";
+import { navigateTo } from "./browserUtil";
 
 interface AppState {
   chain: number;
