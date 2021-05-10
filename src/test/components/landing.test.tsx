@@ -2,7 +2,7 @@ import { render, screen } from "@testing-library/react";
 import React from "react";
 import { Chain } from "../../chain";
 import Landing from "../../components/landing";
-import AccountCacheProvider from "../../providers/accountCacheProvider";
+import AccountCacheProvider from "../../api/providers/accountCacheProvider";
 import FakeMetaMaskProvider from "../fakeMetaMaskProvider";
 import { flushPromises } from "../testUtil";
 

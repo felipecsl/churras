@@ -1,7 +1,7 @@
 import { utils } from "ethers";
 import _ from "lodash";
-import { Network } from "./chain";
-import { DEFAULT_BSC_PROVIDER, DEFAULT_ETHEREUM_PROVIDER } from "./constants";
+import { Network } from "../chain";
+import { DEFAULT_BSC_PROVIDER, DEFAULT_ETHEREUM_PROVIDER } from "../constants";
 import AutoFarmVault, {
   AutoFarmStakedVaultInfo,
 } from "./integrations/autoFarmVault";

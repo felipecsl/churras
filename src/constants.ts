@@ -15,7 +15,7 @@ export const DEFAULT_ETHEREUM_PROVIDER = ethers.getDefaultProvider(
   }
 );
 export const DEFAULT_BSC_PROVIDER = new JsonRpcProvider(
-  "https://bsc-dataseed.binance.org/",
+  "https://bsc-dataseed1.defibit.io/",
   {
     chainId: 56,
     ensAddress: "0x00000000000C2E074eC69A0dFb2997BA6C7d2e1e",

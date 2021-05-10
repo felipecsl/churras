@@ -1,5 +1,5 @@
 import React from "react";
-import ThemeSelector from "./components/themeSelector";
+import ThemeSelector from "./themeSelector";
 import Logo from "./images/logo.svg";
 
 export default class NavigationComponent extends React.Component<any, any> {

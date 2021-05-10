@@ -1,5 +1,5 @@
 import { Formatter, TransactionResponse } from "@ethersproject/providers";
-import { EtherscanApiClient } from "../etherscanApiClient";
+import { EtherscanApiClient } from "../../etherscanApiClient";
 
 export default class TransactionsLoader {
   private etherscanApiClient: EtherscanApiClient;

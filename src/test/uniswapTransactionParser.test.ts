@@ -1,9 +1,9 @@
 import React from "react";
 import { Chain } from "../chain";
 import { DEFAULT_ETHEREUM_PROVIDER } from "../constants";
-import { TOKENS_BY_NETWORK } from "../token/tokenList";
-import UniswapTransactionParser from "../transaction/uniswapTransactionParser";
-import { isUniswap } from "../transaction/uniswapTransactionParser";
+import { TOKENS_BY_NETWORK } from "../api/token/tokenList";
+import UniswapTransactionParser from "../api/transaction/uniswapTransactionParser";
+import { isUniswap } from "../api/transaction/uniswapTransactionParser";
 import { TransactionFixtures } from "./fixtures/transactions";
 
 jest.setTimeout(10000);

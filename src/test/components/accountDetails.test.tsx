@@ -2,13 +2,13 @@ import { render } from "@testing-library/react";
 import React from "react";
 import { RouteComponentProps } from "react-router";
 import { match } from "react-router-dom";
-import AccountSnapshot from "../../accountSnapshot";
+import AccountSnapshot from "../../api/accountSnapshot";
 import { Chain } from "../../chain";
 import AccountDetails, {
   RoutePropsParams,
 } from "../../components/accountDetails";
-import AccountCacheProvider from "../../providers/accountCacheProvider";
-import Token from "../../token/token";
+import AccountCacheProvider from "../../api/providers/accountCacheProvider";
+import Token from "../../api/token/token";
 import FakeMetaMaskProvider from "../fakeMetaMaskProvider";
 import "../matchMedia";
 import FakeTokenPricesProvider from "../providers/fakeTokenPricesProvider";

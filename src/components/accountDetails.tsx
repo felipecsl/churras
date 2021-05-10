@@ -1,19 +1,19 @@
 import { CircularProgress, Snackbar } from "@material-ui/core";
+import MuiAlert from "@material-ui/lab/Alert";
 import AnimatedNumber from "animated-number-react";
 import ClipboardJS from "clipboard";
 import { format } from "d3-format";
 import _ from "lodash";
 import React from "react";
 import { RouteComponentProps } from "react-router-dom";
-import AccountSnapshot from "../accountSnapshot";
+import AccountSnapshot from "../api/accountSnapshot";
+import AccountCacheProvider from "../api/providers/accountCacheProvider";
+import { MetaMaskProvider } from "../api/providers/metamaskProvider";
+import { WalletToken } from "../api/token/walletToken";
+import { addressShorthand, any, isChainSupported, none } from "../api/util";
 import { Chain } from "../chain";
 import Copy from "../images/copy.svg";
-import AccountCacheProvider from "../providers/accountCacheProvider";
-import { MetaMaskProvider } from "../providers/metamaskProvider";
-import { WalletToken } from "../token/walletToken";
-import { addressShorthand, any, isChainSupported, none } from "../util";
 import TokenTableRow from "./tokenTableRow";
-import MuiAlert from "@material-ui/lab/Alert";
 
 export type RoutePropsParams = { accountAddress: string };
 

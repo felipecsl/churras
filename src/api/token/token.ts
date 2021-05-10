@@ -1,4 +1,4 @@
-import { Network } from "../chain";
+import { Network } from "../../chain";
 
 // Represents an ERC20 token
 export default interface Token {

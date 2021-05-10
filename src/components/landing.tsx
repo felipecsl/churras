@@ -1,8 +1,9 @@
 import React from "react";
+import AccountCacheProvider from "../api/providers/accountCacheProvider";
+import { MetaMaskProvider } from "../api/providers/metamaskProvider";
+import { isChainSupported } from "../api/util";
+import { navigateTo } from "../browserUtil";
 import { Chain } from "../chain";
-import AccountCacheProvider from "../providers/accountCacheProvider";
-import { MetaMaskProvider } from "../providers/metamaskProvider";
-import { isChainSupported, navigateTo } from "../util";
 
 interface LandingProps {
   accountCacheProvider: AccountCacheProvider;

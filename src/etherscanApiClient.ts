@@ -1,3 +1,4 @@
+import { fetchJson } from "./api/util";
 import { ETHERSCAN_API_KEY } from "./constants";
 
 export interface EtherscanApiClient {
@@ -12,10 +13,9 @@ export class RealEtherscanApiClient implements EtherscanApiClient {
   }
 
   async loadTransactions(address: string): Promise<any> {
-    const results = await fetch(
+    const response = await fetchJson(
       `https://api.etherscan.io/api?module=account&action=txlist&address=${address}&startblock=0&endblock=99999999&sort=asc&apikey=${this.apiKey}`
     );
-    const response = await results.json();
     return response.result;
   }
 }

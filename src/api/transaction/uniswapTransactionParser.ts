@@ -5,7 +5,7 @@ import {
 } from "@ethersproject/providers";
 import { Contract, Transaction, utils } from "ethers";
 import { Interface, LogDescription, Result } from "ethers/lib/utils";
-import ABIS, { uniswapLPContractABI, UNISWAP_ROUTER_ADDRESS } from "../abis";
+import ABIS, { uniswapLPContractABI, UNISWAP_ROUTER_ADDRESS } from "../../abis";
 import Token from "../token/token";
 import { throwError } from "../util";
 

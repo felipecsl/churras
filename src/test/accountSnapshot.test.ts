@@ -1,5 +1,5 @@
-import AccountSnapshot from "../accountSnapshot";
-import { WalletToken } from "../token/walletToken";
+import AccountSnapshot from "../api/accountSnapshot";
+import { WalletToken } from "../api/token/walletToken";
 import FakeTokenPricesProvider from "./providers/fakeTokenPricesProvider";
 import FakeTokenBalanceResolver from "./token/fakeTokenBalanceResolver";
 
