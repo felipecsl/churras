@@ -33,4 +33,6 @@ jobs:
           node-version: ${{ matrix.node-version }}
       - run: yarn install
       - run: yarn run test
-      - run: yarn run build server:build
+      - run: yarn run build
+      - run: yarn run server:build
+      - run: yarn run api:build
