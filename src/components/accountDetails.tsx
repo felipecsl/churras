@@ -82,7 +82,7 @@ export default class AccountDetails extends React.Component<
         accountAddress,
         tokens.map(WalletToken.toToken)
       );
-      console.log(await accountSnapshot.loadYieldFarms(accountAddress));
+      // console.log(await accountSnapshot.loadYieldFarms(accountAddress));
       this.setState({ walletTokens: updatedTokens });
       accountCacheProvider.update(accountAddress, updatedTokens);
     }
