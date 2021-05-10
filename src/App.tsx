@@ -62,17 +62,6 @@ class App extends React.Component<AppProps, AppState> {
     }
   }*/
 
-  // // WIP
-  // private async loadYieldFarms() {
-  //   // autofarm
-  //   const accountAddress = this.ensureAccountAddress();
-  //   const pendingAuto = await this.props.tokenBalanceResolver.autoFarmContractPendingAuto(
-  //     6,
-  //     accountAddress
-  //   );
-  //   console.log(utils.formatEther(pendingAuto));
-  // }
-
   async componentDidMount() {
     const chain = await this.props.metaMaskProvider.chainId();
     this.setState({ chain }, async () => {

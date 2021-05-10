@@ -36,44 +36,6 @@ export default class DefaultTokenBalanceResolver
     return { token, balance: +utils.formatUnits(balance, token.decimals) };
   }
 
-  async autoFarmContractPendingAuto(
-    poolId: number,
-    userAddress: string
-  ): Promise<any> {
-    const provider = this.networkProviders[Network[Network.BSC]];
-    const abi = [
-      {
-        inputs: [{ internalType: "uint256", name: "", type: "uint256" }],
-        name: "poolInfo",
-        outputs: [
-          { internalType: "contract IERC20", name: "want", type: "address" },
-          { internalType: "uint256", name: "allocPoint", type: "uint256" },
-          { internalType: "uint256", name: "lastRewardBlock", type: "uint256" },
-          { internalType: "uint256", name: "accAUTOPerShare", type: "uint256" },
-          { internalType: "address", name: "strat", type: "address" },
-        ],
-        stateMutability: "view",
-        type: "function",
-      },
-      {
-        inputs: [
-          { internalType: "uint256", name: "_pid", type: "uint256" },
-          { internalType: "address", name: "_user", type: "address" },
-        ],
-        name: "pendingAUTO",
-        outputs: [{ internalType: "uint256", name: "", type: "uint256" }],
-        stateMutability: "view",
-        type: "function",
-      },
-    ];
-    const contract = new ethers.Contract(
-      "0x0895196562c7868c5be92459fae7f877ed450452",
-      abi,
-      provider
-    );
-    return await contract.pendingAUTO(poolId, userAddress);
-  }
-
   async ethBalance(accountAddress: string): Promise<number> {
     const balance = await this.balanceOf(
       this.networkProviders[Network[Network.ETHEREUM]],

@@ -1,4 +1,5 @@
 import { Chain, Network } from "../chain";
+import { throwError } from "../util";
 import Token from "./token";
 import { TOKENS_BY_NETWORK } from "./tokenList";
 
@@ -22,5 +23,16 @@ export default class TokenDatabase {
 
   allTokens(): Token[] {
     return Object.values(this.tokensBySymbol);
+  }
+
+  findByAddress(address: string): Token | undefined {
+    return this.tokensByAddress[address];
+  }
+
+  findByAddressOrThrow(
+    address: string,
+    msg: string = `Cannot find token with address ${address}`
+  ): Token {
+    return this.findByAddress(address) ?? throwError(msg);
   }
 }
