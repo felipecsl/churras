@@ -1,6 +1,7 @@
 import { format } from "d3-format";
-import { Chain } from "../chain";
+import debug from "debug";
 import fetch from "node-fetch";
+import { Chain } from "../chain";
 
 export const percentFormat = format(".2%");
 export const currencyFormat = format("($.2f");
@@ -38,11 +39,9 @@ export function addressShorthand(address: string): string {
   return `${prefix}...${suffix}`;
 }
 
-export async function fetchJson(
-  url: string,
-  debug: boolean = true
-): Promise<any> {
-  if (debug) console.log(`fetching ${url}`);
+export async function fetchJson(url: string): Promise<any> {
+  const log = debug("churras:fetch");
+  log(`Fetching ${url}`);
   const res = await fetch(url);
   return await res.json();
 }

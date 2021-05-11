@@ -19,6 +19,8 @@ import DefaultTokenBalanceResolver, {
 import TokenDatabase from "./token/tokenDatabase";
 import { WalletToken } from "./token/walletToken";
 
+import debug from "debug";
+
 type EthBnbPricePair = Promise<{ eth: string; bnb: string }>;
 type EthBnbPriceProvider = () => EthBnbPricePair;
 export type TokenPriceProviderFactory = (
@@ -46,6 +48,7 @@ export default class AccountSnapshot {
   private readonly ethBnbPriceFetcher: EthBnbPriceProvider;
   private readonly autoFarmVault: AutoFarmVault;
   private readonly pancakeswapSyrupPool: PancakeswapSyrupPool;
+  private readonly log = debug("churras:accountSnapshot");
 
   constructor({
     tokenPriceProviderFactory = (network) =>
@@ -75,9 +78,7 @@ export default class AccountSnapshot {
     this.pancakeswapSyrupPool = pancakeswapSyrupPool;
   }
 
-  private async fetchEthBnbTokens(
-    accountAddress: string
-  ): Promise<{
+  private async fetchEthBnbTokens(accountAddress: string): Promise<{
     eth: WalletToken;
     bnb: WalletToken;
   }> {
@@ -132,6 +133,9 @@ export default class AccountSnapshot {
     // Since these tokens have no ERC-20 address, we can't fetch their prices the same way.
     const tokensExceptETHandBNB = tokens.filter(
       (t) => !["ETH", "BNB"].includes(t.symbol)
+    );
+    this.log(
+      `Resolving balances for ${tokensExceptETHandBNB.length} tokens...`
     );
     const tokensToBalances = tokensExceptETHandBNB.map((t) =>
       tokenBalanceResolver.resolveBalance(accountAddress, t)

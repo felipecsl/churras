@@ -18,7 +18,6 @@ export const DEFAULT_BSC_PROVIDER = new JsonRpcProvider(
   "https://bsc-dataseed1.defibit.io/",
   {
     chainId: 56,
-    ensAddress: "0x00000000000C2E074eC69A0dFb2997BA6C7d2e1e",
     name: "bsc-mainnet",
   }
 );
