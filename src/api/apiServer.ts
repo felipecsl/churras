@@ -10,6 +10,7 @@ import DefaultTokenBalanceResolver from "./token/tokenBalanceResolver";
 const app = express();
 const port = process.env.NODE_PORT || 4000;
 const env = process.env.NODE_ENV || "development";
+const address = process.env.NODE_ADDR || "127.0.0.1";
 const ethereumProvider = InfuraProvider.getWebSocketProvider(
   "homestead",
   INFURA_API_KEY
@@ -61,4 +62,4 @@ function requestBodyToJson(req: any): Promise<any> {
 
 Logger.setLogLevel(Logger.levels.DEBUG);
 app.listen(port);
-console.log(`Server starting at http://localhost:${port}/ in ${env} mode`);
+console.log(`Server starting at http://${address}:${port}/ in ${env} mode`);
