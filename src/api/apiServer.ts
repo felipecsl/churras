@@ -26,6 +26,7 @@ app.get(
   "/address/:address/tokens",
   asyncHandler(async (req: any, res, next) => {
     const address = req.params.address;
+    console.log(`Serving GET /address/${address}/tokens`);
     const tokens = await accountSnapshot.loadAccount(address);
     res.send(tokens);
   })
