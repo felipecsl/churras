@@ -1,6 +1,5 @@
 import React from "react";
 import { HashRouter as Router, Route, Switch } from "react-router-dom";
-import AccountSnapshot from "./api/accountSnapshot";
 import "./App.css";
 import { Chain } from "./chain";
 import AccountDetails from "./components/accountDetails";
@@ -20,7 +19,6 @@ interface AppState {
 interface AppProps {
   accountCacheProvider: AccountCacheProvider;
   metaMaskProvider: MetaMaskProvider;
-  accountSnapshot: AccountSnapshot;
 }
 
 declare global {
@@ -33,7 +31,6 @@ class App extends React.Component<AppProps, AppState> {
   public static defaultProps = {
     accountCacheProvider: new AccountCacheProvider(),
     metaMaskProvider: new DefaultMetaMaskProvider(),
-    accountSnapshot: new AccountSnapshot(),
   };
 
   constructor(props: AppProps) {
@@ -76,11 +73,7 @@ class App extends React.Component<AppProps, AppState> {
   }
 
   render() {
-    const {
-      accountCacheProvider,
-      metaMaskProvider,
-      accountSnapshot,
-    } = this.props;
+    const { accountCacheProvider, metaMaskProvider } = this.props;
     const { chain } = this.state;
     return (
       <React.StrictMode>
@@ -104,7 +97,6 @@ class App extends React.Component<AppProps, AppState> {
                         <AccountDetails
                           metaMaskProvider={metaMaskProvider}
                           accountCacheProvider={accountCacheProvider}
-                          accountSnapshot={accountSnapshot}
                           route={props}
                           chain={chain}
                         />

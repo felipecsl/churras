@@ -10,11 +10,17 @@ export function throwError(errorMessage: string): never {
   throw new Error(errorMessage);
 }
 
-export function ensure<T>(fn: () => T, errorMessage: string): T {
+export function ensure<T>(
+  fn: () => T,
+  errorMessage: string = "Failed assertion"
+): T {
   return fn() ?? throwError(errorMessage);
 }
 
-export function ensureValue<T>(val: T | undefined, errorMessage: string): T {
+export function ensureValue<T>(
+  val: T | undefined,
+  errorMessage: string = "Failed assertion"
+): T {
   return val ?? throwError(errorMessage);
 }
 
