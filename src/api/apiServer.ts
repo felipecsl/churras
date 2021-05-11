@@ -13,7 +13,9 @@ import AccountSnapshot from "./accountSnapshot";
 import DefaultTokenBalanceResolver from "./token/tokenBalanceResolver";
 
 const app = express();
-const isProduction = process.env.NODE_ENV === "production";
+const port = process.env.NODE_PORT || 4000;
+const env = process.env.NODE_ENV || "development";
+const isProduction = env === "production";
 const ethereumProvider = isProduction
   ? PRODUCTION_ETHEREUM_PROVIDER
   : InfuraProvider.getWebSocketProvider("homestead", INFURA_API_KEY);
@@ -65,5 +67,5 @@ function requestBodyToJson(req: any): Promise<any> {
 }
 
 Logger.setLogLevel(Logger.levels.DEBUG);
-app.listen(4000);
-console.log("Server running at http://localhost:4000/");
+app.listen(port);
+console.log(`Server starting at http://localhost:${port}/ in ${env} mode`);
