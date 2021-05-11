@@ -1,27 +1,20 @@
 import { Logger } from "@ethersproject/logger";
-import { InfuraProvider, JsonRpcProvider } from "@ethersproject/providers";
+import { InfuraProvider } from "@ethersproject/providers";
 import express from "express";
 import asyncHandler from "express-async-handler";
 import { Network } from "../chain";
-import {
-  DEFAULT_BSC_PROVIDER,
-  INFURA_API_KEY,
-  PRODUCTION_BSC_PROVIDER,
-  PRODUCTION_ETHEREUM_PROVIDER,
-} from "../constants";
+import { DEFAULT_BSC_PROVIDER, INFURA_API_KEY } from "../constants";
 import AccountSnapshot from "./accountSnapshot";
 import DefaultTokenBalanceResolver from "./token/tokenBalanceResolver";
 
 const app = express();
 const port = process.env.NODE_PORT || 4000;
 const env = process.env.NODE_ENV || "development";
-const isProduction = env === "production";
-const ethereumProvider = isProduction
-  ? PRODUCTION_ETHEREUM_PROVIDER
-  : InfuraProvider.getWebSocketProvider("homestead", INFURA_API_KEY);
-const bscProvider = isProduction
-  ? PRODUCTION_BSC_PROVIDER
-  : DEFAULT_BSC_PROVIDER;
+const ethereumProvider = InfuraProvider.getWebSocketProvider(
+  "homestead",
+  INFURA_API_KEY
+);
+const bscProvider = DEFAULT_BSC_PROVIDER;
 const tokenBalanceResolver = new DefaultTokenBalanceResolver({
   [Network[Network.ETHEREUM]]: ethereumProvider,
   [Network[Network.BSC]]: bscProvider,
