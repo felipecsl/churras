@@ -1,9 +1,9 @@
 import { render, screen } from "@testing-library/react";
 import React from "react";
+import AccountCacheProvider from "../../api/providers/accountCacheProvider";
 import { Chain } from "../../chain";
 import Landing from "../../components/landing";
-import AccountCacheProvider from "../../api/providers/accountCacheProvider";
-import FakeMetaMaskProvider from "../fakeMetaMaskProvider";
+import FakeMetaMaskProvider from "../fakes/fakeMetaMaskProvider";
 import { flushPromises } from "../testUtil";
 
 // https://stackoverflow.com/questions/54090231/how-to-fix-error-not-implemented-navigation-except-hash-changes

@@ -1,5 +1,5 @@
 import TransactionsLoader from "../api/transaction/transactionsLoader";
-import { FakeEtherscanApiClient } from "./fakeEtherscanApiClient";
+import { FakeEtherscanApiClient } from "./fakes/fakeEtherscanApiClient";
 
 process.on("unhandledRejection", (reason, p) => {
   console.log("Unhandled Rejection at: Promise", p, "reason:", reason);

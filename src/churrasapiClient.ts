@@ -2,7 +2,11 @@ import { WalletToken } from "./api/token/walletToken";
 import { ensure, fetchJson } from "./api/util";
 import { DEV_API_PORT } from "./constants";
 
-export default class ChurrasApiClient {
+export interface ChurrasApiClient {
+  accountTokens(accountAddress: string): Promise<WalletToken[]>;
+}
+
+export default class DefaultChurrasApiClient {
   private readonly apiBaseUrl: string;
 
   constructor(location: Location = window.location) {
