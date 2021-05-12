@@ -1,7 +1,7 @@
 import AccountSnapshot from "../api/accountSnapshot";
 import { WalletToken } from "../api/token/walletToken";
 import FakeTokenPricesProvider from "./providers/fakeTokenPricesProvider";
-import FakeTokenBalanceResolver from "./token/fakeTokenBalanceResolver";
+import FakeTokenBalanceResolver from "./fakes/fakeTokenBalanceResolver";
 
 const LINK = {
   address: "0x514910771af9ca656af840dff83e8264ecf986ca",

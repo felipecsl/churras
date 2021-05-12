@@ -1,5 +1,5 @@
-import { Chain } from "../chain";
-import { MetaMaskProvider } from "../api/providers/metamaskProvider";
+import { MetaMaskProvider } from "../../api/providers/metamaskProvider";
+import { Chain } from "../../chain";
 
 export default class FakeMetaMaskProvider implements MetaMaskProvider {
   private readonly accounts: string[];

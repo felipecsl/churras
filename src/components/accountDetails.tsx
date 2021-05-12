@@ -6,12 +6,12 @@ import { format } from "d3-format";
 import _ from "lodash";
 import React from "react";
 import { RouteComponentProps } from "react-router-dom";
-import AccountSnapshot from "../api/accountSnapshot";
 import AccountCacheProvider from "../api/providers/accountCacheProvider";
 import { MetaMaskProvider } from "../api/providers/metamaskProvider";
 import { WalletToken } from "../api/token/walletToken";
 import { addressShorthand, any, isChainSupported, none } from "../api/util";
 import { Chain } from "../chain";
+import { ChurrasApiClient } from "../churrasapiClient";
 import Copy from "../images/copy.svg";
 import TokenTableRow from "./tokenTableRow";
 
@@ -20,9 +20,9 @@ export type RoutePropsParams = { accountAddress: string };
 interface AccountDetailsProps {
   accountCacheProvider: AccountCacheProvider;
   metaMaskProvider: MetaMaskProvider;
-  accountSnapshot: AccountSnapshot;
   route: RouteComponentProps<RoutePropsParams>;
   chain: Chain;
+  apiClient: ChurrasApiClient;
 }
 
 interface AccountDetailsState {
@@ -52,13 +52,13 @@ export default class AccountDetails extends React.Component<
     };
   }
   private async loadAccount(accountAddress: string) {
-    const { accountCacheProvider, accountSnapshot, chain } = this.props;
+    const { accountCacheProvider, chain, apiClient } = this.props;
     if (!isChainSupported(chain)) {
       console.log(`Unsupported chain ${Chain[chain]}`);
       return;
     } else {
       this.setState({ isLoadingTokens: true });
-      const walletTokens = await accountSnapshot.loadAccount(accountAddress);
+      const walletTokens = await apiClient.accountTokens(accountAddress);
       accountCacheProvider.update(accountAddress, walletTokens);
       this.setState({
         walletTokens: walletTokens,
@@ -68,7 +68,7 @@ export default class AccountDetails extends React.Component<
   }
 
   async componentDidMount() {
-    const { accountCacheProvider, accountSnapshot, route } = this.props;
+    const { accountCacheProvider, route, apiClient } = this.props;
     const accountAddress = route.match.params.accountAddress;
     const tokens = accountCacheProvider.get(accountAddress);
     if (none(tokens)) {
@@ -78,10 +78,7 @@ export default class AccountDetails extends React.Component<
     } else {
       // we already have tokens, update the state first and then refresh prices in the background
       this.setState({ walletTokens: tokens });
-      const updatedTokens = await accountSnapshot.refreshTokens(
-        accountAddress,
-        tokens.map(WalletToken.toToken)
-      );
+      const updatedTokens = await apiClient.accountTokens(accountAddress);
       // console.log(await accountSnapshot.loadYieldFarms(accountAddress));
       this.setState({ walletTokens: updatedTokens });
       accountCacheProvider.update(accountAddress, updatedTokens);

@@ -1,26 +1,12 @@
-import { InfuraProvider } from "@ethersproject/providers";
 import React from "react";
 import ReactDOM from "react-dom";
-import AccountSnapshot from "./api/accountSnapshot";
 import App from "./App";
-import { Network } from "./chain";
-import { DEFAULT_BSC_PROVIDER, INFURA_API_KEY } from "./constants";
 import "./index.css";
 import reportWebVitals from "./reportWebVitals";
-import TokenBalanceResolver from "./api/token/tokenBalanceResolver";
 
-const ethereumProvider = InfuraProvider.getWebSocketProvider(
-  "homestead",
-  INFURA_API_KEY
-);
-const tokenBalanceResolver = new TokenBalanceResolver({
-  [Network[Network.ETHEREUM]]: ethereumProvider,
-  [Network[Network.BSC]]: DEFAULT_BSC_PROVIDER,
-});
-const accountSnapshot = new AccountSnapshot({ tokenBalanceResolver });
 ReactDOM.render(
   <React.StrictMode>
-    <App accountSnapshot={accountSnapshot} />
+    <App />
   </React.StrictMode>,
   document.getElementById("root")
 );

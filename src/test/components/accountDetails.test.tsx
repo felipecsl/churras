@@ -9,11 +9,12 @@ import AccountDetails, {
 } from "../../components/accountDetails";
 import AccountCacheProvider from "../../api/providers/accountCacheProvider";
 import Token from "../../api/token/token";
-import FakeMetaMaskProvider from "../fakeMetaMaskProvider";
+import FakeMetaMaskProvider from "../fakes/fakeMetaMaskProvider";
 import "../matchMedia";
 import FakeTokenPricesProvider from "../providers/fakeTokenPricesProvider";
 import { flushPromises } from "../testUtil";
-import FakeTokenBalanceResolver from "../token/fakeTokenBalanceResolver";
+import FakeTokenBalanceResolver from "../fakes/fakeTokenBalanceResolver";
+import FakeChurrasApiClient from "../fakes/fakeChurrasApiClient";
 
 test("Caches wallet address and tokens with accountCacheProvider", async () => {
   const accountCacheProvider = new AccountCacheProvider();
@@ -40,6 +41,7 @@ test("Caches wallet address and tokens with accountCacheProvider", async () => {
     tokenBalanceResolver,
     ethBnbPriceFetcher,
   });
+  const fakeApiClient = new FakeChurrasApiClient(accountSnapshot);
   const route = {
     match: {
       params: {
@@ -49,7 +51,7 @@ test("Caches wallet address and tokens with accountCacheProvider", async () => {
   } as RouteComponentProps<RoutePropsParams>;
   render(
     <AccountDetails
-      accountSnapshot={accountSnapshot}
+      apiClient={fakeApiClient}
       accountCacheProvider={accountCacheProvider}
       metaMaskProvider={fakeMetaMaskProvider}
       chain={Chain.ETHEREUM_MAINNET}
@@ -100,7 +102,7 @@ test("Caches wallet address and tokens with accountCacheProvider", async () => {
   // re-render component, this time from cached data
   render(
     <AccountDetails
-      accountSnapshot={accountSnapshot}
+      apiClient={fakeApiClient}
       accountCacheProvider={accountCacheProvider}
       metaMaskProvider={fakeMetaMaskProvider}
       chain={Chain.ETHEREUM_MAINNET}

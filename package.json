@@ -117,7 +117,7 @@
     "server:build": "tsc --resolveJsonModule --outDir build src/server/server.ts",
     "api:build": "tsc --lib es2019 --esModuleInterop --outDir build src/api/apiServer.ts",
     "server:run": "node build/server/server.js",
-    "api:run": "node build/api/apiServer.js | ./node_modules/.bin/pino-pretty | tee api.log",
+    "api:run": "node build/api/apiServer.js | ./node_modules/.bin/pino-pretty | tee -a api.log",
     "test": "yarn run jest"
   },
   "homepage": "https://churras.org",
