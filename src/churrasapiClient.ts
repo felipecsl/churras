@@ -1,6 +1,6 @@
 import { WalletToken } from "./api/token/walletToken";
 import { ensure, fetchJson } from "./api/util";
-import { DEV_API_PORT } from "./constants";
+import { DEV_API_PORT, PROD_API_HOSTNAME } from "./constants";
 
 export interface ChurrasApiClient {
   accountTokens(accountAddress: string): Promise<WalletToken[]>;
@@ -18,7 +18,7 @@ export default class DefaultChurrasApiClient {
     const env = hostname === "churras.org" ? "production" : "development";
     const isProduction = env === "production";
     const apiPort = isProduction ? "" : `:${DEV_API_PORT}`;
-    const apiHost = isProduction ? "api.churras.org" : hostname;
+    const apiHost = isProduction ? PROD_API_HOSTNAME : hostname;
     const protocol = location.protocol;
     this.apiBaseUrl = `${protocol}//${apiHost}${apiPort}`;
   }

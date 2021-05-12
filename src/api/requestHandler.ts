@@ -5,7 +5,11 @@ import fs from "fs";
 import http from "http";
 import https from "https";
 import { Logger } from "pino";
-import { DEV_API_PORT, DEV_FRONTEND_PORT } from "../constants";
+import {
+  DEV_API_PORT,
+  DEV_FRONTEND_PORT,
+  PROD_API_HOSTNAME,
+} from "../constants";
 import AccountSnapshot from "./accountSnapshot";
 
 export interface HandlerConfig {
@@ -36,7 +40,7 @@ export default class RequestHandler {
     this.allowedOrigins =
       config.env === "development"
         ? `http://localhost:${DEV_FRONTEND_PORT}`
-        : `https://stocks.dog`;
+        : `https://churras.org`;
 
     app.get(
       "/address/:address/tokens",
@@ -89,15 +93,15 @@ export default class RequestHandler {
 
   private setupServerCreds(): { key: string; cert: string; ca: string } {
     const privateKey = fs.readFileSync(
-      "/etc/letsencrypt/live/api.churras.org/privkey.pem",
+      `/etc/letsencrypt/live/${PROD_API_HOSTNAME}/privkey.pem`,
       "utf8"
     );
     const certificate = fs.readFileSync(
-      "/etc/letsencrypt/live/api.churras.org/cert.pem",
+      `/etc/letsencrypt/live/${PROD_API_HOSTNAME}/cert.pem`,
       "utf8"
     );
     const ca = fs.readFileSync(
-      "/etc/letsencrypt/live/api.churras.org/chain.pem",
+      `/etc/letsencrypt/live/${PROD_API_HOSTNAME}/chain.pem`,
       "utf8"
     );
     return {
