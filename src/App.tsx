@@ -11,6 +11,7 @@ import DefaultMetaMaskProvider, {
   MetaMaskProvider,
 } from "./api/providers/metamaskProvider";
 import { navigateTo } from "./browserUtil";
+import DefaultChurrasApiClient from "./churrasapiClient";
 
 interface AppState {
   chain: number;
@@ -95,6 +96,7 @@ class App extends React.Component<AppProps, AppState> {
                       path="/address/:accountAddress"
                       render={(props) => (
                         <AccountDetails
+                          apiClient={new DefaultChurrasApiClient()}
                           metaMaskProvider={metaMaskProvider}
                           accountCacheProvider={accountCacheProvider}
                           route={props}
