@@ -1,15 +1,16 @@
 import { utils } from "ethers";
 import { Express } from "express";
 import asyncHandler from "express-async-handler";
+import fs from "fs";
+import http from "http";
+import https from "https";
 import { Logger } from "pino";
-import { DEV_API_PORT } from "../constants";
+import { DEV_API_PORT, DEV_FRONTEND_PORT } from "../constants";
 import AccountSnapshot from "./accountSnapshot";
 
 export interface HandlerConfig {
-  port: number;
+  devApiPort: number;
   env: string;
-  address: string;
-  protocol: string;
 }
 
 export default class RequestHandler {
@@ -24,10 +25,8 @@ export default class RequestHandler {
     accountSnapshot: AccountSnapshot,
     logger: Logger,
     config: HandlerConfig = {
-      port: +(process.env.NODE_PORT || DEV_API_PORT),
+      devApiPort: +(process.env.NODE_PORT || DEV_API_PORT),
       env: process.env.NODE_ENV || "development",
-      protocol: "http", // TODO https in prod
-      address: process.env.NODE_ADDR || "127.0.0.1",
     }
   ) {
     this.app = app;
@@ -36,8 +35,8 @@ export default class RequestHandler {
     this.config = config;
     this.allowedOrigins =
       config.env === "development"
-        ? `http://localhost:3000`
-        : `${config.protocol}://stocks.dog`;
+        ? `http://localhost:${DEV_FRONTEND_PORT}`
+        : `https://stocks.dog`;
 
     app.get(
       "/address/:address/tokens",
@@ -75,11 +74,36 @@ export default class RequestHandler {
   }
 
   start() {
-    const { port, address, env, protocol } = this.config;
+    const { devApiPort: devPort, env } = this.config;
+    const { app } = this;
     utils.Logger.setLogLevel(utils.Logger.levels.DEBUG);
-    this.app.listen(port);
-    this.logger.info(
-      `Server starting at ${protocol}://${address}:${port}/ in ${env} mode`
+    const isProduction = env === "production";
+    const port = isProduction ? 443 : devPort;
+    const server = isProduction
+      ? https.createServer(this.setupServerCreds(), app)
+      : http.createServer(app);
+    server.listen(port, () => {
+      this.logger.info(`Server starting on port ${port} in ${env} mode`);
+    });
+  }
+
+  private setupServerCreds(): { key: string; cert: string; ca: string } {
+    const privateKey = fs.readFileSync(
+      "/etc/letsencrypt/live/api.churras.org/privkey.pem",
+      "utf8"
     );
+    const certificate = fs.readFileSync(
+      "/etc/letsencrypt/live/api.churras.org/cert.pem",
+      "utf8"
+    );
+    const ca = fs.readFileSync(
+      "/etc/letsencrypt/live/api.churras.org/chain.pem",
+      "utf8"
+    );
+    return {
+      key: privateKey,
+      cert: certificate,
+      ca: ca,
+    };
   }
 }

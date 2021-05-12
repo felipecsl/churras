@@ -15,11 +15,12 @@ export default class DefaultChurrasApiClient {
       () => ["localhost", "churras.org"].includes(hostname),
       `Unknown hostname ${hostname}`
     );
-    const environment =
-      hostname === "churras.org" ? "production" : "development";
-    const API_PORT = environment === "production" ? 80 : DEV_API_PORT;
+    const env = hostname === "churras.org" ? "production" : "development";
+    const isProduction = env === "production";
+    const apiPort = isProduction ? "" : `:${DEV_API_PORT}`;
+    const apiHost = isProduction ? "api.churras.org" : hostname;
     const protocol = location.protocol;
-    this.apiBaseUrl = `${protocol}//${hostname}:${API_PORT}`;
+    this.apiBaseUrl = `${protocol}//${apiHost}${apiPort}`;
   }
 
   async accountTokens(accountAddress: string): Promise<WalletToken[]> {
