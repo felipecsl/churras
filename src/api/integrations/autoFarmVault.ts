@@ -1,5 +1,11 @@
 import { Provider } from "@ethersproject/providers";
 import { ethers, utils } from "ethers";
+import { Network } from "../../chain";
+import {
+  NetworkProviderFactory,
+  TokenDatabaseFactory,
+  TokenPriceProviderFactory,
+} from "../modulesProvider";
 import TokenPricesProvider from "../providers/tokenPricesProvider";
 import TokenDatabase from "../token/tokenDatabase";
 import { throwError } from "../util";
@@ -40,13 +46,15 @@ export default class AutoFarmVault {
   private readonly bscTokenDatabase: TokenDatabase;
 
   constructor(
-    bscNetworkProvider: Provider,
-    bscTokenPricesProvider: TokenPricesProvider,
-    bscTokenDatabase: TokenDatabase
+    networkProviderFactory: NetworkProviderFactory,
+    tokenPricesProviderFactory: TokenPriceProviderFactory,
+    tokenDatabaseFactory: TokenDatabaseFactory
   ) {
-    this.bscNetworkProvider = bscNetworkProvider;
-    this.bscTokenPricesProvider = bscTokenPricesProvider;
-    this.bscTokenDatabase = bscTokenDatabase;
+    this.bscNetworkProvider = networkProviderFactory(Network[Network.BSC]);
+    this.bscTokenPricesProvider = tokenPricesProviderFactory(
+      Network[Network.BSC]
+    );
+    this.bscTokenDatabase = tokenDatabaseFactory(Network[Network.BSC]);
   }
 
   /** TODO find a way to automatically find all pool ids */
@@ -81,11 +89,8 @@ export default class AutoFarmVault {
   private async gatherPoolInfo(
     lpToken: string
   ): Promise<{ lpTokenPair: string; lpTokenPrice: number }> {
-    const {
-      bscTokenPricesProvider,
-      bscNetworkProvider,
-      bscTokenDatabase,
-    } = this;
+    const { bscTokenPricesProvider, bscNetworkProvider, bscTokenDatabase } =
+      this;
     const lpTokenContract = new ethers.Contract(
       lpToken,
       LP_TOKEN_ABI,

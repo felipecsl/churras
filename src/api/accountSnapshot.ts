@@ -1,45 +1,22 @@
+import debug from "debug";
 import { utils } from "ethers";
 import _ from "lodash";
-import { Network } from "../chain";
-import { DEFAULT_BSC_PROVIDER, DEFAULT_ETHEREUM_PROVIDER } from "../constants";
 import AutoFarmVault, {
   AutoFarmStakedVaultInfo,
 } from "./integrations/autoFarmVault";
 import PancakeswapSyrupPool, {
   PancakeswapSyrupPoolInfo,
 } from "./integrations/pancakswapSyrupPool";
-import BscTokenPricesProvider from "./providers/bscTokenPricesProvider";
-import EthereumTokenPricesProvider from "./providers/ethereumTokenPricesProvider";
-import TokenPricesProvider from "./providers/tokenPricesProvider";
-import EthBnbPriceFetcher from "./token/ethBnbPriceFetcher";
+import {
+  EthBnbPricePair,
+  EthBnbPriceProvider,
+  TokenDatabaseFactory,
+  TokenPriceProviderFactory,
+} from "./modulesProvider";
+import { AccountTokensProvider } from "./providers/accountTokensProvider";
 import Token, { BNB_TOKEN, ETH_TOKEN } from "./token/token";
-import DefaultTokenBalanceResolver, {
-  TokenBalanceResolver,
-} from "./token/tokenBalanceResolver";
-import TokenDatabase from "./token/tokenDatabase";
+import { TokenBalanceResolver } from "./token/tokenBalanceResolver";
 import { WalletToken } from "./token/walletToken";
-
-import debug from "debug";
-
-type EthBnbPricePair = Promise<{ eth: string; bnb: string }>;
-type EthBnbPriceProvider = () => EthBnbPricePair;
-export type TokenPriceProviderFactory = (
-  network: string
-) => TokenPricesProvider;
-export type TokenDatabaseFactory = (network: string) => TokenDatabase;
-
-const DEFAULT_TOKEN_PRICE_PROVIDERS = {
-  [Network[Network.ETHEREUM]]: new EthereumTokenPricesProvider(),
-  [Network[Network.BSC]]: new BscTokenPricesProvider(),
-};
-const DEFAULT_TOKEN_DATABASES = {
-  [Network[Network.ETHEREUM]]: new TokenDatabase(Network.ETHEREUM),
-  [Network[Network.BSC]]: new TokenDatabase(Network.BSC),
-};
-const DEFAULT_TOKEN_BALANCE_RESOLVER = new DefaultTokenBalanceResolver({
-  [Network[Network.ETHEREUM]]: DEFAULT_ETHEREUM_PROVIDER,
-  [Network[Network.BSC]]: DEFAULT_BSC_PROVIDER,
-});
 
 export default class AccountSnapshot {
   private readonly tokenPriceProviderFactory: TokenPriceProviderFactory;
@@ -48,34 +25,33 @@ export default class AccountSnapshot {
   private readonly ethBnbPriceFetcher: EthBnbPriceProvider;
   private readonly autoFarmVault: AutoFarmVault;
   private readonly pancakeswapSyrupPool: PancakeswapSyrupPool;
+  private readonly accountTokensProviders: AccountTokensProvider[];
   private readonly log = debug("churras:accountSnapshot");
 
   constructor({
-    tokenPriceProviderFactory = (network) =>
-      DEFAULT_TOKEN_PRICE_PROVIDERS[network],
-    tokenDatabaseFactory = (network) => DEFAULT_TOKEN_DATABASES[network],
-    tokenBalanceResolver = DEFAULT_TOKEN_BALANCE_RESOLVER,
-    ethBnbPriceFetcher = new EthBnbPriceFetcher().fetchEthBnbPrice,
-    autoFarmVault = new AutoFarmVault(
-      DEFAULT_BSC_PROVIDER,
-      DEFAULT_TOKEN_PRICE_PROVIDERS[Network[Network.BSC]],
-      DEFAULT_TOKEN_DATABASES[Network[Network.BSC]]
-    ),
-    pancakeswapSyrupPool = new PancakeswapSyrupPool(DEFAULT_BSC_PROVIDER),
+    tokenPriceProviderFactory,
+    tokenDatabaseFactory,
+    tokenBalanceResolver,
+    ethBnbPriceFetcher,
+    autoFarmVault,
+    pancakeswapSyrupPool,
+    accountTokensProviders,
   }: {
-    tokenPriceProviderFactory?: TokenPriceProviderFactory;
-    tokenDatabaseFactory?: TokenDatabaseFactory;
-    tokenBalanceResolver?: TokenBalanceResolver;
-    ethBnbPriceFetcher?: () => EthBnbPricePair;
-    autoFarmVault?: AutoFarmVault;
-    pancakeswapSyrupPool?: PancakeswapSyrupPool;
-  } = {}) {
+    tokenPriceProviderFactory: TokenPriceProviderFactory;
+    tokenDatabaseFactory: TokenDatabaseFactory;
+    tokenBalanceResolver: TokenBalanceResolver;
+    ethBnbPriceFetcher: () => EthBnbPricePair;
+    autoFarmVault: AutoFarmVault;
+    pancakeswapSyrupPool: PancakeswapSyrupPool;
+    accountTokensProviders: AccountTokensProvider[];
+  }) {
     this.tokenPriceProviderFactory = tokenPriceProviderFactory;
     this.tokenDatabaseFactory = tokenDatabaseFactory;
     this.tokenBalanceResolver = tokenBalanceResolver;
     this.ethBnbPriceFetcher = ethBnbPriceFetcher;
     this.autoFarmVault = autoFarmVault;
     this.pancakeswapSyrupPool = pancakeswapSyrupPool;
+    this.accountTokensProviders = accountTokensProviders;
   }
 
   private async fetchEthBnbTokens(accountAddress: string): Promise<{
@@ -100,9 +76,10 @@ export default class AccountSnapshot {
 
   /** Returns all the ERC-20 and BEP-20 tokens found for the provided wallet address */
   async loadAccount(accountAddress: string): Promise<WalletToken[]> {
-    // TODO: default token databases is hardcoded here, probably shouldn't be
-    const databases = Object.values(DEFAULT_TOKEN_DATABASES);
-    const tokens = databases.flatMap((db) => db.allTokens());
+    const promises = this.accountTokensProviders.flatMap(
+      async (atp) => await atp.accountTokens(accountAddress)
+    );
+    const tokens = _.flatten(await Promise.all(promises));
     return this.refreshTokens(accountAddress, tokens);
   }
 
@@ -124,7 +101,7 @@ export default class AccountSnapshot {
    * Given an array of `Token`s, update their prices and balances with the latest values from the
    * external * APIs. Returns a new array of WalletTokens with the updated prices/balances.
    */
-  async refreshTokens(
+  private async refreshTokens(
     accountAddress: string,
     tokens: Token[]
   ): Promise<WalletToken[]> {
@@ -163,16 +140,13 @@ export default class AccountSnapshot {
 
   /* Fetch prices for all the provided tokens. Returns a map of Token to price */
   private async fetchTokenPrices(tokens: Token[]): Promise<Map<Token, string>> {
-    const {
-      tokenDatabaseFactory: tokenDatabases,
-      tokenPriceProviderFactory: networkToPriceProviders,
-    } = this;
+    const { tokenDatabaseFactory, tokenPriceProviderFactory } = this;
     // select correct provider and token database based on the tokens network
     const tokensByNetwork = _.groupBy(tokens, (t) => t.network);
     const tokenToPrice = new Map<Token, string>();
     for (const [network, tokens] of Object.entries(tokensByNetwork)) {
-      const priceProvider = networkToPriceProviders(network);
-      const tokenDatabase = tokenDatabases(network);
+      const priceProvider = tokenPriceProviderFactory(network);
+      const tokenDatabase = tokenDatabaseFactory(network);
       const tokenAddresses = tokens.map((t) => t.address);
       const prices = await priceProvider.fetchPrices(tokenAddresses);
       prices.forEach(({ address, price }) => {

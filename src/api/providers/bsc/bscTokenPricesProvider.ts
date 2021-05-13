@@ -1,5 +1,5 @@
-import TokenPricesProvider, { TokenPriceResult } from "./tokenPricesProvider";
-import { fetchJson } from "../util";
+import { fetchJson } from "../../util";
+import TokenPricesProvider, { TokenPriceResult } from "../tokenPricesProvider";
 
 export default class BscTokenPricesProvider implements TokenPricesProvider {
   private readonly apiHost: string;

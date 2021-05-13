@@ -1,7 +1,9 @@
-import AccountSnapshot from "../api/accountSnapshot";
+import ModulesProvider from "../api/modulesProvider";
+import { ALL_ETHEREUM_TOKENS } from "../api/token/ethereumTokenList";
 import { WalletToken } from "../api/token/walletToken";
-import FakeTokenPricesProvider from "./providers/fakeTokenPricesProvider";
+import FakeAccountTokensProvider from "./fakes/fakeAccountTokensProvider";
 import FakeTokenBalanceResolver from "./fakes/fakeTokenBalanceResolver";
+import FakeTokenPricesProvider from "./fakes/fakeTokenPricesProvider";
 
 const LINK = {
   address: "0x514910771af9ca656af840dff83e8264ecf986ca",
@@ -54,50 +56,20 @@ test("fetches token prices", async () => {
       "0xc00e94cb662c3520282e6f5717214004a7f26888": "66.77", // COMP
     });
   const ethBnbPriceFetcher = () => Promise.resolve({ eth: "666", bnb: "333" });
-  const accountSnapshot = new AccountSnapshot({
+  const modulesProvider = new ModulesProvider();
+  const accountTokensProviders = [
+    new FakeAccountTokensProvider(Object.values(ALL_ETHEREUM_TOKENS)),
+  ];
+  const accountSnapshot = modulesProvider.newAccountSnapshot({
     tokenPriceProviderFactory,
-    tokenBalanceResolver,
     ethBnbPriceFetcher,
+    tokenBalanceResolver,
+    accountTokensProviders,
   });
   const tokens = await accountSnapshot.loadAccount("fakeAccount");
   expect(tokens).toEqual([
     new WalletToken(LINK, { balance: 1234, price: 43.21 }),
     new WalletToken(COMP, { balance: 9876, price: 66.77 }),
-    new WalletToken(ETH, { balance: 34.0002323, price: 666 }),
-    new WalletToken(BNB, { balance: 203.02032, price: 333 }),
-  ]);
-});
-
-test("refreshes token prices and balances", async () => {
-  const tokenBalanceResolver = new FakeTokenBalanceResolver(
-    {
-      "0x514910771af9ca656af840dff83e8264ecf986ca": 321, // LINK
-      "0xc00e94cb662c3520282e6f5717214004a7f26888": 123, // COMP
-    },
-    { ethBalance: 34.0002323, bnbBalance: 203.02032 }
-  );
-  const tokenPriceProviderFactory = (_: string) =>
-    new FakeTokenPricesProvider({
-      "0x514910771af9ca656af840dff83e8264ecf986ca": "43.21", // LINK
-      "0xc00e94cb662c3520282e6f5717214004a7f26888": "66.77", // COMP
-    });
-  const ethBnbPriceFetcher = () => Promise.resolve({ eth: "666", bnb: "333" });
-  const accountSnapshot = new AccountSnapshot({
-    tokenPriceProviderFactory,
-    tokenBalanceResolver,
-    ethBnbPriceFetcher,
-  });
-  const walletTokens = [
-    new WalletToken(COMP, { balance: 0.9, price: 0.34 }),
-    new WalletToken(LINK, { balance: 2.1, price: 1.2 }),
-  ];
-  const tokens = await accountSnapshot.refreshTokens(
-    "fakeAccount",
-    walletTokens.map(WalletToken.toToken)
-  );
-  expect(tokens).toEqual([
-    new WalletToken(COMP, { balance: 123, price: 66.77 }),
-    new WalletToken(LINK, { balance: 321, price: 43.21 }),
     new WalletToken(ETH, { balance: 34.0002323, price: 666 }),
     new WalletToken(BNB, { balance: 203.02032, price: 333 }),
   ]);
