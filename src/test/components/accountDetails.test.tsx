@@ -2,19 +2,21 @@ import { render } from "@testing-library/react";
 import React from "react";
 import { RouteComponentProps } from "react-router";
 import { match } from "react-router-dom";
-import AccountSnapshot from "../../api/accountSnapshot";
+import ModulesProvider from "../../api/modulesProvider";
+import AccountCacheProvider from "../../api/providers/accountCacheProvider";
+import { ALL_ETHEREUM_TOKENS } from "../../api/token/ethereumTokenList";
+import Token from "../../api/token/token";
 import { Chain } from "../../chain";
 import AccountDetails, {
   RoutePropsParams,
 } from "../../components/accountDetails";
-import AccountCacheProvider from "../../api/providers/accountCacheProvider";
-import Token from "../../api/token/token";
-import FakeMetaMaskProvider from "../fakes/fakeMetaMaskProvider";
-import "../matchMedia";
-import FakeTokenPricesProvider from "../providers/fakeTokenPricesProvider";
-import { flushPromises } from "../testUtil";
-import FakeTokenBalanceResolver from "../fakes/fakeTokenBalanceResolver";
+import FakeAccountTokensProvider from "../fakes/fakeAccountTokensProvider";
 import FakeChurrasApiClient from "../fakes/fakeChurrasApiClient";
+import FakeMetaMaskProvider from "../fakes/fakeMetaMaskProvider";
+import FakeTokenBalanceResolver from "../fakes/fakeTokenBalanceResolver";
+import FakeTokenPricesProvider from "../fakes/fakeTokenPricesProvider";
+import "../matchMedia";
+import { flushPromises } from "../testUtil";
 
 test("Caches wallet address and tokens with accountCacheProvider", async () => {
   const accountCacheProvider = new AccountCacheProvider();
@@ -36,10 +38,15 @@ test("Caches wallet address and tokens with accountCacheProvider", async () => {
   const tokenPriceProviderFactory = (_: string) =>
     new FakeTokenPricesProvider({ [token.address]: "43.21" });
   const ethBnbPriceFetcher = () => Promise.resolve({ eth: "666", bnb: "333" });
-  const accountSnapshot = new AccountSnapshot({
+  const accountTokensProviders = [
+    new FakeAccountTokensProvider(Object.values(ALL_ETHEREUM_TOKENS)),
+  ];
+  const modulesProvider = new ModulesProvider();
+  const accountSnapshot = modulesProvider.newAccountSnapshot({
     tokenPriceProviderFactory,
-    tokenBalanceResolver,
     ethBnbPriceFetcher,
+    tokenBalanceResolver,
+    accountTokensProviders,
   });
   const fakeApiClient = new FakeChurrasApiClient(accountSnapshot);
   const route = {

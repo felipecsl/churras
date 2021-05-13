@@ -6,6 +6,7 @@ import { DEFAULT_BSC_PROVIDER, DEFAULT_ETHEREUM_PROVIDER } from "../constants";
 import AccountSnapshot from "./accountSnapshot";
 import AutoFarmVault from "./integrations/autoFarmVault";
 import PancakeswapSyrupPool from "./integrations/pancakswapSyrupPool";
+import { AccountTokensProvider } from "./providers/accountTokensProvider";
 import BscAccountTokensProvider from "./providers/bsc/bscAccountTokensProvider";
 import BscTokenPricesProvider from "./providers/bsc/bscTokenPricesProvider";
 import EthereumAccountTokensProvider from "./providers/ethereum/ethereumAccountTokensProvider";
@@ -13,7 +14,9 @@ import EthereumTokenPricesProvider from "./providers/ethereum/ethereumTokenPrice
 import TokenPricesProvider from "./providers/tokenPricesProvider";
 import RequestHandler from "./requestHandler";
 import EthBnbPriceFetcher from "./token/ethBnbPriceFetcher";
-import DefaultTokenBalanceResolver from "./token/tokenBalanceResolver";
+import DefaultTokenBalanceResolver, {
+  TokenBalanceResolver,
+} from "./token/tokenBalanceResolver";
 import TokenDatabase from "./token/tokenDatabase";
 
 export type EthBnbPricePair = Promise<{ eth: string; bnb: string }>;
@@ -46,23 +49,21 @@ const DEFAULT_NETWORK_PROVIDER_FACTORY = (network: string) =>
 
 /* Boring dependency graph/injection glue code */
 export default class ModulesProvider {
-  private readonly tokenPriceProviderFactory =
-    DEFAULT_TOKEN_PRICE_PROVIDER_FACTORY;
-  private readonly tokenDatabaseFactory = DEFAULT_TOKEN_DATABASE_FACTORY;
-  private readonly tokenBalanceResolver = new DefaultTokenBalanceResolver(
+  readonly tokenPriceProviderFactory = DEFAULT_TOKEN_PRICE_PROVIDER_FACTORY;
+  readonly tokenDatabaseFactory = DEFAULT_TOKEN_DATABASE_FACTORY;
+  readonly tokenBalanceResolver = new DefaultTokenBalanceResolver(
     DEFAULT_NETWORK_PROVIDER_FACTORY
   );
-  private readonly ethBnbPriceFetcher = new EthBnbPriceFetcher()
-    .fetchEthBnbPrice;
-  private readonly autoFarmVault = new AutoFarmVault(
+  readonly ethBnbPriceFetcher = new EthBnbPriceFetcher().fetchEthBnbPrice;
+  readonly autoFarmVault = new AutoFarmVault(
     DEFAULT_NETWORK_PROVIDER_FACTORY,
     DEFAULT_TOKEN_PRICE_PROVIDER_FACTORY,
     DEFAULT_TOKEN_DATABASE_FACTORY
   );
-  private readonly pancakeswapSyrupPool = new PancakeswapSyrupPool(
+  readonly pancakeswapSyrupPool = new PancakeswapSyrupPool(
     DEFAULT_NETWORK_PROVIDER_FACTORY
   );
-  private readonly accountTokensProviders = [
+  readonly accountTokensProviders = [
     new EthereumAccountTokensProvider(
       DEFAULT_TOKEN_DATABASE_FACTORY,
       DEFAULT_NETWORK_PROVIDER_FACTORY
@@ -70,16 +71,23 @@ export default class ModulesProvider {
     new BscAccountTokensProvider(DEFAULT_TOKEN_DATABASE_FACTORY),
   ];
 
-  private newAccountSnapshot(): AccountSnapshot {
-    const {
-      tokenBalanceResolver,
-      ethBnbPriceFetcher,
-      tokenPriceProviderFactory,
-      tokenDatabaseFactory,
-      autoFarmVault,
-      pancakeswapSyrupPool,
-      accountTokensProviders,
-    } = this;
+  newAccountSnapshot({
+    tokenPriceProviderFactory = this.tokenPriceProviderFactory,
+    tokenDatabaseFactory = this.tokenDatabaseFactory,
+    tokenBalanceResolver = this.tokenBalanceResolver,
+    ethBnbPriceFetcher = this.ethBnbPriceFetcher,
+    autoFarmVault = this.autoFarmVault,
+    pancakeswapSyrupPool = this.pancakeswapSyrupPool,
+    accountTokensProviders = this.accountTokensProviders,
+  }: {
+    tokenPriceProviderFactory?: TokenPriceProviderFactory;
+    tokenDatabaseFactory?: TokenDatabaseFactory;
+    tokenBalanceResolver?: TokenBalanceResolver;
+    ethBnbPriceFetcher?: () => EthBnbPricePair;
+    autoFarmVault?: AutoFarmVault;
+    pancakeswapSyrupPool?: PancakeswapSyrupPool;
+    accountTokensProviders?: AccountTokensProvider[];
+  } = {}): AccountSnapshot {
     return new AccountSnapshot({
       tokenBalanceResolver,
       ethBnbPriceFetcher,

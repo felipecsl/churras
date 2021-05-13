@@ -2,8 +2,9 @@ import { Network } from "../../../chain";
 import { TokenDatabaseFactory } from "../../modulesProvider";
 import Token from "../../token/token";
 import TokenDatabase from "../../token/tokenDatabase";
+import { AccountTokensProvider } from "../accountTokensProvider";
 
-export default class BscAccountTokensProvider {
+export default class BscAccountTokensProvider implements AccountTokensProvider {
   private readonly tokenDatabase: TokenDatabase;
 
   constructor(tokenDatabaseFactory: TokenDatabaseFactory) {

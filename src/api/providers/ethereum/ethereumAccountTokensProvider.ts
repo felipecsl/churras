@@ -8,8 +8,11 @@ import {
 } from "../../modulesProvider";
 import Token from "../../token/token";
 import TokenDatabase from "../../token/tokenDatabase";
+import { AccountTokensProvider } from "../accountTokensProvider";
 
-export default class EthereumAccountTokensProvider {
+export default class EthereumAccountTokensProvider
+  implements AccountTokensProvider
+{
   private readonly tokenDatabase: TokenDatabase;
   private readonly ethereumProvider: BaseProvider;
 
