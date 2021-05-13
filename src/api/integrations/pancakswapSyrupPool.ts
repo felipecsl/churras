@@ -1,5 +1,7 @@
 import { Provider } from "@ethersproject/providers";
 import { ethers, utils } from "ethers";
+import { Network } from "../../chain";
+import { NetworkProviderFactory } from "../modulesProvider";
 
 export interface PancakeswapSyrupPoolInfo {
   staked: number;
@@ -9,8 +11,8 @@ export interface PancakeswapSyrupPoolInfo {
 export default class PancakeswapSyrupPool {
   private readonly bscNetworkProvider: Provider;
 
-  constructor(bscNetworkProvider: Provider) {
-    this.bscNetworkProvider = bscNetworkProvider;
+  constructor(networkProviderFactory: NetworkProviderFactory) {
+    this.bscNetworkProvider = networkProviderFactory(Network[Network.BSC]);
   }
 
   async poolInfo(accountAddress: string): Promise<PancakeswapSyrupPoolInfo> {

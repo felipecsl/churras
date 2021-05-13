@@ -1,8 +1,9 @@
-import { fetchJson } from "../util";
-import TokenPricesProvider, { TokenPriceResult } from "./tokenPricesProvider";
+import { fetchJson } from "../../util";
+import TokenPricesProvider, { TokenPriceResult } from "../tokenPricesProvider";
 
 export default class EthereumTokenPricesProvider
-  implements TokenPricesProvider {
+  implements TokenPricesProvider
+{
   private readonly apiHost: string;
 
   constructor(apiHost: string = "https://api.coingecko.com") {

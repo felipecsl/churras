@@ -1,6 +1,7 @@
 import { Provider } from "@ethersproject/providers";
 import { BigNumber, ethers, utils } from "ethers";
 import { Network } from "../../chain";
+import { NetworkProviderFactory } from "../modulesProvider";
 import { ensureValue } from "../util";
 import Token from "./token";
 
@@ -14,11 +15,12 @@ export interface TokenBalanceResolver {
 }
 
 export default class DefaultTokenBalanceResolver
-  implements TokenBalanceResolver {
-  private readonly networkProviders: Record<string, Provider>;
+  implements TokenBalanceResolver
+{
+  private readonly networkProviderFactory: NetworkProviderFactory;
 
-  constructor(networkProviders: Record<string, Provider>) {
-    this.networkProviders = networkProviders;
+  constructor(networkProviderFactory: NetworkProviderFactory) {
+    this.networkProviderFactory = networkProviderFactory;
   }
 
   async resolveBalance(
@@ -28,7 +30,7 @@ export default class DefaultTokenBalanceResolver
     const tokenAddress = token.address;
     const abi = ["function balanceOf(address owner) view returns (uint256)"];
     const provider = ensureValue(
-      this.networkProviders[token.network],
+      this.networkProviderFactory(token.network),
       `Provider not found for network ${token.network}`
     );
     const contract = new ethers.Contract(tokenAddress, abi, provider);
@@ -38,7 +40,7 @@ export default class DefaultTokenBalanceResolver
 
   async ethBalance(accountAddress: string): Promise<number> {
     const balance = await this.balanceOf(
-      this.networkProviders[Network[Network.ETHEREUM]],
+      this.networkProviderFactory(Network[Network.ETHEREUM]),
       accountAddress
     );
     return +utils.formatEther(balance);
@@ -46,7 +48,7 @@ export default class DefaultTokenBalanceResolver
 
   async bnbBalance(accountAddress: string): Promise<number> {
     const balance = await this.balanceOf(
-      this.networkProviders[Network[Network.BSC]],
+      this.networkProviderFactory(Network[Network.BSC]),
       accountAddress
     );
     return +utils.formatEther(balance);
