@@ -60,13 +60,13 @@ test("fetches token prices", async () => {
   const accountTokensProviders = [
     new FakeAccountTokensProvider(Object.values(ALL_ETHEREUM_TOKENS)),
   ];
-  const accountSnapshot = modulesProvider.newAccountTokensSnapshot({
+  const accountTokensSnapshot = modulesProvider.newAccountTokensSnapshot({
     tokenPriceProviderFactory,
     ethBnbPriceFetcher,
     tokenBalanceResolver,
     accountTokensProviders,
   });
-  const tokens = await accountSnapshot.loadAccount("fakeAccount");
+  const tokens = await accountTokensSnapshot.loadAccount("fakeAccount");
   expect(tokens).toEqual([
     new WalletToken(LINK, { balance: 1234, price: 43.21 }),
     new WalletToken(COMP, { balance: 9876, price: 66.77 }),
