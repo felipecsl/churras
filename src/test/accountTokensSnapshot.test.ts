@@ -1,6 +1,8 @@
 import ModulesProvider from "../api/modulesProvider";
 import { ALL_ETHEREUM_TOKENS } from "../api/token/ethereumTokenList";
+import TokenDatabase from "../api/token/tokenDatabase";
 import { WalletToken } from "../api/token/walletToken";
+import { Network } from "../chain";
 import FakeAccountTokensProvider from "./fakes/fakeAccountTokensProvider";
 import FakeTokenBalanceResolver from "./fakes/fakeTokenBalanceResolver";
 import FakeTokenPricesProvider from "./fakes/fakeTokenPricesProvider";
@@ -51,9 +53,9 @@ test("fetches token prices", async () => {
     { ethBalance: 34.0002323, bnbBalance: 203.02032 }
   );
   const tokenPriceProviderFactory = (_: string) =>
-    new FakeTokenPricesProvider({
-      "0x514910771af9ca656af840dff83e8264ecf986ca": "43.21", // LINK
-      "0xc00e94cb662c3520282e6f5717214004a7f26888": "66.77", // COMP
+    new FakeTokenPricesProvider(new TokenDatabase(Network.ETHEREUM), {
+      "0x514910771af9ca656af840dff83e8264ecf986ca": 43.21, // LINK
+      "0xc00e94cb662c3520282e6f5717214004a7f26888": 66.77, // COMP
     });
   const ethBnbPriceFetcher = () => Promise.resolve({ eth: "666", bnb: "333" });
   const modulesProvider = new ModulesProvider();

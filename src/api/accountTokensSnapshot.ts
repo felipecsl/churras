@@ -105,7 +105,7 @@ export default class AccountTokensSnapshot {
     const updatedTokens = positiveBalances.map(({ token, balance }) => {
       // We cannot simply call `tokenPrices.get(token)` here because the key equality check will fail.
       // Instead, using `isEqual()` will perform a deep comparison (similarly to how Kotlin data classes work)
-      const price = +(findTokenPrice((t) => _.isEqual(t, token)) as string);
+      const price = +(findTokenPrice((t) => _.isEqual(t, token)) as number);
       return new WalletToken(token, { balance, price });
     });
     const ethBnbTokens = await this.fetchEthBnbTokens(accountAddress);
@@ -113,11 +113,11 @@ export default class AccountTokensSnapshot {
   }
 
   /* Fetch prices for all the provided tokens. Returns a map of Token to price */
-  private async fetchTokenPrices(tokens: Token[]): Promise<Map<Token, string>> {
+  private async fetchTokenPrices(tokens: Token[]): Promise<Map<Token, number>> {
     const { tokenDatabaseFactory, tokenPriceProviderFactory } = this;
     // select correct provider and token database based on the tokens network
     const tokensByNetwork = _.groupBy(tokens, (t) => t.network);
-    const tokenToPrice = new Map<Token, string>();
+    const tokenToPrice = new Map<Token, number>();
     for (const [network, tokens] of Object.entries(tokensByNetwork)) {
       const priceProvider = tokenPriceProviderFactory(network);
       const tokenDatabase = tokenDatabaseFactory(network);

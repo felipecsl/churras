@@ -1,10 +1,16 @@
+import { Network } from "../../../chain";
+import { TokenDatabaseFactory } from "../../modulesProvider";
 import { fetchJson } from "../../util";
 import TokenPricesProvider, { TokenPriceResult } from "../tokenPricesProvider";
 
-export default class BscTokenPricesProvider implements TokenPricesProvider {
+export default class BscTokenPricesProvider extends TokenPricesProvider {
   private readonly apiHost: string;
 
-  constructor(apiHost: string = "https://api.pancakeswap.info") {
+  constructor(
+    tokenDatabaseFactory: TokenDatabaseFactory,
+    apiHost: string = "https://api.pancakeswap.info"
+  ) {
+    super(tokenDatabaseFactory(Network[Network.BSC]));
     this.apiHost = apiHost;
   }
 

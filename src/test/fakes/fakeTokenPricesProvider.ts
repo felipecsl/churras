@@ -1,11 +1,16 @@
 import TokenPricesProvider, {
   TokenPriceResult,
 } from "../../api/providers/tokenPricesProvider";
+import TokenDatabase from "../../api/token/tokenDatabase";
 
-export default class FakeTokenPricesProvider implements TokenPricesProvider {
-  private readonly addressToPrice: Record<string, string>;
+export default class FakeTokenPricesProvider extends TokenPricesProvider {
+  private readonly addressToPrice: Record<string, number>;
 
-  constructor(addressToPrice: Record<string, string>) {
+  constructor(
+    tokenDatabase: TokenDatabase,
+    addressToPrice: Record<string, number>
+  ) {
+    super(tokenDatabase);
     this.addressToPrice = addressToPrice;
   }
 

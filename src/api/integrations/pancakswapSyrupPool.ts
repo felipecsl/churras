@@ -3,11 +3,9 @@ import { ethers, utils } from "ethers";
 import { Network } from "../../chain";
 import {
   NetworkProviderFactory,
-  TokenDatabaseFactory,
   TokenPriceProviderFactory,
 } from "../modulesProvider";
 import TokenPricesProvider from "../providers/tokenPricesProvider";
-import TokenDatabase from "../token/tokenDatabase";
 import { throwError } from "../util";
 
 const CAKE_AUTOCOMPOUNDING_POOL_CONTRACT_ADDRESS =
@@ -21,24 +19,21 @@ export interface PancakeswapSyrupPoolInfo {
 export default class PancakeswapSyrupPool {
   private readonly bscNetworkProvider: Provider;
   private readonly bscTokenPricesProvider: TokenPricesProvider;
-  private readonly bscTokenDatabase: TokenDatabase;
 
   constructor(
     networkProviderFactory: NetworkProviderFactory,
-    tokenPricesProviderFactory: TokenPriceProviderFactory,
-    tokenDatabaseFactory: TokenDatabaseFactory
+    tokenPricesProviderFactory: TokenPriceProviderFactory
   ) {
     this.bscNetworkProvider = networkProviderFactory(Network[Network.BSC]);
     this.bscTokenPricesProvider = tokenPricesProviderFactory(
       Network[Network.BSC]
     );
-    this.bscTokenDatabase = tokenDatabaseFactory(Network[Network.BSC]);
   }
 
+  /* Currently only supports the Cake autocompounding pool */
   async poolInfo(accountAddress: string): Promise<PancakeswapSyrupPoolInfo> {
     const {
       bscNetworkProvider: provider,
-      bscTokenDatabase: tokenDatabase,
       bscTokenPricesProvider: tokenPricesProvider,
     } = this;
     // struct UserInfo {
@@ -67,11 +62,9 @@ export default class PancakeswapSyrupPool {
     const staked =
       (shares * +utils.formatEther(balanceOf)) /
       +utils.formatEther(totalShares);
-    const cakeAddress = tokenDatabase.findBySymbolOrThrow("Cake").address;
     const cakePrice =
-      (await tokenPricesProvider.fetchPrices([cakeAddress])).map(
-        (r) => r.price
-      )[0] ?? throwError("Cannot determine CAKE token price");
+      (await tokenPricesProvider.fetchPriceBySymbol("Cake")) ??
+      throwError("Cannot determine CAKE token price");
     const totalDeposit = staked * +cakePrice;
     return { staked, totalDeposit };
   }

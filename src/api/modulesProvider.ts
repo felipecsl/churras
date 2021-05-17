@@ -28,10 +28,6 @@ export type TokenPriceProviderFactory = (
 export type TokenDatabaseFactory = (network: string) => TokenDatabase;
 export type NetworkProviderFactory = (network: string) => BaseProvider;
 
-const DEFAULT_TOKEN_PRICE_PROVIDERS = {
-  [Network[Network.ETHEREUM]]: new EthereumTokenPricesProvider(),
-  [Network[Network.BSC]]: new BscTokenPricesProvider(),
-};
 const DEFAULT_TOKEN_DATABASES = {
   [Network[Network.ETHEREUM]]: new TokenDatabase(Network.ETHEREUM),
   [Network[Network.BSC]]: new TokenDatabase(Network.BSC),
@@ -43,6 +39,15 @@ const DEFAULT_NETWORK_PROVIDERS = {
 
 const DEFAULT_TOKEN_DATABASE_FACTORY = (network: string) =>
   DEFAULT_TOKEN_DATABASES[network];
+
+const DEFAULT_TOKEN_PRICE_PROVIDERS = {
+  [Network[Network.ETHEREUM]]: new EthereumTokenPricesProvider(
+    DEFAULT_TOKEN_DATABASE_FACTORY
+  ),
+  [Network[Network.BSC]]: new BscTokenPricesProvider(
+    DEFAULT_TOKEN_DATABASE_FACTORY
+  ),
+};
 const DEFAULT_TOKEN_PRICE_PROVIDER_FACTORY = (network: string) =>
   DEFAULT_TOKEN_PRICE_PROVIDERS[network];
 const DEFAULT_NETWORK_PROVIDER_FACTORY = (network: string) =>
@@ -63,8 +68,7 @@ export default class ModulesProvider {
   );
   readonly pancakeswapSyrupPool = new PancakeswapSyrupPool(
     DEFAULT_NETWORK_PROVIDER_FACTORY,
-    DEFAULT_TOKEN_PRICE_PROVIDER_FACTORY,
-    DEFAULT_TOKEN_DATABASE_FACTORY
+    DEFAULT_TOKEN_PRICE_PROVIDER_FACTORY
   );
   readonly accountTokensProviders = [
     new EthereumAccountTokensProvider(

@@ -1,12 +1,16 @@
+import { Network } from "../../../chain";
+import { TokenDatabaseFactory } from "../../modulesProvider";
 import { fetchJson } from "../../util";
 import TokenPricesProvider, { TokenPriceResult } from "../tokenPricesProvider";
 
-export default class EthereumTokenPricesProvider
-  implements TokenPricesProvider
-{
+export default class EthereumTokenPricesProvider extends TokenPricesProvider {
   private readonly apiHost: string;
 
-  constructor(apiHost: string = "https://api.coingecko.com") {
+  constructor(
+    tokenDatabaseFactory: TokenDatabaseFactory,
+    apiHost: string = "https://api.coingecko.com"
+  ) {
+    super(tokenDatabaseFactory(Network[Network.ETHEREUM]));
     this.apiHost = apiHost;
   }
 
