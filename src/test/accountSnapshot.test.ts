@@ -60,7 +60,7 @@ test("fetches token prices", async () => {
   const accountTokensProviders = [
     new FakeAccountTokensProvider(Object.values(ALL_ETHEREUM_TOKENS)),
   ];
-  const accountSnapshot = modulesProvider.newAccountSnapshot({
+  const accountSnapshot = modulesProvider.newAccountTokensSnapshot({
     tokenPriceProviderFactory,
     ethBnbPriceFetcher,
     tokenBalanceResolver,

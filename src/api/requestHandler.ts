@@ -1,5 +1,5 @@
 import { utils } from "ethers";
-import { Express } from "express";
+import { Express, Request, Response } from "express";
 import asyncHandler from "express-async-handler";
 import fs from "fs";
 import http from "http";
@@ -10,7 +10,8 @@ import {
   DEV_FRONTEND_PORT,
   PROD_API_HOSTNAME,
 } from "../constants";
-import AccountSnapshot from "./accountSnapshot";
+import AccountFarmsSnapshot from "./accountFarmsSnapshot";
+import AccountTokensSnapshot from "./accountTokensSnapshot";
 
 export interface HandlerConfig {
   devApiPort: number;
@@ -20,13 +21,15 @@ export interface HandlerConfig {
 export default class RequestHandler {
   private readonly app: Express;
   private readonly logger: Logger;
-  private readonly accountSnapshot: AccountSnapshot;
+  private readonly accountTokensSnapshot: AccountTokensSnapshot;
+  private readonly accountFarmsSnapshot: AccountFarmsSnapshot;
   private readonly config: HandlerConfig;
   private readonly allowedOrigins: string;
 
   constructor(
     app: Express,
-    accountSnapshot: AccountSnapshot,
+    accountTokensSnapshot: AccountTokensSnapshot,
+    accountFarmsSnapshot: AccountFarmsSnapshot,
     logger: Logger,
     config: HandlerConfig = {
       devApiPort: +(process.env.NODE_PORT || DEV_API_PORT),
@@ -35,7 +38,8 @@ export default class RequestHandler {
   ) {
     this.app = app;
     this.logger = logger;
-    this.accountSnapshot = accountSnapshot;
+    this.accountTokensSnapshot = accountTokensSnapshot;
+    this.accountFarmsSnapshot = accountFarmsSnapshot;
     this.config = config;
     this.allowedOrigins =
       config.env === "development"
@@ -45,6 +49,11 @@ export default class RequestHandler {
     app.get(
       "/address/:address/tokens",
       asyncHandler(this.accountTokensHandler.bind(this))
+    );
+
+    app.get(
+      "/address/:address/farms",
+      asyncHandler(this.accountYieldFarmingHandler.bind(this))
     );
   }
 
@@ -69,12 +78,24 @@ export default class RequestHandler {
     });
   }
 
-  private async accountTokensHandler(req: any, res: any, next: any) {
+  private async accountTokensHandler(req: any, res: any) {
     const address = req.params.address;
-    this.logger.debug(`Serving GET /address/${address}/tokens`);
-    const tokens = await this.accountSnapshot.loadAccount(address);
-    res.append("Access-Control-Allow-Origin", this.allowedOrigins);
+    this.logger.debug(`Serving ${req.method} ${req.url}`);
+    const tokens = await this.accountTokensSnapshot.loadAccount(address);
+    this.appendHeaders(res);
     res.send(tokens);
+  }
+
+  private async accountYieldFarmingHandler(req: Request, res: any) {
+    const address = req.params.address;
+    this.logger.debug(`Serving ${req.method} ${req.url}`);
+    const yieldFarms = await this.accountFarmsSnapshot.loadYieldFarms(address);
+    this.appendHeaders(res);
+    res.send(yieldFarms);
+  }
+
+  private appendHeaders(res: Response) {
+    res.append("Access-Control-Allow-Origin", this.allowedOrigins);
   }
 
   start() {
@@ -84,14 +105,14 @@ export default class RequestHandler {
     const isProduction = env === "production";
     const port = isProduction ? 443 : devPort;
     const server = isProduction
-      ? https.createServer(this.setupServerCreds(), app)
+      ? https.createServer(RequestHandler.setupServerCreds(), app)
       : http.createServer(app);
     server.listen(port, () => {
       this.logger.info(`Server starting on port ${port} in ${env} mode`);
     });
   }
 
-  private setupServerCreds(): { key: string; cert: string; ca: string } {
+  private static setupServerCreds(): { key: string; cert: string; ca: string } {
     const privateKey = fs.readFileSync(
       `/etc/letsencrypt/live/${PROD_API_HOSTNAME}/privkey.pem`,
       "utf8"

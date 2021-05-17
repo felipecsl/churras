@@ -42,7 +42,7 @@ test("Caches wallet address and tokens with accountCacheProvider", async () => {
     new FakeAccountTokensProvider(Object.values(ALL_ETHEREUM_TOKENS)),
   ];
   const modulesProvider = new ModulesProvider();
-  const accountSnapshot = modulesProvider.newAccountSnapshot({
+  const accountSnapshot = modulesProvider.newAccountTokensSnapshot({
     tokenPriceProviderFactory,
     ethBnbPriceFetcher,
     tokenBalanceResolver,
