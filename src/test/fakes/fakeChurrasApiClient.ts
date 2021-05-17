@@ -1,11 +1,11 @@
-import AccountSnapshot from "../../api/accountSnapshot";
+import AccountTokensSnapshot from "../../api/accountTokensSnapshot";
 import { WalletToken } from "../../api/token/walletToken";
 import { ChurrasApiClient } from "../../churrasapiClient";
 
 export default class FakeChurrasApiClient implements ChurrasApiClient {
-  private readonly accountSnapshot: AccountSnapshot;
+  private readonly accountSnapshot: AccountTokensSnapshot;
 
-  constructor(accountSnapshot: AccountSnapshot) {
+  constructor(accountSnapshot: AccountTokensSnapshot) {
     this.accountSnapshot = accountSnapshot;
   }
 

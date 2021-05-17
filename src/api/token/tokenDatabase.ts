@@ -29,6 +29,17 @@ export default class TokenDatabase {
     return this.tokensByAddress[address];
   }
 
+  findBySymbol(symbol: string): Token | undefined {
+    return this.tokensBySymbol[symbol];
+  }
+
+  findBySymbolOrThrow(
+    symbol: string,
+    msg: string = `Cannot find token with symbol ${symbol}`
+  ): Token {
+    return this.findBySymbol(symbol) ?? throwError(msg);
+  }
+
   findByAddressOrThrow(
     address: string,
     msg: string = `Cannot find token with address ${address}`

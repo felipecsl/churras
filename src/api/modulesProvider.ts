@@ -3,7 +3,8 @@ import { Express } from "express";
 import { Logger } from "pino";
 import { Network } from "../chain";
 import { DEFAULT_BSC_PROVIDER, DEFAULT_ETHEREUM_PROVIDER } from "../constants";
-import AccountSnapshot from "./accountSnapshot";
+import AccountFarmsSnapshot from "./accountFarmsSnapshot";
+import AccountTokensSnapshot from "./accountTokensSnapshot";
 import AutoFarmVault from "./integrations/autoFarmVault";
 import PancakeswapSyrupPool from "./integrations/pancakswapSyrupPool";
 import { AccountTokensProvider } from "./providers/accountTokensProvider";
@@ -61,7 +62,9 @@ export default class ModulesProvider {
     DEFAULT_TOKEN_DATABASE_FACTORY
   );
   readonly pancakeswapSyrupPool = new PancakeswapSyrupPool(
-    DEFAULT_NETWORK_PROVIDER_FACTORY
+    DEFAULT_NETWORK_PROVIDER_FACTORY,
+    DEFAULT_TOKEN_PRICE_PROVIDER_FACTORY,
+    DEFAULT_TOKEN_DATABASE_FACTORY
   );
   readonly accountTokensProviders = [
     new EthereumAccountTokensProvider(
@@ -71,13 +74,11 @@ export default class ModulesProvider {
     new BscAccountTokensProvider(DEFAULT_TOKEN_DATABASE_FACTORY),
   ];
 
-  newAccountSnapshot({
+  newAccountTokensSnapshot({
     tokenPriceProviderFactory = this.tokenPriceProviderFactory,
     tokenDatabaseFactory = this.tokenDatabaseFactory,
     tokenBalanceResolver = this.tokenBalanceResolver,
     ethBnbPriceFetcher = this.ethBnbPriceFetcher,
-    autoFarmVault = this.autoFarmVault,
-    pancakeswapSyrupPool = this.pancakeswapSyrupPool,
     accountTokensProviders = this.accountTokensProviders,
   }: {
     tokenPriceProviderFactory?: TokenPriceProviderFactory;
@@ -87,20 +88,27 @@ export default class ModulesProvider {
     autoFarmVault?: AutoFarmVault;
     pancakeswapSyrupPool?: PancakeswapSyrupPool;
     accountTokensProviders?: AccountTokensProvider[];
-  } = {}): AccountSnapshot {
-    return new AccountSnapshot({
+  } = {}): AccountTokensSnapshot {
+    return new AccountTokensSnapshot({
       tokenBalanceResolver,
       ethBnbPriceFetcher,
       tokenPriceProviderFactory,
       tokenDatabaseFactory,
-      autoFarmVault,
-      pancakeswapSyrupPool,
       accountTokensProviders,
     });
   }
 
   public newRequestHandler(app: Express, logger: Logger): RequestHandler {
-    const accountSnapshot = this.newAccountSnapshot();
-    return new RequestHandler(app, accountSnapshot, logger);
+    const accountTokensSnapshot = this.newAccountTokensSnapshot();
+    const accountFarmsSnapshot = new AccountFarmsSnapshot(
+      this.autoFarmVault,
+      this.pancakeswapSyrupPool
+    );
+    return new RequestHandler(
+      app,
+      accountTokensSnapshot,
+      accountFarmsSnapshot,
+      logger
+    );
   }
 }

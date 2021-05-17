@@ -1,12 +1,8 @@
 import debug from "debug";
 import { utils } from "ethers";
 import _ from "lodash";
-import AutoFarmVault, {
-  AutoFarmStakedVaultInfo,
-} from "./integrations/autoFarmVault";
-import PancakeswapSyrupPool, {
-  PancakeswapSyrupPoolInfo,
-} from "./integrations/pancakswapSyrupPool";
+import AutoFarmVault from "./integrations/autoFarmVault";
+import PancakeswapSyrupPool from "./integrations/pancakswapSyrupPool";
 import {
   EthBnbPricePair,
   EthBnbPriceProvider,
@@ -18,13 +14,11 @@ import Token, { BNB_TOKEN, ETH_TOKEN } from "./token/token";
 import { TokenBalanceResolver } from "./token/tokenBalanceResolver";
 import { WalletToken } from "./token/walletToken";
 
-export default class AccountSnapshot {
+export default class AccountTokensSnapshot {
   private readonly tokenPriceProviderFactory: TokenPriceProviderFactory;
   private readonly tokenDatabaseFactory: TokenDatabaseFactory;
   private readonly tokenBalanceResolver: TokenBalanceResolver;
   private readonly ethBnbPriceFetcher: EthBnbPriceProvider;
-  private readonly autoFarmVault: AutoFarmVault;
-  private readonly pancakeswapSyrupPool: PancakeswapSyrupPool;
   private readonly accountTokensProviders: AccountTokensProvider[];
   private readonly log = debug("churras:accountSnapshot");
 
@@ -33,24 +27,18 @@ export default class AccountSnapshot {
     tokenDatabaseFactory,
     tokenBalanceResolver,
     ethBnbPriceFetcher,
-    autoFarmVault,
-    pancakeswapSyrupPool,
     accountTokensProviders,
   }: {
     tokenPriceProviderFactory: TokenPriceProviderFactory;
     tokenDatabaseFactory: TokenDatabaseFactory;
     tokenBalanceResolver: TokenBalanceResolver;
     ethBnbPriceFetcher: () => EthBnbPricePair;
-    autoFarmVault: AutoFarmVault;
-    pancakeswapSyrupPool: PancakeswapSyrupPool;
     accountTokensProviders: AccountTokensProvider[];
   }) {
     this.tokenPriceProviderFactory = tokenPriceProviderFactory;
     this.tokenDatabaseFactory = tokenDatabaseFactory;
     this.tokenBalanceResolver = tokenBalanceResolver;
     this.ethBnbPriceFetcher = ethBnbPriceFetcher;
-    this.autoFarmVault = autoFarmVault;
-    this.pancakeswapSyrupPool = pancakeswapSyrupPool;
     this.accountTokensProviders = accountTokensProviders;
   }
 
@@ -81,20 +69,6 @@ export default class AccountSnapshot {
     );
     const tokens = _.flatten(await Promise.all(promises));
     return this.refreshTokens(accountAddress, tokens);
-  }
-
-  async loadYieldFarms(
-    accountAddress: string
-  ): Promise<[AutoFarmStakedVaultInfo, PancakeswapSyrupPoolInfo]> {
-    const { autoFarmVault, pancakeswapSyrupPool } = this;
-    const autoFarmVaultState = await autoFarmVault.loadVaultState(
-      6,
-      accountAddress
-    );
-    const pancakeswapSyrupPoolInfo = await pancakeswapSyrupPool.poolInfo(
-      accountAddress
-    );
-    return [autoFarmVaultState, pancakeswapSyrupPoolInfo];
   }
 
   /**
