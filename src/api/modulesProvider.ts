@@ -71,10 +71,7 @@ export default class ModulesProvider {
       DEFAULT_TOKEN_DATABASE_FACTORY,
       DEFAULT_NETWORK_PROVIDER_FACTORY
     ),
-    new BscAccountTokensProvider(
-      DEFAULT_TOKEN_DATABASE_FACTORY,
-      DEFAULT_NETWORK_PROVIDER_FACTORY
-    ),
+    new BscAccountTokensProvider(DEFAULT_TOKEN_DATABASE_FACTORY),
   ];
 
   newAccountTokensSnapshot({
