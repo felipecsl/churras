@@ -10,6 +10,9 @@ import TokenPricesProvider from "../providers/tokenPricesProvider";
 import TokenDatabase from "../token/tokenDatabase";
 import { throwError } from "../util";
 
+const CAKE_AUTOCOMPOUNDING_POOL_CONTRACT_ADDRESS =
+  "0xa80240Eb5d7E05d3F250cF000eEc0891d00b51CC";
+
 export interface PancakeswapSyrupPoolInfo {
   staked: number; // Total amount of Cake tokens deposited
   totalDeposit: number; // total USD amount deposited in vault
@@ -33,7 +36,11 @@ export default class PancakeswapSyrupPool {
   }
 
   async poolInfo(accountAddress: string): Promise<PancakeswapSyrupPoolInfo> {
-    const provider = this.bscNetworkProvider;
+    const {
+      bscNetworkProvider: provider,
+      bscTokenDatabase: tokenDatabase,
+      bscTokenPricesProvider: tokenPricesProvider,
+    } = this;
     // struct UserInfo {
     //     uint256 shares; // number of shares for a user
     //     uint256 lastDepositedTime; // keeps track of deposited time for potential penalty
@@ -46,7 +53,7 @@ export default class PancakeswapSyrupPool {
       "function totalShares() view returns (uint256)",
     ];
     const contract = new ethers.Contract(
-      "0xa80240Eb5d7E05d3F250cF000eEc0891d00b51CC", // Cake pool
+      CAKE_AUTOCOMPOUNDING_POOL_CONTRACT_ADDRESS,
       abi,
       provider
     );
@@ -60,10 +67,9 @@ export default class PancakeswapSyrupPool {
     const staked =
       (shares * +utils.formatEther(balanceOf)) /
       +utils.formatEther(totalShares);
-    const cakeAddress =
-      this.bscTokenDatabase.findBySymbolOrThrow("Cake").address;
+    const cakeAddress = tokenDatabase.findBySymbolOrThrow("Cake").address;
     const cakePrice =
-      (await this.bscTokenPricesProvider.fetchPrices([cakeAddress])).map(
+      (await tokenPricesProvider.fetchPrices([cakeAddress])).map(
         (r) => r.price
       )[0] ?? throwError("Cannot determine CAKE token price");
     const totalDeposit = staked * +cakePrice;
