@@ -11,7 +11,11 @@ export default class NavigationComponent extends React.Component<any, any> {
             <div className="flex items-center">
               <div className="flex-shrink-0 text-4xl">
                 <a href="https://churras.org">
-                  <img src={Logo} alt="Churras logo" width="64" height="64" />
+                  <img
+                    src={Logo}
+                    alt="Churras logo"
+                    className="fill-current filter dark:invert h-12"
+                  />
                 </a>
               </div>
               <div className="hidden md:block">

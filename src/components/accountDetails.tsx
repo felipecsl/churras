@@ -11,8 +11,10 @@ import { MetaMaskProvider } from "../api/providers/metamaskProvider";
 import { WalletToken } from "../api/token/walletToken";
 import { addressShorthand, any, isChainSupported, none } from "../api/util";
 import { Chain } from "../chain";
-import { ChurrasApiClient } from "../churrasapiClient";
+import { ChurrasApiClient } from "../churrasApiClient";
 import Copy from "../images/copy.svg";
+import FooterComponent from "./footerComponent";
+import NavigationComponent from "./navigationComponent";
 import TokenTableRow from "./tokenTableRow";
 
 export type RoutePropsParams = { accountAddress: string };
@@ -150,89 +152,104 @@ export default class AccountDetails extends React.Component<
     );
     const sortedTokens = sortDirection === "asc" ? tokens : tokens.reverse();
     return (
-      <>
-        {isLoadingTokens ? (
-          <div className="text-center">
-            <CircularProgress color="secondary" />
+      <div className="flex flex-col h-screen justify-between">
+        <NavigationComponent />
+        <header className="bg-white dark:bg-gray-800 shadow">
+          <div className="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
+            <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-300">
+              Dashboard
+            </h1>
           </div>
-        ) : (
-          any(walletTokens) && (
-            <div>
-              <h1 className="font-bold leading-8 text-4xl text-center mb-8">
-                <AnimatedNumber
-                  value={accountSize}
-                  formatValue={currencyFormat}
-                />
-              </h1>
-              {accountAddress && (
-                <div className="pb-3 overflow-auto">
-                  <code className="float-left">
-                    <small>{shorthandAddress}</small>
-                  </code>
-                  <img
-                    data-clipboard-text={accountAddress}
-                    alt="Copy to clipboard"
-                    title="Copy to clipboard"
-                    className="fill-current filter dark:invert ml-3 mt-2 cursor-pointer float-left"
-                    id="copy"
-                    src={Copy}
-                  />
-                  <Snackbar
-                    open={snackbarOpen}
-                    autoHideDuration={3000}
-                    onClose={this.handleCloseSnackbar.bind(this)}
-                  >
-                    <Alert
-                      onClose={this.handleCloseSnackbar.bind(this)}
-                      severity="info"
-                    >
-                      Copied!
-                    </Alert>
-                  </Snackbar>
+        </header>
+        <main className="mb-auto">
+          <div className="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
+            <div className="py-8 text-base leading-6 space-y-4 text-gray-700 dark:text-gray-300 sm:text-lg sm:leading-7">
+              {isLoadingTokens ? (
+                <div className="text-center">
+                  <CircularProgress color="secondary" />
                 </div>
-              )}
-              <div className="clear-both flex flex-col">
-                <div className="-my-2 overflow-x-auto sm:-mx-6 lg:-mx-8">
-                  <div className="py-2 align-middle inline-block min-w-full sm:px-6 lg:px-8">
-                    <div className="shadow overflow-hidden border-b border-gray-200 dark:border-gray-700 sm:rounded-lg">
-                      <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-800">
-                        <thead className="bg-gray-50 dark:bg-gray-900">
-                          <tr>
-                            {Object.keys(columns).map((col: string) => (
-                              <th
-                                scope="col"
-                                key={col}
-                                className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider hover:text-gray-900 dark:hover:text-gray-100"
-                              >
-                                <span
-                                  className="cursor-pointer"
-                                  onClick={(e) =>
-                                    this.sortTableBy(e.currentTarget)
-                                  }
-                                >
-                                  {col}
-                                </span>
-                              </th>
-                            ))}
-                          </tr>
-                        </thead>
-                        <tbody className="bg-white dark:bg-black divide-y divide-gray-200 dark:divide-gray-800">
-                          {sortedTokens.map((token: WalletToken) => (
-                            <TokenTableRow
-                              key={`${token.symbol}-${token.network}`}
-                              token={token}
-                            />
-                          ))}
-                        </tbody>
-                      </table>
+              ) : (
+                any(walletTokens) && (
+                  <div>
+                    <h1 className="font-bold leading-8 text-4xl text-center mb-8">
+                      <AnimatedNumber
+                        value={accountSize}
+                        formatValue={currencyFormat}
+                      />
+                    </h1>
+                    {accountAddress && (
+                      <div className="pb-3 overflow-auto">
+                        <code className="float-left">
+                          <small>{shorthandAddress}</small>
+                        </code>
+                        <img
+                          data-clipboard-text={accountAddress}
+                          alt="Copy to clipboard"
+                          title="Copy to clipboard"
+                          className="fill-current filter dark:invert ml-3 mt-2 cursor-pointer float-left"
+                          id="copy"
+                          src={Copy}
+                        />
+                        <Snackbar
+                          open={snackbarOpen}
+                          autoHideDuration={3000}
+                          onClose={this.handleCloseSnackbar.bind(this)}
+                        >
+                          <Alert
+                            onClose={this.handleCloseSnackbar.bind(this)}
+                            severity="info"
+                          >
+                            Copied!
+                          </Alert>
+                        </Snackbar>
+                      </div>
+                    )}
+                    <div className="clear-both flex flex-col">
+                      <div className="-my-2 overflow-x-auto sm:-mx-6 lg:-mx-8">
+                        <div className="py-2 align-middle inline-block min-w-full sm:px-6 lg:px-8">
+                          <div className="shadow overflow-hidden border-b border-gray-200 dark:border-gray-700 sm:rounded-lg">
+                            <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-800">
+                              <thead className="bg-gray-50 dark:bg-gray-900">
+                                <tr>
+                                  {Object.keys(columns).map((col: string) => (
+                                    <th
+                                      scope="col"
+                                      key={col}
+                                      className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider hover:text-gray-900 dark:hover:text-gray-100"
+                                    >
+                                      <span
+                                        className="cursor-pointer"
+                                        onClick={(e) =>
+                                          this.sortTableBy(e.currentTarget)
+                                        }
+                                      >
+                                        {col}
+                                      </span>
+                                    </th>
+                                  ))}
+                                </tr>
+                              </thead>
+                              <tbody className="bg-white dark:bg-black divide-y divide-gray-200 dark:divide-gray-800">
+                                {sortedTokens.map((token: WalletToken) => (
+                                  <TokenTableRow
+                                    key={`${token.symbol}-${token.network}`}
+                                    token={token}
+                                  />
+                                ))}
+                              </tbody>
+                            </table>
+                          </div>
+                        </div>
+                      </div>
                     </div>
                   </div>
-                </div>
-              </div>
+                )
+              )}
             </div>
-          )
-        )}
-      </>
+          </div>
+        </main>
+        <FooterComponent />
+      </div>
     );
   }
 }

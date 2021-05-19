@@ -2,7 +2,7 @@ import { render, screen } from "@testing-library/react";
 import React from "react";
 import AccountCacheProvider from "../../api/providers/accountCacheProvider";
 import { Chain } from "../../chain";
-import Landing from "../../components/landing";
+import ChurrasApp from "../../components/churrasApp";
 import FakeMetaMaskProvider from "../fakes/fakeMetaMaskProvider";
 import { flushPromises } from "../testUtil";
 
@@ -27,7 +27,7 @@ test("renders basic layout", () => {
     Chain.ETHEREUM_MAINNET
   );
   render(
-    <Landing
+    <ChurrasApp
       accountCacheProvider={new AccountCacheProvider()}
       metaMaskProvider={fakeMetaMaskProvider}
       chain={Chain.ETHEREUM_MAINNET}
@@ -45,7 +45,7 @@ test("Caches wallet address and tokens with accountCacheProvider", async () => {
     Chain.ETHEREUM_MAINNET
   );
   render(
-    <Landing
+    <ChurrasApp
       accountCacheProvider={accountCacheProvider}
       metaMaskProvider={fakeMetaMaskProvider}
       chain={Chain.ETHEREUM_MAINNET}
