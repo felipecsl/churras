@@ -112,7 +112,7 @@ export default class LandingPage extends React.Component {
                         <div className="-mr-2 -mb-4 absolute bottom-0 right-0 h-16 w-10 rounded-lg bg-green-700 border-2 border-white"></div>
                         <div className="w-2 h-2 rounded-full bg-green-800 mx-auto absolute bottom-0 right-0 mr-2 -mb-2 z-10 border-2 border-white"></div>
                       </div>
-                      <div className="text-gray-800 text-center">
+                      <div className="text-gray-800 text-center font-medium">
                         Token <br />
                         Transfers
                       </div>
@@ -139,7 +139,7 @@ export default class LandingPage extends React.Component {
                         <div className="w-8 h-8 bg-green-700 border-4 border-white rounded-full -ml-3 -mb-5"></div>
                       </div>
 
-                      <div className="text-gray-800 text-center">
+                      <div className="text-gray-800 text-center font-medium">
                         Wallet <br />
                         Services
                       </div>
@@ -167,7 +167,7 @@ export default class LandingPage extends React.Component {
                         </div>
                       </div>
 
-                      <div className="text-gray-800 text-center">
+                      <div className="text-gray-800 text-center font-medium">
                         Transaction <br />
                         History
                       </div>
@@ -441,22 +441,20 @@ export default class LandingPage extends React.Component {
         </div>
         <div className="px-4 py-20 md:py-4 dark:bg-white">
           <div className="md:max-w-6xl md:mx-auto flex pb-20">
-            <div className="md:flex md:flex-wrap w-1/2 pr-10">
+            <div className="md:flex md:flex-wrap w-1/2 pr-20">
               <header className="text-center md:text-left">
-                <h2 className="text-xl mb-5 font-semibold text-gray-500">
-                  What if Stripe met crypto
+                <h2 className="text-xl mb-5 font-semibold text-yellow-600">
+                  When Stripe meets crypto
                 </h2>
                 <h1 className="text-3xl font-bold mb-7">
                   Try our simple and intuitive API
                 </h1>
               </header>
-              <p className="text-gray-500 text-lg">
-                Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
-                eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut
-                enim ad minim veniam, quis nostrud exercitation ullamco laboris
-                nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor
-                in reprehenderit in voluptate velit esse cillum dolore eu fugiat
-                nulla pariatur.
+              <p className="text-gray-500 text-lg font-medium">
+                Stop wasting hours figuring out how to call a contract method, finding the exact ABI signature,
+                parsing raw logs and connecting to nodes directly. Churras abstracts away that complexity
+                from you, so you can focus on what matters: building your application. We obsess over
+                those details so you don't have to.
               </p>
             </div>
             <div className="rounded-xl bg-gray-800 w-1/2 shadow-lg font-mono text-white text-sm">
