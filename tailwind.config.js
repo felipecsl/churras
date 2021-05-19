@@ -21,7 +21,7 @@ module.exports = {
   },
   variants: {
     extend: {
-      invert: ["dark"],
+      invert: ["dark"]
     },
   },
   plugins: [],

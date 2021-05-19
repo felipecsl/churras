@@ -102,7 +102,7 @@ export default class FooterComponent extends React.Component<any, any> {
         <div className="container mx-auto px-6">
           <div className="mt-16 border-t-2 border-gray-200 dark:border-gray-600 flex flex-col items-center">
             <div className="sm:w-2/3 text-center py-6">
-              <p className="text-sm font-bold mb-2">Built with ❤️ and ☕️</p>
+              <p className="text-sm font-bold mb-2">Built with ❤️ and ☕️ from around the world</p>
             </div>
           </div>
         </div>
