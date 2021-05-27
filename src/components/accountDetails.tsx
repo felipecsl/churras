@@ -11,7 +11,7 @@ import { MetaMaskProvider } from "../api/providers/metamaskProvider";
 import { WalletToken } from "../api/token/walletToken";
 import { addressShorthand, any, isChainSupported, none } from "../api/util";
 import { Chain } from "../chain";
-import { ChurrasApiClient } from "../churrasapiClient";
+import { ChurrasApiClient } from "../churrasApiClient";
 import Copy from "../images/copy.svg";
 import TokenTableRow from "./tokenTableRow";
 
