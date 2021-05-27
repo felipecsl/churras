@@ -73,7 +73,7 @@ export default class LandingPage extends React.Component {
                   <h1 className="font-bold text-2xl md:text-5xl md:leading-tight mb-4 bg-gradient-to-r from-green-300 to-blue-300 bg-clip-text text-transparent" id="how-it-works">
                     The cross-blockchain developer API
                   </h1>
-                  <p className="text-indigo-200 md:text-xl md:pr-48">
+                  <p className="text-indigo-200 md:text-xl md:pr-48 font-medium">
                     Build dApps in hours instead of months with our easy to use
                     API. Manage your crypto wallets, tokens and transactions.
                   </p>
@@ -494,7 +494,7 @@ export default class LandingPage extends React.Component {
             </div>
           </div>
         </div>
-        <div className="py-12 bg-white">
+        <div className="pt-12 pb-40 bg-white">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="lg:text-center">
               <h2 className="text-base text-yellow-600 font-semibold tracking-wide uppercase">Get ahead of the curve</h2>
@@ -514,7 +514,7 @@ export default class LandingPage extends React.Component {
                     <p className="ml-16 text-lg leading-6 font-medium text-gray-900">Ready to scale with your business</p>
                   </dt>
                   <dd className="mt-2 ml-16 text-base text-gray-500">
-                    Lorem ipsum, dolor sit amet consectetur adipisicing elit. Maiores impedit perferendis suscipit eaque, iste dolor cupiditate blanditiis ratione.
+                    We're ready to scale according to your business needs. Churras was designed to adapt to spikes in request traffic as needed.
                   </dd>
                 </div>
                 <div className="relative">
@@ -527,7 +527,7 @@ export default class LandingPage extends React.Component {
                     <p className="ml-16 text-lg leading-6 font-medium text-gray-900">No hidden fees</p>
                   </dt>
                   <dd className="mt-2 ml-16 text-base text-gray-500">
-                    Lorem ipsum, dolor sit amet consectetur adipisicing elit. Maiores impedit perferendis suscipit eaque, iste dolor cupiditate blanditiis ratione.
+                    With a simple pricing, you always know what you'll pay. Cancel at anytime.
                   </dd>
                 </div>
                 <div className="relative">
@@ -540,7 +540,8 @@ export default class LandingPage extends React.Component {
                     <p className="ml-16 text-lg leading-6 font-medium text-gray-900">Built for developers</p>
                   </dt>
                   <dd className="mt-2 ml-16 text-base text-gray-500">
-                    Lorem ipsum, dolor sit amet consectetur adipisicing elit. Maiores impedit perferendis suscipit eaque, iste dolor cupiditate blanditiis ratione.
+                    Churras was built with developer happiness and productivity in mind. Figuring out
+                    how to use our API should be fun and intuitive.
                   </dd>
                 </div>
                 <div className="relative">
@@ -553,7 +554,7 @@ export default class LandingPage extends React.Component {
                     <p className="ml-16 text-lg leading-6 font-medium text-gray-900">Guaranteed reliability</p>
                   </dt>
                   <dd className="mt-2 ml-16 text-base text-gray-500">
-                    Lorem ipsum, dolor sit amet consectetur adipisicing elit. Maiores impedit perferendis suscipit eaque, iste dolor cupiditate blanditiis ratione.
+                    Regardless of your business size, our team works around the clock to support you, included with all accounts.
                   </dd>
                 </div>
               </dl>
