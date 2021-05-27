@@ -1,4 +1,5 @@
 import React from "react";
+import EmailSignUpFormComponent from "./components/emailSignUpForm";
 import FooterComponent from "./components/footerComponent";
 import ThemeSelector from "./components/themeSelector";
 import Logo from "./images/logo.svg";
@@ -70,7 +71,7 @@ export default class LandingPage extends React.Component {
             <div className="md:max-w-6xl md:mx-auto">
               <div className="md:flex md:flex-wrap">
                 <div className="md:w-1/2 text-center md:text-left md:pt-16">
-                  <h1 className="font-bold text-2xl md:text-5xl md:leading-tight mb-4 bg-gradient-to-r from-green-300 to-blue-300 bg-clip-text text-transparent" id="how-it-works">
+                  <h1 className="font-bold text-5xl md:leading-tight mb-4 bg-gradient-to-r from-green-300 to-blue-300 bg-clip-text text-transparent" id="how-it-works">
                     The cross-blockchain developer API
                   </h1>
                   <p className="text-indigo-200 md:text-xl md:pr-48 font-medium">
@@ -81,7 +82,7 @@ export default class LandingPage extends React.Component {
                     href="/app"
                     className="mt-6 mb-12 md:mb-0 md:mt-10 inline-block py-3 px-8 text-gray-700 font-semibold bg-yellow-500 hover:bg-yellow-600 rounded-lg shadow"
                   >
-                    Get Started
+                    Try the demo
                   </a>
                 </div>
                 <div className="md:w-1/2 relative">
@@ -113,7 +114,7 @@ export default class LandingPage extends React.Component {
                       </div>
                       <div className="text-gray-800 text-center font-medium">
                         Token <br />
-                        Transfers
+                        Transfers API
                       </div>
                     </div>
                     <div
@@ -137,7 +138,7 @@ export default class LandingPage extends React.Component {
                       </div>
                       <div className="text-gray-800 text-center font-medium">
                         Wallet <br />
-                        Services
+                        Services API
                       </div>
                     </div>
                     <div
@@ -161,7 +162,7 @@ export default class LandingPage extends React.Component {
                       </div>
                       <div className="text-gray-800 text-center font-medium">
                         Transaction <br />
-                        History
+                        History API
                       </div>
                     </div>
                     <div
@@ -432,7 +433,7 @@ export default class LandingPage extends React.Component {
                     </div>
                     <div className="text-gray-800 text-center text-sm font-medium">
                       Transaction <br />
-                      History
+                      History API
                     </div>
                   </div>
                 </div>
@@ -494,12 +495,12 @@ export default class LandingPage extends React.Component {
             </div>
           </div>
         </div>
-        <div className="pt-12 pb-40 bg-white">
+        <div className="pt-12 pb-24 bg-white">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="lg:text-center">
               <h2 className="text-base text-yellow-600 font-semibold tracking-wide uppercase">Get ahead of the curve</h2>
               <p className="mt-2 text-3xl leading-8 font-bold tracking-tight text-gray-900">
-                Leverage Churras and join the web3 movement
+                Why we think you'll love Churras
               </p>
             </div>
             <div className="mt-10">
@@ -527,7 +528,7 @@ export default class LandingPage extends React.Component {
                     <p className="ml-16 text-lg leading-6 font-medium text-gray-900">No hidden fees</p>
                   </dt>
                   <dd className="mt-2 ml-16 text-base text-gray-500">
-                    With a simple pricing, you always know what you'll pay. Cancel at anytime.
+                    You always know what you'll pay with our simple pricing. Cancel at anytime.
                   </dd>
                 </div>
                 <div className="relative">
@@ -554,10 +555,23 @@ export default class LandingPage extends React.Component {
                     <p className="ml-16 text-lg leading-6 font-medium text-gray-900">Guaranteed reliability</p>
                   </dt>
                   <dd className="mt-2 ml-16 text-base text-gray-500">
-                    Regardless of your business size, our team works around the clock to support you, included with all accounts.
+                    Regardless of your business size, our team works around the clock to support you. Included with all accounts.
                   </dd>
                 </div>
               </dl>
+            </div>
+          </div>
+        </div>
+        <div className="pt-24 pb-40 bg-gray-100">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="lg:text-center">
+              <h2 className="text-base text-yellow-600 font-semibold tracking-wide uppercase">We're hard at work building it</h2>
+              <p className="mt-2 text-3xl leading-8 font-bold tracking-tight text-gray-900">
+                Get notified and be the first to know when it's ready
+              </p>
+            </div>
+            <div className="mt-10 max-w-md mx-auto">
+              <EmailSignUpFormComponent />
             </div>
           </div>
         </div>
