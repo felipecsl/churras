@@ -51,3 +51,10 @@ export async function fetchJson(url: string): Promise<any> {
   const res = await fetch(url);
   return await res.json();
 }
+
+export async function postJson(url: string, postParams: any): Promise<any> {
+  const log = debug("churras:postJson");
+  log(`Fetching ${url}`);
+  const res = await fetch(url, postParams);
+  return await res.json();
+}

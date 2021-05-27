@@ -1,4 +1,5 @@
 import React from "react";
+import { postJson } from "../api/util";
 
 const states = {
   INITIAL: "initial",
@@ -40,7 +41,7 @@ export default class EmailSignUpFormComponent extends React.Component<
     return String(str).replace(/</g, "&lt;").replace(/>/g, "&gt;");
   }
 
-  onSubmit(event: any) {
+  async onSubmit(event: any) {
     event.preventDefault();
     this.setState({
       currentState: states.LOADING,
@@ -57,25 +58,17 @@ export default class EmailSignUpFormComponent extends React.Component<
       headers: { "Content-Type": "application/json", },
       body: JSON.stringify(body),
     };
-    fetch(url, postParams)
-      .then((response) => {
-        if (response.ok) {
-          return response.json();
-        } else {
-          throw response;
-        }
-      })
-      .then((_) => {
-        this.setState({ currentState: states.SUBSCRIBED });
-      })
-      .catch((error) => {
-        error.json().then((msg: any) => {
-          this.setState({
-            currentState: states.FAILED,
-            errorMessage: `Email ${msg.email}`,
-          });
+    try {
+      await postJson(url, postParams);
+      this.setState({ currentState: states.SUBSCRIBED });
+    } catch(error: any) {
+      error.json().then((msg: any) => {
+        this.setState({
+          currentState: states.FAILED,
+          errorMessage: `Email ${msg.email}`,
         });
       });
+    }
   }
 
   onChange(event: any) {
