@@ -3,8 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
-    "@babel/core": "7.12.3",
-    "@craco/craco": "^6.1.0",
+    "@craco/craco": "^6.1.2",
     "@ethersproject/address": "^5.0.10",
     "@ethersproject/contracts": "^5.0.11",
     "@ethersproject/networks": "^5.0.8",
@@ -36,11 +35,6 @@
     "@uniswap/v2-periphery": "^1.1.0-beta.0",
     "animated-number-react": "^0.1.2",
     "autoprefixer": "^9",
-    "babel-eslint": "^10.1.0",
-    "babel-jest": "^26.6.0",
-    "babel-loader": "8.1.0",
-    "babel-plugin-named-asset-import": "^0.3.7",
-    "babel-preset-react-app": "^10.0.0",
     "bfj": "^7.0.2",
     "binance-api-node": "^0.10.33",
     "camelcase": "^6.1.0",
@@ -194,9 +188,7 @@
     ],
     "resetMocks": true
   },
-  "babel": {
-    "presets": [
-      "react-app"
-    ]
+  "devDependencies": {
+    "craco-esbuild": "^0.3.2"
   }
 }
