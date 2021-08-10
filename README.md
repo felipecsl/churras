@@ -13,6 +13,10 @@ so you'll also be able to track your yield farms, pools and NFTs.
 
 In the project directory, you can run:
 
+### `yarn run api:run`
+
+Start the API server
+
 ### `yarn start`
 
 Runs the app in the development mode.\

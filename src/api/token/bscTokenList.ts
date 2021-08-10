@@ -5331,7 +5331,7 @@ export const ALL_BSC_TOKENS = Object.fromEntries(
         address: key,
         decimals: 18,
         network: Network[Network.BSC],
-        logoURI: `https://exchange.pancakeswap.finance/images/coins/${key}.png`,
+        logoURI: `https://pancakeswap.finance/images/tokens/${key}.png`,
       } as Token,
     ]
   )
