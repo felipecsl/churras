@@ -1,12 +1,12 @@
 import React from "react";
 import ReactDOM from "react-dom";
-import App from "./App";
+import ChurrasRouter from "./churrasRouter";
 import "./index.css";
 import reportWebVitals from "./reportWebVitals";
 
 ReactDOM.render(
   <React.StrictMode>
-    <App />
+    <ChurrasRouter />
   </React.StrictMode>,
   document.getElementById("root")
 );

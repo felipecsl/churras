@@ -14,14 +14,24 @@ export default class FooterComponent extends React.Component<any, any> {
               <div>
                 <div className="my-2 text-5xl">
                   <a href="https://churras.org">
-                    <img src={Logo} alt="Churras logo" width="64" height="64" />
+                    <img
+                      src={Logo}
+                      alt="Churras logo"
+                      width="64"
+                      height="64"
+                      className="fill-current filter dark:invert"
+                    />
                   </a>
                 </div>
                 <div className="my-5">
                   <p className="leading-relaxed">
-                    Churras is your DeFi wallet dashboard. <br /> It supports
-                    both Ethereum and Binance Smart Chain. <br /> Track your
-                    account balance, tokens, yields and <br /> be your own bank.
+                    Churras is a comprehensive and reliable API for manipulating
+                    <br />
+                    crypto wallets. It currently supports both Ethereum and{" "}
+                    <br />
+                    Binance Smart Chain. Track your account balance, tokens,{" "}
+                    <br />
+                    transactions, yields and be your own bank.
                   </p>
                 </div>
                 <div className="my-5 flex">
@@ -92,12 +102,7 @@ export default class FooterComponent extends React.Component<any, any> {
         <div className="container mx-auto px-6">
           <div className="mt-16 border-t-2 border-gray-200 dark:border-gray-600 flex flex-col items-center">
             <div className="sm:w-2/3 text-center py-6">
-              <p className="text-sm font-bold mb-2">
-                Built with ☕️ by{" "}
-                <a className="underline" href="https://felipecsl.com">
-                  Felipe Lima
-                </a>
-              </p>
+              <p className="text-sm font-bold mb-2">Built with ❤️ and ☕️ from around the world</p>
             </div>
           </div>
         </div>
